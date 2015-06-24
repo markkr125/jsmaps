@@ -381,6 +381,12 @@ jsMaps.MarkerStructure = function () {
         setPosition: function (lat, lng) {
         },
 
+        getVisible: function () {
+        },
+
+        setVisible: function (variable) {
+        },
+
         /**
          * @returns jsMaps.BoundsStructure
          */
@@ -529,13 +535,13 @@ jsMaps.addEventListener = function (el, eventName, handler) {
         });
     }
 };
-
 jsMaps.removeEventListener = function (el, eventName, handler) {
     if (el.removeEventListener)
         el.removeEventListener(eventName, handler);
     else
         el.detachEvent('on' + eventName, handler);
 };
+
 
 if (typeof Array.isArray === 'undefined') {
     Array.isArray = function(obj) {

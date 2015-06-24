@@ -45,7 +45,7 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
         jsMaps.Here.MapCenter = {lat: center.lat,lng: center.lng};
     });
 
-    hooking.prototype.object = {map: map,behavior: behavior,ui: ui};
+    hooking.prototype.object = {map: map,behavior: behavior,ui: ui, mapDomDocument: mapDomDocument};
 
     hooking.prototype.getCenter = function () {
         return {lat: jsMaps.Here.MapCenter.lat, lng: jsMaps.Here.MapCenter.lng};
@@ -112,22 +112,29 @@ jsMaps.Here.prototype.attachEvent = function (content,event,fn,once) {
     if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
     if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'pointerup';
     if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'pointerdown';
+    if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'visibilitychange';
 
     var obj = content.object;
     if (typeof obj.map != 'undefined') obj = obj.map;
 
     // Marker icon change
-    if (event == jsMaps.api.supported_events.icon_changed) {
-        jsMaps.addEventListener(content,jsMaps.api.supported_events.icon_changed, function () {
+    /*if (event == jsMaps.api.additional_events.icon_changed) {
+
+        var element = content;
+        if (typeof content.mapDomDocument !='undefined') {
+            element = content.mapDomDocument;
+        }
+
+        jsMaps.addEventListener(element,jsMaps.api.supported_events.icon_changed, function () {
             if (once == true) {
-                jsMaps.removeEventListener(content, jsMaps.api.supported_events.icon_changed, function () {});
+                jsMaps.removeEventListener(element, jsMaps.api.supported_events.icon_changed, function () {});
             }
 
             fn();
         });
 
-        return {eventObjCustom: content, eventName: event};
-    }
+        return {eventObjCustom: element, eventName: event};
+    }*/
 
     if (typeof once != 'undefined' && once == true) {
         if (typeof obj.onceEventListener == "function") {
@@ -246,10 +253,15 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
         var target = ev.target,
             pointer = ev.currentPointer;
         if (target instanceof mapsjs.map.Marker) {
-            target.setPosition(obj.screenToGeo(pointer.viewportX, pointer.viewportY));
+            var pos = obj.screenToGeo(pointer.viewportX, pointer.viewportY);
+
+            target.setPosition(pos);
         }
+
+
     }, false);
 };
+
 
 /**
  * Generate markers
@@ -275,7 +287,6 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
 
     obj.addObject(marker);
 
-
     if (parameters.draggable != null) {
         marker.setData(true);
         jsMaps.Here.DraggableMarker(obj,behavior);
@@ -287,6 +298,7 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
     hooking.prototype = new jsMaps.MarkerStructure();
 
     hooking.prototype.object = marker;
+    hooking.prototype.mapDomDocument = map.object.mapDomDocument;
 
     /**
      *
@@ -298,6 +310,9 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
     };
 
     hooking.prototype.setPosition = function (lat, lng) {
+        var evt = new H.util.Event('dragend');
+
+        this.object.dispatchEvent(evt);
         this.object.setPosition({lat: lat, lng: lng});
     };
 
@@ -306,6 +321,7 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
     };
 
     hooking.prototype.setIcon = function (icon) {
+        this.object.dispatchEvent('visibilitychange');
         this.object.setIcon(new H.map.Icon(icon));
     };
 
@@ -315,6 +331,14 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
 
     hooking.prototype.setZIndex = function (number) {
         this.object.setZIndex(number);
+    };
+
+    hooking.prototype.getVisible = function () {
+        return this.object.getVisibility();
+    };
+
+    hooking.prototype.setVisible = function (variable) {
+        return this.object.setVisibility(variable);
     };
 
     hooking.prototype.setDraggable = function (flag) {
@@ -396,3 +420,260 @@ jsMaps.Here.prototype.infoWindow = function (parameters) {
 
     return new hooking();
 };
+
+jsMaps.Here.ReturnStrip = function (path) {
+    var strip = new H.geo.Strip();
+
+    if (typeof path == 'undefined' || path == []) return [];
+
+    for (var i in path) {
+        if (path.hasOwnProperty(i) == false) continue;
+
+        if (Array.isArray(path[i])) {
+            var recentArray = [];
+            for (var c in path[i]) {
+                if (path[i].hasOwnProperty(c) == false) continue;
+                strip.pushLatLngAlt(path[i][c].lat, path[i][c].lng);
+            }
+        } else {
+            strip.pushLatLngAlt(path[i].lat,path[i].lng);
+        }
+    }
+
+    return strip;
+};
+
+
+jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
+    // disable the default draggability of the underlying map
+    // when starting to drag a marker object:
+    obj.addEventListener('dragstart', function (ev) {
+        var target = ev.target;
+        if (target instanceof H.map.Marker) {
+            var data = target.getData();
+
+            if (typeof data.line!='undefined') {
+                behavior.disable();
+            }
+        }
+    }, false);
+
+
+    // re-enable the default draggability of the underlying map
+    // when dragging has completed
+    obj.addEventListener('dragend', function (ev) {
+        var target = ev.target;
+        if (target instanceof mapsjs.map.Marker) {
+            behavior.enable();
+
+            var data = target.getData();
+
+            if (typeof data.line!='undefined') {
+                behavior.enable();
+            }
+        }
+    }, false);
+
+    // Listen to the drag event and move the position of the marker
+    // as necessary
+    obj.addEventListener('drag', function (ev) {
+
+        var target = ev.target,
+            pointer = ev.currentPointer;
+        if (target instanceof mapsjs.map.Marker) {
+
+            var data = target.getData();
+            if (typeof data.line!='undefined') {
+                var pos = obj.screenToGeo(pointer.viewportX, pointer.viewportY);
+
+                target.setPosition(pos);
+
+                var old_pos = data['pos'];
+
+                var arrayOfPaths = [];
+                var path = data['line'].getStrip();
+
+                var eachFn = function(lat, lng, alt, idx) {
+                    if (lat == old_pos.lat && lng ==old_pos.lng) {
+                        lat = pos.lat;
+                        lng = pos.lng;
+                    }
+
+                    arrayOfPaths.push ({lat: lat, lng: lng});
+                };
+
+                path.eachLatLngAlt(eachFn);
+                data['line'].setStrip(jsMaps.Here.ReturnStrip(arrayOfPaths));
+                data['pos'] = pos;
+                target.setData(data);
+            }
+        }
+
+
+    }, false);
+};
+
+jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior) {
+    var markers = [];
+
+    for (var i in path) {
+        if (path.hasOwnProperty(i) == false) continue;
+
+        var marker =  new H.map.Marker({lat:path[i].lat, lng:  path[i].lng});
+        marker.setData({line: PolyLine,pos: {lat:path[i].lat, lng:  path[i].lng}});
+        marker.draggable = true;
+
+        obj.addObject(marker);
+
+        jsMaps.Here.DraggablePolylineMarker(obj,behavior);
+
+        markers.push(marker);
+    }
+
+    return markers;
+};
+
+/**
+ * Create PolyLine
+ *
+ * draggable is not supported
+ *
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.PolyLineOptions} parameters
+ * @returns jsMaps.PolyLineStructure
+ */
+jsMaps.Here.prototype.polyLine = function (map,parameters) {
+    var options = {
+        zIndex: parameters.zIndex,
+        visibility: parameters.visible,
+        style: { lineWidth: parameters.strokeWeight, strokeColor: parameters.strokeColor }
+    };
+
+    var PolyLine = new H.map.Polyline(jsMaps.Here.ReturnStrip(parameters.path), options);
+
+    var obj = map.object.map;
+    var behavior = map.object.behavior;
+
+    obj.addObject(PolyLine);
+
+    var markers = undefined;
+
+    if (parameters.editable != null && parameters.editable == true) {
+        PolyLine.setData({'editEvent':true});
+        markers = jsMaps.Here.EditPolyLine(parameters.path,PolyLine,obj,behavior);
+    } else {
+        PolyLine.setData({'editEvent':false});
+    }
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.PolygonStructure();
+
+    hooking.prototype.object = PolyLine;
+
+    hooking.prototype.getEditable = function () {
+        return this.object.getEditable();
+    };
+
+    hooking.prototype.getPath = function () {
+        var arrayOfPaths = [];
+        var path = this.object.getStrip();
+
+
+        var eachFn = function(lat, lng, alt, idx) {
+            arrayOfPaths.push ({lat: lat, lng: lng});
+        };
+
+        path.eachLatLngAlt(eachFn);
+
+        return arrayOfPaths;
+    };
+
+    hooking.prototype.getPaths = function () {
+        return hooking.prototype.getPath();
+    };
+
+    hooking.prototype.getVisible = function () {
+        return this.object.getVisibility();
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+       // Not supported
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        if (editable == true){
+            if (typeof markers == 'undefined') {
+                this.object.setData({'editEvent':true});
+                markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
+            }
+        }
+        else {
+            this.object.setData({'editEvent':false});
+
+            if (typeof markers!='undefined' && markers.length > 0) {
+                for (var o in markers) {
+                    if (markers.hasOwnProperty(o) == false) continue;
+                    obj.removeObject(markers[o]);
+                }
+
+                markers = undefined;
+            }
+        }
+    };
+
+    hooking.prototype.setPath = function (pathArray) {
+        this.object.setStrip(jsMaps.Here.ReturnStrip(pathArray));
+    };
+
+    hooking.prototype.setPaths = function (pathsArray) {
+        hooking.prototype.setPath(pathsArray);
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        var originMap =this.object.getRootGroup();
+
+        if (typeof markers!='undefined' && markers.length > 0) {
+            for (var o in markers) {
+                if (markers.hasOwnProperty(o) == false) continue;
+                originMap.removeObject(markers[o]);
+                map.object.map.addObject(markers[o]);
+            }
+        }
+
+        originMap.removeObject(this.object);
+        map.object.map.addObject(this.object);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        if (typeof markers!='undefined' && markers.length > 0) {
+            for (var o in markers) {
+                if (markers.hasOwnProperty(o) == false) continue;
+                markers[o].setVisibility(visible);
+            }
+        }
+
+        this.object.setVisibility(visible);
+    };
+
+    hooking.prototype.removeLine = function () {
+        var mapObjectTmp = this.object.getRootGroup();
+
+        if (typeof markers!='undefined' && markers.length > 0) {
+            for (var o in markers) {
+                if (markers.hasOwnProperty(o) == false) continue;
+                mapObjectTmp.removeObject(markers[o]);
+            }
+
+            markers = undefined;
+        }
+
+        mapObjectTmp.removeObject(this.object);
+    };
+
+    return new hooking();
+};
+

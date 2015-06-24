@@ -183,6 +183,14 @@ jsMaps.Google.prototype.marker = function (map,parameters) {
         this.object.setPosition(new google.maps.LatLng(lat, lng));
     };
 
+    hooking.prototype.getVisible = function () {
+       return this.object.getVisible();
+    };
+
+    hooking.prototype.setVisible = function (variable) {
+        return this.object.setVisible(variable);
+    };
+
     hooking.prototype.getIcon = function () {
         return marker.getIcon();
     };
@@ -270,9 +278,8 @@ jsMaps.Google.toGooglePath =  function (path) {
             var recentArray = [];
             for (var c in path[i]) {
                 if (path[i].hasOwnProperty(c) == false) continue;
-                recentArray.push(new google.maps.LatLng(path[i].lat, path[i].lng));
+                recentArray.push(new google.maps.LatLng(path[i][c].lat, path[i][c].lng));
             }
-
             newPath.push(recentArray);
         } else {
             newPath.push(new google.maps.LatLng(path[i].lat, path[i].lng));
