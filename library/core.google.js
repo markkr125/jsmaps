@@ -425,7 +425,7 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
     Polygon.setMap(map.object);
 
     var hooking = function () {};
-    hooking.prototype = new jsMaps.PolyLineStructure();
+    hooking.prototype = new jsMaps.PolygonStructure();
 
     hooking.prototype.object = Polygon;
 
