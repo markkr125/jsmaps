@@ -21,7 +21,7 @@ jsMaps.infoWindowOptions = {
 };
 
 jsMaps.staticMapOptions = {
-    supported_map_types: ['roadmap','satellite','terrain'],
+    supported_map_types: {'roadmap': 'roadmap','satellite': 'satellite','terrain': 'terrain'},
 
     /**
      * @param {{lat: *, lng: *}
@@ -53,30 +53,37 @@ jsMaps.staticMapMarker = function (color,label, lat, lng) {
     };
 };
 
-jsMaps.supported_Address_types = [
-    'street_address',
-    'route',
-    'intersection',
-    'political',
-    'country',
-    'administrative_area_level_1',
-    'administrative_area_level_2',
-    'administrative_area_level_3',
-    'administrative_area_level_4',
-    'administrative_area_level_5',
-    'colloquial_area',
-    'locality',
-    'ward',
-    'sublocality',
-    'neighborhood',
-    'premise',
-    'subpremise',
-    'postal_code',
-    'natural_feature',
-    'airport',
-    'park',
-    'point_of_interest'
-];
+jsMaps.supported_Address_types = {
+    'street_address':'street_address',
+    'route':'route',
+    'intersection':'intersection',
+    'political':'political',
+    'country':'country',
+    'administrative_area_level_1':'administrative_area_level_1',
+    'administrative_area_level_2':'administrative_area_level_2',
+    'administrative_area_level_3':'administrative_area_level_3',
+    'administrative_area_level_4':'administrative_area_level_4',
+    'administrative_area_level_5':'administrative_area_level_5',
+    'colloquial_area':'colloquial_area',
+    'locality':'locality',
+    'ward':'ward',
+    'sublocality':'sublocality',
+    'neighborhood':'neighborhood',
+    'premise':'premise',
+    'subpremise':'subpremise',
+    'postal_code':'postal_code',
+    'natural_feature':'natural_feature',
+    'airport':'airport',
+    'park':'park',
+    'point_of_interest':'point_of_interest'
+};
+
+jsMaps.supported_location_types = {
+    "ROOFTOP": "ROOFTOP",
+    "RANGE_INTERPOLATED": "RANGE_INTERPOLATED",
+    "GEOMETRIC_CENTER": "GEOMETRIC_CENTER",
+    "APPROXIMATE": "APPROXIMATE"
+};
 
 jsMaps.geo = function () {};
 jsMaps.geo.Location = function (lat,lng) {
@@ -100,7 +107,7 @@ jsMaps.geo.View_port = function () {
  *
  * @param {jsMaps.geo.location} location
  * @param {jsMaps.geo.View_port} view_port
- * @returns {{location: jsMaps.geo.location, geometry: jsMaps.geo.View_port}}
+ * @returns {{location: jsMaps.geo.location, view_port: jsMaps.geo.View_port}}
  */
 jsMaps.Geometry = function (location, view_port) {
     return {location: location, view_port: view_port};
@@ -125,16 +132,19 @@ jsMaps.AddressSearchResult = function (address,result_type,partial,geometry) {
  * @param weight
  * @param path
  * @returns {{color: *, weight: *, path: {lat: number, lng: number}[]}}
+ * @param fillColor
  */
-jsMaps.staticMapPath = function (color, weight ,path) {
+jsMaps.staticMapPath = function (color, weight ,path, fillColor) {
     var supported_colors = {'black': '000000', 'brown': 'A52A2A', 'green': '008000', 'purple': '800080', 'yellow':'FFFF00', 'blue':'0000FF', 'gray':'808080', 'orange':'FFA500', 'red':'FF0000', 'white':'FFFFFF'};
 
     if (typeof supported_colors[color]!='undefined') color = supported_colors[color];
+    if (typeof supported_colors[fillColor]!='undefined') fillColor = supported_colors[fillColor];
 
     return {
         color: color,
         weight: weight,
-        path: path
+        path: path,
+        fillColor: fillColor
     };
 };
 

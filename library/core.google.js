@@ -498,6 +498,8 @@ jsMaps.Google.prototype.staticMap = function (parameters,markers,path) {
         mapParts.push('zoom='+encodeURIComponent(parameters.zoom));
     }
 
+    if (typeof parameters.maptype == 'undefined') parameters.maptype = jsMaps.staticMapOptions.supported_map_types.roadmap;
+
     mapParts.push('size='+encodeURIComponent(parameters.size.width+'x'+parameters.size.height));
     mapParts.push('maptype='+encodeURIComponent(parameters.maptype));
 
@@ -519,6 +521,7 @@ jsMaps.Google.prototype.staticMap = function (parameters,markers,path) {
 
     if (typeof path != 'undefined') {
         var pathData = 'color:0x'+path.color+'|weight:'+path.weight;
+        if (typeof path.fillColor != 'undefined') pathData += '|fillcolor:0x'+path.fillColor;
 
         for (var p in path.path) {
             if (path.path.hasOwnProperty(p) == false) continue;

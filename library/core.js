@@ -1,5 +1,12 @@
 var SUPPORTED_MAP_PROVIDERS = ['google','here'];
 
+jsMaps.config = {
+    here: {
+        app_id: '',
+        app_code: ''
+    }
+};
+
 jsMaps.api = {
     /**
      * @type jsMaps.Abstract
@@ -85,7 +92,7 @@ jsMaps.api = {
     attach_event: function (element,event,fn,once) {
         if (this.object == null) throw "Invalid map object";
 
-        return this.object.attachEvent(element,event,fn,once);
+        return this.object.attachEvent(element,event,fn.bind(element),once);
     },
 
     /**

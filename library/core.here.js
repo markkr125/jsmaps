@@ -12,6 +12,9 @@ jsMaps.Here.MapZoom = 0;
  * @returns {jsMaps.MapStructure}
  */
 jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, providerOptions) {
+    providerOptions.app_id = jsMaps.config.here.app_id;
+    providerOptions.app_code = jsMaps.config.here.app_code;
+
     var platform = new H.service.Platform(providerOptions);
     var defaultLayers = platform.createDefaultLayers();
 
@@ -87,7 +90,7 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
  *
  * @param content
  * @param event
- * @param fn
+ * @param functionToRun
  * @param once
  * @returns {*}
  */
@@ -874,4 +877,164 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
 
 
     return new hooking();
+};
+
+/**
+ *
+ * @param {jsMaps.staticMapOptions} parameters
+ * @param {jsMaps.staticMapMarker[]} markers
+ * @param {jsMaps.staticMapPath} path
+ */
+jsMaps.Here.prototype.staticMap = function (parameters,markers,path) {
+    var mapParts = [];
+    if (parameters.center != null) {
+        mapParts.push('c='+encodeURIComponent(parameters.center.lat)+','+encodeURIComponent(parameters.center.lng));
+    }
+
+    if (parameters.zoom != null) {
+        mapParts.push('z='+encodeURIComponent(parameters.zoom));
+    }
+
+    mapParts.push('w='+encodeURIComponent(parameters.size.width)+'&h='+encodeURIComponent(parameters.size.height));
+
+    if (parameters.maptype == jsMaps.staticMapOptions.supported_map_types.roadmap) {
+        mapParts.push('t=0');
+    } else if (parameters.maptype == jsMaps.staticMapOptions.supported_map_types.satellite) {
+        mapParts.push('t=1');
+    } else if (parameters.maptype == jsMaps.staticMapOptions.supported_map_types.terrain) {
+        mapParts.push('t=2');
+    }
+
+    mapParts.push('app_id='+encodeURIComponent(jsMaps.config.here.app_id));
+    mapParts.push('app_code='+encodeURIComponent(jsMaps.config.here.app_code));
+
+    var map = 'https://image.maps.cit.api.here.com/mia/1.6/route?'+mapParts.join('&');
+
+    if (typeof markers != 'undefined' && markers.length > 0) {
+        for (var i in markers) {
+            if (markers.hasOwnProperty(i) == false) continue;
+            var marker = markers[i];
+
+            var string = [];
+            string.push(marker.location.lat+','+marker.location.lng);
+
+            if (marker.color== '') marker.color = 'ff0000';
+
+            string.push(marker.color+';000000;15');
+            if (marker.label!= '')  string.push(marker.label);
+
+            map += '&poix'+i+'='+encodeURIComponent(string.join(';'));
+        }
+    }
+
+    if (typeof path != 'undefined') {
+        var pathData = [];
+
+        for (var p in path.path) {
+            if (path.path.hasOwnProperty(p) == false) continue;
+            var latLng = path.path[p];
+
+            pathData.push(latLng.lat);
+            pathData.push(latLng.lng);
+        }
+
+        map += '&r0='+pathData.join(',')+'&lc0='+path.color+'&lw0='+path.weight;
+    }
+
+    return map;
+};
+
+
+/**
+ *
+ * @param search
+ * @param fn
+ */
+jsMaps.Here.prototype.addressGeoSearch = function (search, fn) {
+    jsMaps.callUrlJson('https://geocoder.cit.api.here.com/6.2/geocode.json?searchtext=' + encodeURIComponent(search) + '&gen=8&maxresults=5&app_id=' + encodeURIComponent(jsMaps.config.here.app_id) + '&app_code=' + encodeURIComponent(jsMaps.config.here.app_code), function (data) {
+        var geoCoder = {'results': []};
+
+        if (typeof data.Response.View == 'undefined' || data.Response.View.length == 0) {
+            fn(geoCoder);
+            return;
+        }
+
+        for (var o in data.Response.View) {
+            if (data.Response.View.hasOwnProperty(o) == false) continue;
+            var results = data.Response.View[o].Result;
+
+            for (var i in results) {
+                if (results.hasOwnProperty(i) == false) continue;
+
+                var result = results[i];
+                var formatted_address = result.Location.Address.Label;
+                var location = new jsMaps.geo.Location(result.Location.DisplayPosition.Latitude,result.Location.DisplayPosition.Longitude);
+
+                var types = [];
+
+                if (result.MatchLevel == 'country') {
+                    types.push(jsMaps.supported_Address_types.country);
+                } else if (result.MatchLevel == 'state') {
+                    types.push(jsMaps.supported_Address_types.administrative_area_level_1);
+                    types.push(jsMaps.supported_Address_types.political);
+                } else if (result.MatchLevel == 'county') {
+                    types.push(jsMaps.supported_Address_types.administrative_area_level_2);
+                    types.push(jsMaps.supported_Address_types.political);
+                } else if (result.MatchLevel == 'city') {
+                    types.push(jsMaps.supported_Address_types.locality);
+                    types.push(jsMaps.supported_Address_types.political);
+                } else if (result.MatchLevel == 'district') {
+                    types.push(jsMaps.supported_Address_types.administrative_area_level_3);
+                    types.push(jsMaps.supported_Address_types.political);
+                } else if (result.MatchLevel == 'street' || result.MatchLevel == 'houseNumber') {
+                    types.push(jsMaps.supported_Address_types.street_address);
+                } else if (result.MatchLevel == 'intersection') {
+                    types.push(jsMaps.supported_Address_types.intersection);
+                } else if (result.MatchLevel == 'postalCode') {
+                    types.push(jsMaps.supported_Address_types.postal_code);
+                } else if (result.MatchLevel == 'landmark') {
+                    types.push(jsMaps.supported_Address_types.premise);
+                    types.push(jsMaps.supported_Address_types.point_of_interest);
+                }
+
+                if (result.Location.LocationType == 'park') {
+                    types.push(jsMaps.supported_Address_types.point_of_interest);
+                } else if (result.Location.LocationType == 'airport') {
+                    types.push(jsMaps.supported_Address_types.airport);
+                } else if (
+                    result.Location.LocationType == 'mountainPeak' ||
+                    result.Location.LocationType == 'lake' ||
+                    result.Location.LocationType == 'island' ||
+                    result.Location.LocationType == 'beach'
+                ) {
+                    types.push(jsMaps.supported_Address_types.natural_feature);
+                }
+
+                var mapView = result.Location.MapView;
+                var topLeft = mapView.TopLeft;
+                var bottomRight = mapView.BottomRight;
+
+                var view_port = jsMaps.geo.View_port;
+
+                var location_type = jsMaps.supported_location_types.APPROXIMATE;
+
+                if (result.MatchType == 'pointAddress') {
+                    location_type = jsMaps.supported_location_types.ROOFTOP;
+                } else if (result.MatchType == 'interpolated' && result.MatchLevel != 'city') {
+                    location_type = jsMaps.supported_location_types.RANGE_INTERPOLATED;
+                } else if (result.MatchType == 'interpolated' && result.MatchLevel == 'city') {
+                    location_type = jsMaps.supported_location_types.GEOMETRIC_CENTER;
+                }
+
+                view_port.getTopLeft = {lat: topLeft.Latitude, lng: topLeft.Longitude};
+                view_port.getBottomRight = {lat: bottomRight.Latitude, lng: bottomRight.Longitude};
+                view_port.location_type = location_type;
+
+                var geoCoderResult = new jsMaps.AddressSearchResult(formatted_address, types, (result.Relevance < 1.0), new jsMaps.Geometry(location, view_port));
+                geoCoder['results'].push(geoCoderResult);
+            }
+        }
+
+        fn(geoCoder);
+    });
 };
