@@ -951,7 +951,7 @@ jsMaps.Here.prototype.staticMap = function (parameters,markers,path) {
  * @param fn
  */
 jsMaps.Here.prototype.addressGeoSearch = function (search, fn) {
-    jsMaps.callUrlJson('https://geocoder.cit.api.here.com/6.2/geocode.json?searchtext=' + encodeURIComponent(search) + '&gen=8&maxresults=5&app_id=' + encodeURIComponent(jsMaps.config.here.app_id) + '&app_code=' + encodeURIComponent(jsMaps.config.here.app_code), function (data) {
+    jsMaps.callUrlJson('https://geocoder.cit.api.here.com/6.2/geocode.json?searchtext=' + encodeURIComponent(search) + '&language=en-US&gen=8&addressattributes='+encodeURIComponent('ctr,sta,cty,cit,dis,str,hnr,pst,aln,add')+'&maxresults=5&app_id=' + encodeURIComponent(jsMaps.config.here.app_id) + '&app_code=' + encodeURIComponent(jsMaps.config.here.app_code), function (data) {
         var geoCoder = {'results': []};
 
         if (typeof data.Response.View == 'undefined' || data.Response.View.length == 0) {
