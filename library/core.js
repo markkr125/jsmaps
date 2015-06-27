@@ -1,9 +1,12 @@
-var SUPPORTED_MAP_PROVIDERS = ['google','here'];
+var SUPPORTED_MAP_PROVIDERS = ['google','here','bing'];
 
 jsMaps.config = {
     here: {
         app_id: '',
         app_code: ''
+    },
+    bing: {
+        key: ''
     }
 };
 
@@ -131,6 +134,10 @@ jsMaps.api = {
 
         if (provider == 'here') {
             object = new jsMaps.Here();
+        }
+
+        if (provider == 'bing') {
+            object = new jsMaps.Bing();
         }
 
         return object;
