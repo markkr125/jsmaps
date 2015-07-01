@@ -104,6 +104,7 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
     if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'dragstart';
     if (event == jsMaps.api.supported_events.idle) eventTranslation = 'mapviewchangeend';
     if (event == jsMaps.api.supported_events.maptypeid_changed) eventTranslation = 'baselayerchange';
+    if (event == jsMaps.api.supported_events.drag) eventTranslation = 'drag';
     if (event == jsMaps.api.supported_events.mousemove) eventTranslation = 'pointermove';
     if (event == jsMaps.api.supported_events.mouseout) eventTranslation = 'pointerleave';
     if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'pointerenter';
