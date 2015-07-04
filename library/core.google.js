@@ -314,7 +314,7 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
     var PolyLine = new google.maps.Polyline(options);
 
     var hooking = function () {};
-    hooking.prototype = new jsMaps.PolygonStructure();
+    hooking.prototype = new jsMaps.PolyLineStructure();
 
     hooking.prototype.object = PolyLine;
 

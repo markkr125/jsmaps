@@ -552,11 +552,22 @@ jsMaps.removeEventListener = function (el, eventName, handler) {
         el.detachEvent('on' + eventName, handler);
 };
 
-jsMaps.convertHex = function (hex,opacity){
+/**
+ *
+ * @param hex
+ * @param opacity
+ * @param returnArray
+ * @returns {*}
+ */
+jsMaps.convertHex = function (hex,opacity,returnArray){
     hex = hex.replace('#','');
     r = parseInt(hex.substring(0,2), 16);
     g = parseInt(hex.substring(2,4), 16);
     b = parseInt(hex.substring(4,6), 16);
+
+    if (returnArray == true) {
+        return {red: r, greed: g, blue: b,opacity:opacity/100}
+    }
 
     result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
     return result;
@@ -567,3 +578,45 @@ if (typeof Array.isArray === 'undefined') {
         return Object.prototype.toString.call(obj) === '[object Array]';
     };
 }
+
+jsMaps.centerCalculator = {
+    rad2degr: function (rad) {
+        return rad * 180 / Math.PI;
+    },
+    degr2rad: function (degr) {
+        return degr * Math.PI / 180;
+    },
+    /**
+     * @param latLngInDegr array of arrays with latitude and longtitude pairs (in degrees)
+     *   e.g. [[latitude1, longtitude1], [latitude2][longtitude2] ...]
+     *
+     * @return array with the center latitude longtitude pair (in degrees)
+     */
+    getLatLngCenter: function (latLngInDegr) {
+        var sumX = 0, sumY = 0, sumZ = 0, lat, lng;
+
+        var LATIDX = 0;
+        var LNGIDX = 1;
+
+        for (var i = 0; i < latLngInDegr.length; i++) {
+            lat = this.degr2rad(latLngInDegr[i]['lat']);
+            lng = this.degr2rad(latLngInDegr[i]['lng']);
+
+            // sum of cartesian coordinates
+            sumX += Math.cos(lat) * Math.cos(lng);
+            sumY += Math.cos(lat) * Math.sin(lng);
+            sumZ += Math.sin(lat);
+        }
+
+        var avgX = sumX / latLngInDegr.length;
+        var avgY = sumY / latLngInDegr.length;
+        var avgZ = sumZ / latLngInDegr.length;
+
+        // convert average x, y, z coordinate to latitude and longtitude
+        lng = Math.atan2(avgY, avgX);
+        var hyp = Math.sqrt(avgX * avgX + avgY * avgY);
+        lat = Math.atan2(avgZ, hyp);
+
+        return ({lat: this.rad2degr(lat).toFixed(6), lng: this.rad2degr(lng).toFixed(6)});
+    }
+};

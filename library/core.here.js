@@ -447,7 +447,7 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
     // when starting to drag a marker object:
     obj.addEventListener('dragstart', function (ev) {
         var target = ev.target;
-        if (target instanceof H.map.Marker) {
+        if (target instanceof H.map.DomMarker) {
             var data = target.getData();
 
             if (typeof data.line!='undefined') {
@@ -461,7 +461,7 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
     // when dragging has completed
     obj.addEventListener('dragend', function (ev) {
         var target = ev.target;
-        if (target instanceof mapsjs.map.Marker) {
+        if (target instanceof mapsjs.map.DomMarker) {
             behavior.enable();
 
             var data = target.getData();
@@ -478,7 +478,7 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
 
         var target = ev.target,
             pointer = ev.currentPointer;
-        if (target instanceof mapsjs.map.Marker) {
+        if (target instanceof mapsjs.map.DomMarker) {
 
             var data = target.getData();
             if (typeof data.line!='undefined') {
@@ -513,15 +513,71 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
     }, false);
 };
 
+
+
+
 jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon) {
     var markers = [];
+
+
+    var outerElement = document.createElement('div'),
+        innerElement = document.createElement('div');
+
+    outerElement.style.userSelect = 'none';
+    outerElement.style.webkitUserSelect = 'none';
+    outerElement.style.msUserSelect = 'none';
+    outerElement.style.mozUserSelect = 'none';
+    outerElement.style.cursor = 'default';
+
+    innerElement.style.color = 'red';
+    innerElement.style.backgroundColor = 'white';
+    innerElement.style.border = '2px solid black';
+    innerElement.style.font = 'normal 12px arial';
+    innerElement.style.lineHeight = '12px';
+
+    innerElement.style.paddingTop = '2px';
+    innerElement.style.paddingLeft = '4px';
+    innerElement.style.width = '10px';
+    innerElement.style.height = '10px';
+
+    // add negative margin to inner element
+    // to move the anchor to center of the div
+    innerElement.style.marginTop = '-10px';
+    innerElement.style.marginLeft = '-10px';
+
+    outerElement.appendChild(innerElement);
+
+    // Add text to the DOM element
+    innerElement.innerHTML = '&nbsp;';
+
+    function changeOpacity(evt) {
+        evt.target.style.opacity = 0.6;
+    }
+
+    function changeOpacityToOne(evt) {
+        evt.target.style.opacity = 1;
+    }
+
+    //create dom icon and add/remove opacity listeners
+    var domIcon = new H.map.DomIcon(outerElement, {
+        // the function is called every time marker enters the viewport
+        onAttach: function(clonedElement, domIcon, domMarker) {
+            clonedElement.addEventListener('mouseover', changeOpacity);
+            clonedElement.addEventListener('mouseout', changeOpacityToOne);
+        },
+        // the function is called every time marker leaves the viewport
+        onDetach: function(clonedElement, domIcon, domMarker) {
+            clonedElement.removeEventListener('mouseover', changeOpacity);
+            clonedElement.removeEventListener('mouseout', changeOpacityToOne);
+        }
+    });
 
     for (var i in path) {
         if (path.hasOwnProperty(i) == false) continue;
 
         if (isPolygon == true && i == 0)  continue;
 
-        var marker =  new H.map.Marker({lat:path[i].lat, lng:  path[i].lng});
+        var marker =  new H.map.DomMarker({lat:path[i].lat, lng:  path[i].lng}, {icon: domIcon });
         marker.setData({line: PolyLine,pos: {lat:path[i].lat, lng:  path[i].lng}});
         marker.draggable = true;
 
@@ -534,6 +590,7 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon) {
 
     return markers;
 };
+
 
 /**
  * Create PolyLine
@@ -561,6 +618,7 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     var markers = undefined;
     PolyLine.clickable = parameters.clickable;
 
+
     if (parameters.editable != null && parameters.editable == true) {
         PolyLine.setData({'editEvent':true});
         markers = jsMaps.Here.EditPolyLine(parameters.path,PolyLine,obj,behavior);
@@ -569,7 +627,7 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     }
 
     var hooking = function () {};
-    hooking.prototype = new jsMaps.PolygonStructure();
+    hooking.prototype = new jsMaps.PolyLineStructure();
 
     hooking.prototype.object = PolyLine;
 
@@ -681,43 +739,6 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     return new hooking();
 };
 
-
-function rad2degr(rad) { return rad * 180 / Math.PI; }
-function degr2rad(degr) { return degr * Math.PI / 180; }
-
-/**
- * @param latLngInDeg array of arrays with latitude and longtitude pairs (in degrees)
- *   e.g. [[latitude1, longtitude1], [latitude2][longtitude2] ...]
- *
- * @return array with the center latitude longtitude pair (in degrees)
- */
-function getLatLngCenter(latLngInDegr) {
-    var sumX=0, sumY=0, sumZ=0, lat, lng;
-
-    var LATIDX = 0;
-    var LNGIDX = 1;
-
-    for (var i=0; i<latLngInDegr.length; i++) {
-        lat = degr2rad(latLngInDegr[i]['lat']);
-        lng = degr2rad(latLngInDegr[i]['lng']);
-        // sum of cartesian coordinates
-        sumX += Math.cos(lat) * Math.cos(lng);
-        sumY += Math.cos(lat) * Math.sin(lng);
-        sumZ += Math.sin(lat);
-    }
-
-    var avgX = sumX / latLngInDegr.length;
-    var avgY = sumY / latLngInDegr.length;
-    var avgZ = sumZ / latLngInDegr.length;
-
-    // convert average x, y, z coordinate to latitude and longtitude
-    lng = Math.atan2(avgY, avgX);
-    var hyp = Math.sqrt(avgX * avgX + avgY * avgY);
-    lat = Math.atan2(avgZ, hyp);
-
-    return ({lat: rad2degr(lat), lng: rad2degr(lng)});
-}
-
 /**
  * @param {jsMaps.MapStructure} map
  * @param {jsMaps.PolygonOptions} parameters
@@ -729,7 +750,6 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
         visibility: parameters.visible,
         style: { lineWidth: parameters.strokeWeight, strokeColor: jsMaps.convertHex(parameters.strokeColor,parameters.strokeOpacity*100) , fillColor: jsMaps.convertHex(parameters.fillColor,parameters.fillOpacity*100)}
     };
-
 
     var Polygon = new H.map.Polygon(jsMaps.Here.ReturnStrip(parameters.paths), options);
 
@@ -748,7 +768,6 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
         var npath = [];
         for (var n in newPaths) {
             if (newPaths.hasOwnProperty(n) == false) continue;
-            //if (typeof newPaths[n+1] == 'undefined') continue;
 
             var testPath = [newPaths[n],newPaths[parseInt(n)+1]];
             var abort = 0;
@@ -763,7 +782,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
 
             if ( abort != 1) {
                 npath.push(newPaths[n]);
-                npath.push(getLatLngCenter(testPath));
+                npath.push(jsMaps.centerCalculator.getLatLngCenter(testPath));
             }else {
                 npath.push(newPaths[n]);
             }
