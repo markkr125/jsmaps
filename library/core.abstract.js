@@ -32,6 +32,8 @@ jsMaps.staticMapOptions = {
     maptype: 'roadmap'
 };
 
+jsMaps.supported_colors = {'black': '000000', 'brown': 'A52A2A', 'green': '008000', 'purple': '800080', 'yellow':'FFFF00', 'blue':'0000FF', 'gray':'808080', 'orange':'FFA500', 'red':'FF0000', 'white':'FFFFFF'};
+
 /**
  *
  * @param color
@@ -41,9 +43,12 @@ jsMaps.staticMapOptions = {
  * @returns {{color: *, label: *, location: {lat: *, lng: *}}}
  */
 jsMaps.staticMapMarker = function (color,label, lat, lng) {
-    var supported_colors = {'black': '000000', 'brown': 'A52A2A', 'green': '008000', 'purple': '800080', 'yellow':'FFFF00', 'blue':'0000FF', 'gray':'808080', 'orange':'FFA500', 'red':'FF0000', 'white':'FFFFFF'};
+    var supported_colors = jsMaps.supported_colors;
 
-    if (typeof supported_colors[color]!='undefined') color = supported_colors[color];
+    if (typeof supported_colors[color]!='undefined') {
+        color = supported_colors[color];
+    }
+
     if (typeof label=='undefined' || label == null) label = '';
 
     return {
