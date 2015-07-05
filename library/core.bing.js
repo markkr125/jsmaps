@@ -520,6 +520,15 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
 
     hooking.prototype.setPath = function (pathArray) {
         this.object.setLocations(jsMaps.Bing.toBingPath(pathArray));
+
+        var isEditable = this.getEditable();
+
+
+        this.mapObject.entities.remove(this.EditHandleLayer);
+        this.EditHandleLayer = jsMaps.Bing.EditableLines(this.object);
+        this.EditHandleLayer.setOptions({ visible: isEditable });
+
+        this.mapObject.entities.push(this.EditHandleLayer);
     };
 
     hooking.prototype.setPaths = function (pathsArray) {
@@ -550,28 +559,7 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
     return new hooking();
 };
 
-/**
- * @param {jsMaps.MapStructure} map
- * @param {jsMaps.PolygonOptions} parameters
- * @returns jsMaps.PolygonStructure
- */
-jsMaps.Bing.prototype.polygon = function (map,parameters) {
-    var fillColor = jsMaps.convertHex(parameters.fillColor,parameters.fillOpacity*100,true);
-    var strokeColor = jsMaps.convertHex(parameters.strokeColor,parameters.strokeColor*100,true);
-
-    var options = {
-        fillColor: new Microsoft.Maps.Color((255*fillColor.opacity),fillColor.red,fillColor.greed,fillColor.blue),
-        strokeColor: new Microsoft.Maps.Color((255*strokeColor.opacity),strokeColor.red,strokeColor.greed,strokeColor.blue),
-        strokeThickness: parameters.strokeWeight,
-        visible: parameters.visible
-    };
-
-    var Polygon = new Microsoft.Maps.Polygon(jsMaps.Bing.toBingPath(parameters.paths),options);
-    Polygon.clickable = parameters.clickable;
-
-    // Add the polyline to the map
-    map.object.entities.push(Polygon);
-
+jsMaps.Bing.EditablePolygon = function (Polygon) {
     var currLocations = Polygon.getLocations();
     var Locations = [];
     var ln = currLocations.length;
@@ -601,8 +589,33 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
             Locations.push(currLocations[n]);
         }
     }
-    console.log(Locations);
-    var EditHandleLayer = jsMaps.Bing.EditableLines(Polygon,true,Locations);
+
+    return Locations;
+};
+
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.PolygonOptions} parameters
+ * @returns jsMaps.PolygonStructure
+ */
+jsMaps.Bing.prototype.polygon = function (map,parameters) {
+    var fillColor = jsMaps.convertHex(parameters.fillColor,parameters.fillOpacity*100,true);
+    var strokeColor = jsMaps.convertHex(parameters.strokeColor,parameters.strokeColor*100,true);
+
+    var options = {
+        fillColor: new Microsoft.Maps.Color((255*fillColor.opacity),fillColor.red,fillColor.greed,fillColor.blue),
+        strokeColor: new Microsoft.Maps.Color((255*strokeColor.opacity),strokeColor.red,strokeColor.greed,strokeColor.blue),
+        strokeThickness: parameters.strokeWeight,
+        visible: parameters.visible
+    };
+
+    var Polygon = new Microsoft.Maps.Polygon(jsMaps.Bing.toBingPath(parameters.paths),options);
+    Polygon.clickable = parameters.clickable;
+
+    // Add the polyline to the map
+    map.object.entities.push(Polygon);
+
+    var EditHandleLayer = jsMaps.Bing.EditableLines(Polygon,true,jsMaps.Bing.EditablePolygon(Polygon));
     EditHandleLayer.setOptions({ visible: parameters.editable });
 
     map.object.entities.push(EditHandleLayer);
@@ -643,6 +656,14 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
 
     hooking.prototype.setPath = function (pathArray) {
         this.object.setLocations(jsMaps.Bing.toBingPath(pathArray));
+
+        var isEditable = this.getEditable();
+
+        this.mapObject.entities.remove(this.EditHandleLayer);
+        this.EditHandleLayer =  jsMaps.Bing.EditableLines(this.object,true,jsMaps.Bing.EditablePolygon(this.object));
+        this.EditHandleLayer.setOptions({ visible: isEditable });
+
+        this.mapObject.entities.push(this.EditHandleLayer);
     };
 
     /**
