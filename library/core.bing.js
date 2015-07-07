@@ -808,7 +808,7 @@ function GeocodeCallback(data)
 
         if (geocode.calculationMethod == 'Rooftop') {
             location_type = jsMaps.supported_location_types.ROOFTOP;
-        } else if (geocode.calculationMethod == 'Interpolation' || result.calculationMethod != 'InterpolationOffset') {
+        } else if (geocode.calculationMethod == 'Interpolation') {
             location_type = jsMaps.supported_location_types.RANGE_INTERPOLATED;
         } else if (geocode.calculationMethod == 'Parcel') {
             location_type = jsMaps.supported_location_types.GEOMETRIC_CENTER;
