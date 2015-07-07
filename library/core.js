@@ -1,4 +1,4 @@
-var SUPPORTED_MAP_PROVIDERS = ['google','here','bing'];
+var SUPPORTED_MAP_PROVIDERS = ['google','here','bing','yandex'];
 
 jsMaps.config = {
     here: {
@@ -138,6 +138,10 @@ jsMaps.api = {
 
         if (provider == 'bing') {
             object = new jsMaps.Bing();
+        }
+
+        if (provider == 'yandex') {
+            object = new jsMaps.Yandex();
         }
 
         return object;
