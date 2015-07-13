@@ -191,7 +191,6 @@ jsMaps.Bing.prototype.bounds = function (mapObject) {
     hooking.prototype.nothing = (typeof mapObject == 'undefined');
     hooking.prototype.arrayPath = [];
 
-
     hooking.prototype.noData = function () {
         if (this.nothing == true) {
             this.bounds = Microsoft.Maps.LocationRect.fromLocations(this.arrayPath);
@@ -350,6 +349,7 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
         var pos = marker.getPosition();
         this.object.setOptions({visible:true});
 
+        this.object.setOptions({offset: marker.object.getAnchor() });
         this.object.setLocation(new Microsoft.Maps.Location(pos.lat, pos.lng));
         map.object.entities.push(this.object);
 
