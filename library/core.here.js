@@ -537,8 +537,8 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon) {
 
     innerElement.style.paddingTop = '2px';
     innerElement.style.paddingLeft = '4px';
-    innerElement.style.width = '10px';
-    innerElement.style.height = '10px';
+    innerElement.style.width = '9px';
+    innerElement.style.height = '9px';
 
     // add negative margin to inner element
     // to move the anchor to center of the div
