@@ -210,7 +210,7 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
         if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
-    } else if (content.__className == 'marker' || content.__className == 'polygon' || content.__className == 'polyline') {
+    } else {
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'tap';
         if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'dragend';
@@ -243,7 +243,6 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
     return {c: curCnt, f: fn, e: eventTranslation};
 };
 
-
 /**
  *
  * @param map
@@ -254,4 +253,116 @@ jsMaps.Yandex.prototype.removeEvent = function (map, eventObject) {
     ymaps.ready(function () {
         jsMaps.Yandex.attachedEvents[eventObject.c].remove(eventObject.e,eventObject.f);
     }, this);
+};
+
+/**
+ * Generate markers
+ *
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.markerOptions} parameters
+ */
+jsMaps.Yandex.prototype.marker = function (map,parameters) {
+
+    var options = {interactiveZIndex: true,visible: true};
+    var props = {};
+
+    if (parameters.zIndex != null) options.zIndex = parameters.zIndex;
+
+    if (parameters.icon != null) {
+        options.iconLayout = 'default#image';
+        options.iconImageHref = parameters.icon;
+    }
+
+    if (parameters.draggable != null) options.draggable = parameters.draggable;
+    if (parameters.title != null) props.hintContent = parameters.title;
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.MarkerStructure();
+    hooking.prototype.object = null;
+    hooking.prototype.__className = 'marker';
+    hooking.prototype.defaultLocation = parameters.position;
+    hooking.prototype.defaultOptions = options;
+
+    ymaps.ready(function () {
+        map = map.object;
+        hooking.prototype.object =  new ymaps.Placemark([parameters.position.lat, parameters.position.lng],props,options);
+        map.geoObjects.add(hooking.prototype.object);
+        hooking.prototype.map = map
+    }, this);
+
+    /**
+     *
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.getPosition = function () {
+        if (this.object == null) {
+            return {lat: this.defaultLocation.lat, lng: this.defaultLocation.lng};
+        }
+
+        var coordinates =  this.object.geometry.getCoordinates();
+        return {lat: coordinates[0], lng: coordinates[1]}
+    };
+
+    hooking.prototype.setPosition = function (lat, lng) {
+        ymaps.ready(function () {
+            this.object.geometry.setCoordinates([lat, lng]);
+        }, this);
+    };
+
+    hooking.prototype.getVisible = function () {
+        if (this.object == null) {
+            return this.defaultOptions.visible;
+        }
+
+        return this.object.options.get('visible');
+    };
+
+    hooking.prototype.setVisible = function (variable) {
+        ymaps.ready(function () {
+            this.object.options.set('visible', variable);
+        }, this);
+    };
+
+    hooking.prototype.getIcon = function () {
+        if (this.object == null) {
+            return this.defaultOptions.iconImageHref;
+        }
+
+        return this.object.options.get('iconImageHref');
+    };
+
+    hooking.prototype.setIcon = function (icon) {
+        ymaps.ready(function () {
+            this.object.options.set('iconImageHref', icon);
+        }, this);
+    };
+
+    hooking.prototype.getZIndex = function () {
+        if (this.object == null) {
+            return this.defaultOptions.zIndex;
+        }
+
+        return this.object.options.get('zIndex');
+    };
+
+    hooking.prototype.setZIndex = function (number) {
+        ymaps.ready(function () {
+            this.object.options.set('zIndex', number);
+        }, this);
+    };
+
+    hooking.prototype.setDraggable = function (flag) {
+        ymaps.ready(function () {
+            this.object.options.set('draggable', flag);
+        }, this);
+    };
+
+    hooking.prototype.remove = function () {
+        ymaps.ready(function () {
+           var parentMap = this.object.getMap();
+           parentMap.geoObjects.remove(this.object);
+        }, this);
+    };
+
+    return new hooking();
 };
