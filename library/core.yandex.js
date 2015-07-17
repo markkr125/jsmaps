@@ -888,7 +888,7 @@ function GeocodeCallback(data)
         fn(geoCoder);
         return;
     }
-console.log(Use.featureMember);
+
     for (var i in Use.featureMember) {
         if (Use.featureMember.hasOwnProperty(i) == false) continue;
 
