@@ -856,7 +856,7 @@ function GeocodeCallback(data)
         }
 
 
-        var geoCoderResult = new jsMaps.AddressSearchResult(resources.name, types, (resources.confidence == 'High'), new jsMaps.Geometry(location, view_port));
+        var geoCoderResult = new jsMaps.AddressSearchResult(resources.name, types, (resources.confidence != 'High'), new jsMaps.Geometry(location, view_port));
         geoCoder['results'].push(geoCoderResult);
     }
 
