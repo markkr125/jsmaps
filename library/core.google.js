@@ -429,6 +429,10 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
 
     hooking.prototype.object = Polygon;
 
+    hooking.prototype.getDraggable = function () {
+        return this.object.getDraggable();
+    };
+
     hooking.prototype.getEditable = function () {
         return this.object.getEditable();
     };

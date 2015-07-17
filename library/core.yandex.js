@@ -633,3 +633,138 @@ jsMaps.Yandex.prototype.polyLine = function (map,parameters) {
 
     return new hooking();
 };
+
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.PolygonOptions} parameters
+ * @returns jsMaps.PolygonStructure
+ */
+jsMaps.Yandex.prototype.polygon = function (map,parameters) {
+    var options = {
+        draggable: parameters.draggable,
+        fillColor: parameters.fillColor,
+        fillOpacity: parameters.fillOpacity,
+        strokeColor: parameters.strokeColor,
+        strokeOpacity: parameters.strokeOpacity,
+        strokeWidth: parameters.strokeWeight,
+        visible: parameters.visible,
+        zIndex: parameters.zIndex
+    };
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.PolygonStructure();
+
+    hooking.prototype.object = null;
+
+    ymaps.ready(function () {
+
+        var Polygon = new ymaps.Polygon([jsMaps.Yandex.toYandexPath(parameters.paths)],{},options);
+        Polygon.editable = parameters.editable;
+        Polygon.clickable = parameters.clickable;
+
+        map.object.geoObjects.add(Polygon);
+
+        if (parameters.editable) {
+            Polygon.editor.startEditing();
+        }
+        hooking.prototype.object = Polygon;
+    }, this);
+
+
+    hooking.prototype.getEditable = function () {
+        if (this.object == null) {
+            return parameters.editable;
+        }
+
+        return this.object.editable;
+    };
+
+    hooking.prototype.getPath = function () {
+        if (this.object == null) {
+            return parameters.paths;
+        }
+
+        var arrayOfPaths = [];
+        var path = this.object.geometry.getCoordinates();
+
+        for (var i in path) {
+            if (path.hasOwnProperty(i) == false) continue;
+            var pos = path[i];
+
+            arrayOfPaths.push ({lat: pos[0], lng: pos[1]});
+        }
+
+        return arrayOfPaths;
+    };
+
+    hooking.prototype.getVisible = function () {
+        if (this.object == null) {
+            return parameters.visible;
+        }
+
+        return this.object.options.get('visible');
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+        ymaps.ready(function () {
+            this.object.options.set('draggable',draggable);
+        }, this);
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        ymaps.ready(function () {
+            this.object.editable = editable;
+
+            if (editable == true) {
+                this.object.editor.startEditing();
+            } else {
+                this.object.editor.stopEditing()
+            }
+        }, this);
+    };
+
+    hooking.prototype.setPath = function (pathArray) {
+        ymaps.ready(function () {
+            this.object.geometry.setCoordinates(jsMaps.Yandex.toYandexPath(pathArray));
+        }, this);
+    };
+
+    hooking.prototype.getDraggable = function () {
+        if (this.object == null) {
+            return parameters.draggable;
+        }
+
+        return this.object.options.get('draggable');
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        ymaps.ready(function () {
+            this.object.geometry.setMap(map.object);
+        }, this);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        ymaps.ready(function () {
+            this.object.options.set('visible', visible);
+
+            if (visible == false && this.object.editable == true) {
+                this.object.editor.stopEditing();
+            } else if (visible == true && this.object.editable == true) {
+                this.object.editor.startEditing();
+            }
+        }, this);
+    };
+
+    hooking.prototype.removePolyGon = function () {
+        ymaps.ready(function () {
+            var parentMap = this.object.getMap();
+            parentMap.geoObjects.remove(this.object);
+        }, this);
+    };
+
+    return new hooking();
+};
