@@ -888,7 +888,7 @@ function GeocodeCallback(data)
         fn(geoCoder);
         return;
     }
-
+console.log(Use.featureMember);
     for (var i in Use.featureMember) {
         if (Use.featureMember.hasOwnProperty(i) == false) continue;
 
@@ -896,7 +896,6 @@ function GeocodeCallback(data)
         var metaProp = featureMember.metaDataProperty.GeocoderMetaData;
 
         var types = [];
-
 
         if (metaProp.kind == 'country') {
             types.push(jsMaps.supported_Address_types.country);
@@ -912,8 +911,10 @@ function GeocodeCallback(data)
         } else if (metaProp.kind == 'district') {
             types.push(jsMaps.supported_Address_types.administrative_area_level_3);
             types.push(jsMaps.supported_Address_types.political);
-        } else if (metaProp.kind == 'house' || metaProp.kind == 'street') {
+        } else if ((metaProp.kind == 'house' || metaProp.kind == 'street') && (metaProp.precision == 'exact')) {
             types.push(jsMaps.supported_Address_types.street_address);
+        } else if ((metaProp.kind == 'house' || metaProp.kind == 'street') && (metaProp.precision != 'exact')) {
+            types.push(jsMaps.supported_Address_types.postal_code);
         } else if (metaProp.kind == 'hydro') {
             types.push(jsMaps.supported_Address_types.point_of_interest);
         } else if (metaProp.kind == 'vegetation') {
@@ -930,7 +931,7 @@ function GeocodeCallback(data)
 
         if (metaProp.precision == 'pointAddress') {
             location_type = jsMaps.supported_location_types.ROOFTOP;
-        } else if (metaProp.precision == 'number' || metaProp.precision == 'near' || metaProp.precision == 'street') {
+        } else if (metaProp.precision == 'number' || metaProp.precision == 'near') {
             location_type = jsMaps.supported_location_types.RANGE_INTERPOLATED;
         }
 
