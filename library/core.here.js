@@ -12,6 +12,8 @@ jsMaps.Here.MapZoom = 0;
  * @returns {jsMaps.MapStructure}
  */
 jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, providerOptions) {
+    if (typeof providerOptions == 'undefined') providerOptions = {};
+
     providerOptions.app_id = jsMaps.config.here.app_id;
     providerOptions.app_code = jsMaps.config.here.app_code;
 
