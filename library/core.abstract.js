@@ -1,23 +1,35 @@
 var jsMaps = jsMaps || {};
 
-jsMaps.markerOptions = {
+/**
+ *
+ * @returns {{position: null, icon: null, title: null, zIndex: null, draggable: boolean, markerId: null}}
+ * @constructor
+ */
+jsMaps.MarkerOptions = function () {
     /**
      * @param {{lat: *, lng: *}
      */
-    position: null,
-    icon: null,
-    title: null,
-    zIndex: null,
-    draggable: false,
-    markerId: null
+    return {
+        position: null,
+        icon: null,
+        title: null,
+        zIndex: null,
+        draggable: false,
+        markerId: null
+    }
 };
 
-jsMaps.infoWindowOptions = {
-    content: null,
+/**
+ *
+ * @returns {{content: null, position: null}}
+ * @constructor
+ */
+jsMaps.InfoWindowOptions = function() {
+    return {content: null,
     /**
      * @param {{lat: *, lng: *}
      */
-    position: null
+    position: null}
 };
 
 jsMaps.staticMapOptions = {
@@ -153,21 +165,33 @@ jsMaps.staticMapPath = function (color, weight ,path, fillColor) {
     };
 };
 
-jsMaps.PolyLineOptions = {
-    clickable: true,
-    draggable: false,
-    editable: false,
-    path: [],
-    strokeColor: '',
-    strokeOpacity: 0.0,
-    strokeWeight: 1,
-    visible: true,
-    zIndex: 0,
-    polyLineId: ''
+/**
+ *
+ * @returns {{clickable: boolean, draggable: boolean, editable: boolean, path: Array, strokeColor: string, strokeOpacity: number, strokeWeight: number, visible: boolean, zIndex: number, polyLineId: string}}
+ * @constructor
+ */
+jsMaps.PolyLineOptions = function () {
+    return {
+        clickable: true,
+        draggable: false,
+        editable: false,
+        path: [],
+        strokeColor: '',
+        strokeOpacity: 0.0,
+        strokeWeight: 1,
+        visible: true,
+        zIndex: 0,
+        polyLineId: ''
+    }
 };
 
-jsMaps.PolygonOptions = {
-    clickable: true,
+/**
+ *
+ * @returns {{clickable: boolean, draggable: boolean, editable: boolean, fillColor: string, fillOpacity: number, paths: Array, strokeColor: string, strokeOpacity: number, strokeWeight: number, visible: boolean, zIndex: number, polygonId: string}}
+ * @constructor
+ */
+jsMaps.PolygonOptions = function () {
+    return {clickable: true,
     draggable: false,
     editable: false,
     fillColor: '',
@@ -178,7 +202,7 @@ jsMaps.PolygonOptions = {
     strokeWeight: 10,
     visible: true,
     zIndex: 1,
-    polygonId: ''
+    polygonId: ''}
 };
 
 jsMaps.PolyLineStructure = function () {
@@ -454,14 +478,14 @@ jsMaps.Abstract.prototype.bounds = function(map) {
 /**
  *
  * @param {jsMaps.MapStructure} map
- * @param {jsMaps.markerOptions} parameters
+ * @param {jsMaps.MarkerOptions} parameters
  * @returns jsMaps.MarkerStructure
  */
 jsMaps.Abstract.prototype.marker = function(map,parameters) {};
 
 /**
  *
- * @param {jsMaps.infoWindowOptions} parameters
+ * @param {jsMaps.InfoWindowOptions} parameters
  * @returns jsMaps.InfoWindowStructure
  */
 jsMaps.Abstract.prototype.infoWindow = function(parameters) {};

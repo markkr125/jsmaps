@@ -270,7 +270,7 @@ jsMaps.Yandex.prototype.removeEvent = function (map, eventObject) {
  * Generate markers
  *
  * @param {jsMaps.MapStructure} map
- * @param {jsMaps.markerOptions} parameters
+ * @param {jsMaps.MarkerOptions} parameters
  */
 jsMaps.Yandex.prototype.marker = function (map,parameters) {
 
@@ -290,14 +290,20 @@ jsMaps.Yandex.prototype.marker = function (map,parameters) {
     var hooking = function () {};
     hooking.prototype = new jsMaps.MarkerStructure();
     hooking.prototype.object = null;
+    hooking.prototype.collection = null;
+    hooking.prototype.options = options;
     hooking.prototype.__className = 'marker';
     hooking.prototype.defaultLocation = parameters.position;
     hooking.prototype.defaultOptions = options;
 
     ymaps.ready(function () {
         map = map.object;
+
         hooking.prototype.object =  new ymaps.Placemark([parameters.position.lat, parameters.position.lng],props,options);
-        map.geoObjects.add(hooking.prototype.object);
+        hooking.prototype.collection = new ymaps.GeoObjectCollection(null, {});
+        hooking.prototype.collection.add(hooking.prototype.object);
+
+        map.geoObjects.add(hooking.prototype.collection);
         hooking.prototype.map = map
     }, this);
 
@@ -370,8 +376,8 @@ jsMaps.Yandex.prototype.marker = function (map,parameters) {
 
     hooking.prototype.remove = function () {
         ymaps.ready(function () {
-           var parentMap = this.object.getMap();
-           parentMap.geoObjects.remove(this.object);
+           var parentMap = this.collection.getMap();
+           parentMap.geoObjects.remove(this.collection);
         }, this);
     };
 
@@ -383,7 +389,7 @@ jsMaps.Yandex.prototype.marker = function (map,parameters) {
  *
  * Create bubbles to be displayed on the map
  *
- * @param {jsMaps.infoWindowOptions} parameters
+ * @param {jsMaps.InfoWindowOptions} parameters
  * @returns {jsMaps.InfoWindowStructure}
  */
 jsMaps.Yandex.prototype.infoWindow = function (parameters) {

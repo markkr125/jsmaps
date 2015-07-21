@@ -126,9 +126,9 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) 
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
         if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'entitychanged';
         if (event == jsMaps.api.additional_events.mousedown)  eventTranslation = 'mousedown';
-        if (event == jsMaps.api.additional_events.mouseout)  eventTranslation = 'mouseout';
-        if (event == jsMaps.api.additional_events.mouseover)  eventTranslation = 'mouseover';
-        if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
+        if (event == jsMaps.api.supported_events.mouseout)  eventTranslation = 'mouseout';
+        if (event == jsMaps.api.supported_events.mouseover)  eventTranslation = 'mouseover';
+        if (event == jsMaps.api.supported_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.rightclick) eventTranslation = 'rightclick';
     }
 
@@ -228,7 +228,7 @@ jsMaps.Bing.prototype.bounds = function (mapObject) {
  * Generate markers
  *
  * @param {jsMaps.MapStructure} map
- * @param {jsMaps.markerOptions} parameters
+ * @param {jsMaps.MarkerOptions} parameters
  */
 jsMaps.Bing.prototype.marker = function (map,parameters) {
     var options = {width: 'auto'};
@@ -301,7 +301,7 @@ jsMaps.Bing.prototype.marker = function (map,parameters) {
  *
  * Create bubbles to be displayed on the map
  *
- * @param {jsMaps.infoWindowOptions} parameters
+ * @param {jsMaps.InfoWindowOptions} parameters
  * @returns {jsMaps.InfoWindowStructure}
  */
 jsMaps.Bing.prototype.infoWindow = function (parameters) {
@@ -313,7 +313,7 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
     }
 
 
-    var options = {description: "<div style=\"width: "+strip(parameters.content).length*0.48+"px; height: "+parameters.content.length*0.27+"px; overflow: auto; margin-top:10px;\">"+parameters.content+"</div>",width: strip(parameters.content).length/2,height: parameters.content.length*0.31};
+    var options = {description: "<div style=\"width: autoit; height: "+parameters.content.length*0.9+"px; overflow: auto; margin-top:10px;\">"+parameters.content+"</div>",width: parameters.content.length*1.4.length*0.9,height: parameters.content.length*0.9};
     var position = {lat:0,lng: 0};
 
     if (parameters.position != null) {

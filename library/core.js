@@ -150,14 +150,16 @@ jsMaps.api = {
     /**
      *
      * @param {jsMaps.MapStructure} map
-     * @param {jsMaps.markerOptions} parameters
+     * @param {jsMaps.MarkerOptions} parameters
      * @returns jsMaps.MarkerStructure
      */
     marker: function (map,parameters) {
         if (typeof map == 'undefined' ||map == null) throw "Invalid map object";
 
+        var options = new jsMaps.MarkerOptions();
+
         if (typeof parameters != 'undefined') {
-            parameters = jsMaps.merge(jsMaps.markerOptions,parameters);
+            parameters = jsMaps.merge(options,parameters);
         }
 
         var marker = map.parent.marker(map,parameters);
@@ -175,12 +177,12 @@ jsMaps.api = {
 
     /**
      *
-     * @param {jsMaps.infoWindowOptions} windowOptions
+     * @param {jsMaps.InfoWindowOptions} windowOptions
      * @returns {jsMaps.InfoWindowStructure}
      */
     infoWindow: function (windowOptions) {
         if (typeof windowOptions != 'undefined') {
-            windowOptions = jsMaps.merge(jsMaps.infoWindowOptions,windowOptions);
+            windowOptions = jsMaps.merge(new jsMaps.InfoWindowOptions(),windowOptions);
         }
 
         return this.object.infoWindow(windowOptions);
@@ -222,7 +224,7 @@ jsMaps.api = {
      */
     polyLine: function (map, parameters) {
         if (typeof parameters != 'undefined') {
-            parameters = jsMaps.merge(jsMaps.PolyLineOptions,parameters);
+            parameters = jsMaps.merge(new jsMaps.PolyLineOptions(),parameters);
         }
 
         var polyLine = this.object.polyLine(map,parameters);
@@ -246,7 +248,7 @@ jsMaps.api = {
      */
     polygon: function (map, parameters) {
         if (typeof parameters != 'undefined') {
-            parameters = jsMaps.merge(jsMaps.PolygonOptions,parameters);
+            parameters = jsMaps.merge(new jsMaps.PolygonOptions(),parameters);
         }
 
         var polygon = this.object.polygon(map,parameters);

@@ -267,7 +267,7 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
  * Generate markers
  *
  * @param {jsMaps.MapStructure} map
- * @param {jsMaps.markerOptions} parameters
+ * @param {jsMaps.MarkerOptions} parameters
  */
 jsMaps.Here.prototype.marker = function (map,parameters) {
 
@@ -364,7 +364,7 @@ jsMaps.Here.prototype.marker = function (map,parameters) {
  *
  * Create bubbles to be displayed on the map
  *
- * @param {jsMaps.infoWindowOptions} parameters
+ * @param {jsMaps.InfoWindowOptions} parameters
  * @returns {jsMaps.InfoWindowStructure}
  */
 jsMaps.Here.prototype.infoWindow = function (parameters) {

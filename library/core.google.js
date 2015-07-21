@@ -153,7 +153,7 @@ jsMaps.Google.prototype.bounds = function (map) {
  * Generate markers
  *
  * @param {jsMaps.MapStructure} map
- * @param {jsMaps.markerOptions} parameters
+ * @param {jsMaps.MarkerOptions} parameters
  */
 jsMaps.Google.prototype.marker = function (map,parameters) {
     var options = {position:  new google.maps.LatLng(parameters.position.lat, parameters.position.lng),map: map.object};
@@ -223,7 +223,7 @@ jsMaps.Google.prototype.marker = function (map,parameters) {
  *
  * Create bubbles to be displayed on the map
  *
- * @param {jsMaps.infoWindowOptions} parameters
+ * @param {jsMaps.InfoWindowOptions} parameters
  * @returns {jsMaps.InfoWindowStructure}
  */
 jsMaps.Google.prototype.infoWindow = function (parameters) {
