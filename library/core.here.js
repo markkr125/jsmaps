@@ -760,6 +760,17 @@ jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
     Polygon.setData({'editEvent':true});
 
     var newPaths = parameters.paths;
+
+    var pathLength = newPaths.length;
+
+    if (pathLength % 2 === 0 || pathLength % 3 === 0) {
+        var last = newPaths[pathLength-1];
+
+        if (last.lat != newPaths[0].lat && last.lng != newPaths[0].lng ) {
+            newPaths.push(newPaths[0]);
+        }
+    }
+
     var npath = [];
 
     for (var n in newPaths) {

@@ -362,7 +362,7 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
     return new hooking();
 };
 
-jsMaps.Bing.toBingPath =  function (path) {
+jsMaps.Bing.toBingPath =  function (path,isPolyGon) {
     if (typeof path == 'undefined' || path == []) return [];
 
     var newPath = [];
@@ -378,6 +378,18 @@ jsMaps.Bing.toBingPath =  function (path) {
             }
         } else {
             newPath.push(new Microsoft.Maps.Location(path[i].lat, path[i].lng));
+        }
+    }
+
+    if (isPolyGon == true) {
+        var pathLength = newPath.length;
+
+        if (pathLength % 2 === 0 || pathLength % 3 === 0) {
+            var last = newPath[pathLength-1];
+
+            if (last.latitude != newPath[0].latitude && last.longitude != newPath[0].longitude ) {
+                newPath.push(newPath[0]);
+            }
         }
     }
 
@@ -609,7 +621,7 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
         visible: parameters.visible
     };
 
-    var Polygon = new Microsoft.Maps.Polygon(jsMaps.Bing.toBingPath(parameters.paths),options);
+    var Polygon = new Microsoft.Maps.Polygon(jsMaps.Bing.toBingPath(parameters.paths,true),options);
     Polygon.clickable = parameters.clickable;
 
     // Add the polyline to the map
@@ -655,7 +667,7 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
     };
 
     hooking.prototype.setPath = function (pathArray) {
-        this.object.setLocations(jsMaps.Bing.toBingPath(pathArray));
+        this.object.setLocations(jsMaps.Bing.toBingPath(pathArray,true));
 
         var isEditable = this.getEditable();
 
