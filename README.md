@@ -1,5 +1,5 @@
 # JsMaps
-Javascript Map API's Abstruction Layer.
+Javascript Map API's Abstraction Layer.
 
 [Project Home Page (includes examples)](http://markkr125.github.io/)
 ## Supported APIs
