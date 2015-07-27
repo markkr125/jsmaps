@@ -124,10 +124,16 @@ jsMaps.geo.View_port = function () {
  *
  * @param {jsMaps.geo.location} location
  * @param {jsMaps.geo.View_port} view_port
- * @returns {{location: jsMaps.geo.location, view_port: jsMaps.geo.View_port}}
+ * @returns {{location: jsMaps.geo.location, view_port: {getTopLeft: {lat: number, lng: number}, getBottomRight: {lat: number, lng: number}, location_type: string}}}
  */
 jsMaps.Geometry = function (location, view_port) {
-    return {location: location, view_port: view_port};
+    return {
+        location: location, view_port: {
+            getTopLeft: view_port.getTopLeft,
+            getBottomRight: view_port.getBottomRight,
+            location_type: view_port.location_type
+        }
+    };
 };
 
 /**
