@@ -518,7 +518,7 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
 
 
 
-jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon) {
+jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, parameters) {
     var markers = [];
 
 
@@ -531,11 +531,19 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon) {
     outerElement.style.mozUserSelect = 'none';
     outerElement.style.cursor = 'default';
 
+    var line = {size: 12, color: 'black'};
+
+    if (typeof parameters != 'undefined' && typeof parameters.strokeWeight != 'undefined') {
+        line.size = parameters.strokeWeight;
+        line.color = parameters.strokeColor;
+    }
+
     innerElement.style.color = 'red';
     innerElement.style.backgroundColor = 'white';
-    innerElement.style.border = '2px solid black';
-    innerElement.style.font = 'normal 12px arial';
-    innerElement.style.lineHeight = '12px';
+    innerElement.style.border = '2px solid '+line.color;
+    innerElement.style.font = 'normal '+line.size+'px arial';
+    innerElement.style.lineHeight = line.size+'px';
+    innerElement.style.borderRadius="15px";
 
     innerElement.style.paddingTop = '2px';
     innerElement.style.paddingLeft = '4px';
@@ -623,7 +631,7 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
 
     if (parameters.editable != null && parameters.editable == true) {
         PolyLine.setData({'editEvent':true});
-        markers = jsMaps.Here.EditPolyLine(parameters.path,PolyLine,obj,behavior);
+        markers = jsMaps.Here.EditPolyLine(parameters.path,PolyLine,obj,behavior,false,parameters);
     } else {
         PolyLine.setData({'editEvent':false});
     }
@@ -802,7 +810,7 @@ jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
     }
 
     Polygon.setStrip(jsMaps.Here.ReturnStrip(npath));
-    return jsMaps.Here.EditPolyLine(npath,Polygon,obj,behavior,true);
+    return jsMaps.Here.EditPolyLine(npath,Polygon,obj,behavior,true,parameters);
 };
 
 /**
