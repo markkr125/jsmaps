@@ -95,7 +95,35 @@ jsMaps.api = {
     attach_event: function (element,event,fn,once) {
         if (this.object == null) throw "Invalid map object";
 
-        return this.object.attachEvent(element,event,fn.bind(element),once);
+        if (typeof element._events == 'undefined') {
+            element._events = {};
+            element._eventsActive = {};
+            element.propegationStoped = {};
+            element.eventNum = 0;
+        }
+
+        if (typeof element._events[event] == 'undefined') {
+            element._events[event] = 0;
+            element._eventsActive[event] = {};
+            element.propegationStoped[event] = 0;
+        }
+
+        element._events[event]++;
+        var num =  element._events[event];
+
+        var fx = function (event) {
+            if (this.propegationStoped[event.getEventName()] == 0) {
+                this._eventsActive[event.getEventName()][num] = 1;
+            }
+
+            if (this._eventsActive[event.getEventName()][num] != 1 && this.propegationStoped[event.getEventName()] == 1) {
+                return;
+            }
+
+            fn.bind(element)(event);
+        };
+
+        return this.object.attachEvent(element,event,fx.bind(element),once);
     },
 
     /**

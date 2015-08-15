@@ -133,27 +133,38 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) 
     }
 
     if (eventTranslation == 'click') {
-        fn = function () {
+        fn = function (event) {
             if (typeof content.object.clickable != 'undefined' && content.object.clickable == false) {
                 return;
             }
 
-            functionToRun();
+            functionToRun(event);
         }
     }
 
+    var useFn = function (e) {
+        var eventHooking = function() {};
+        eventHooking.prototype = new jsMaps.Event(e,event,content);
+
+        eventHooking.prototype.getCursorPosition = function () {
+            var latLng = e.target.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
+
+            return  {lat: latLng.latitude, lng: latLng.longitude};
+        };
+
+        fn(new eventHooking);
+    };
 
     if (once) {
-        var lister = Microsoft.Maps.Events.addHandler(content.object,eventTranslation,function () {
-            content.object.removeHandler(lister);
-
-            fn()
+        var lister = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation,function (event) {
+            Microsoft.Maps.Events.removeHandler(lister);
+            useFn(event);
         });
 
         return;
     }
 
-    return Microsoft.Maps.Events.addHandler(content.object,eventTranslation, fn);
+    return Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation, useFn);
 };
 
 /**
@@ -163,7 +174,7 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) 
  * @returns {*}
  */
 jsMaps.Bing.prototype.removeEvent = function (obj,eventObject) {
-    obj.removeHandler(eventObject);
+    Microsoft.Maps.Events.removeHandler(eventObject);
 };
 
 /**

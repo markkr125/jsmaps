@@ -525,6 +525,30 @@ jsMaps.Abstract.prototype.staticMap = function(parameters,markers,path) {};
  */
 jsMaps.Abstract.prototype.addressGeoSearch = function(search,fn) {};
 
+function FatalError(){ Error.apply(this, arguments); this.name = "FatalError"; }
+FatalError.prototype = Object.create(Error.prototype);
+
+
+jsMaps.Event = function (e,eventName,container) {
+    return {
+        eventObject: e,
+        eventName: eventName,
+        container: container,
+        getCursorPosition: function () {
+            return {lat: 0, lng: 0};
+        },
+
+        stopPropagation: function () {
+            this.container.propegationStoped[this.getEventName()] = 1;
+        },
+
+        getEventName: function () {
+            return this.eventName;
+        }
+    }
+};
+
+
 jsMaps.loader = function(fn) {
     if (document.readyState != 'loading'){
         fn();

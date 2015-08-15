@@ -88,10 +88,26 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
  * @returns {*}
  */
 jsMaps.Google.prototype.attachEvent = function (content,event,fn,once) {
+    var useFn = function (e) {
+        var eventHooking = function() {};
+        eventHooking.prototype = new jsMaps.Event(e,event,content);
+
+        eventHooking.prototype.getCursorPosition = function () {
+            if (typeof this.eventObject == 'undefined' || typeof this.eventObject.latLng == 'undefined') {
+                return {lat: 0, lng: 0};
+            }
+
+            var event = this.eventObject.latLng;
+            return  {lat: event.lat(), lng: event.lng()};
+        };
+
+        fn(new eventHooking);
+    };
+
     if (typeof once != 'undefined' && once == true) {
-        return google.maps.event.addListenerOnce(content.object, event, fn);
+        return google.maps.event.addListenerOnce(content.object, event, useFn);
     } else {
-        return google.maps.event.addListener(content.object,event, fn);
+        return google.maps.event.addListener(content.object,event, useFn);
     }
 };
 

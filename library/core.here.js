@@ -126,14 +126,30 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
     var fn = functionToRun;
 
     if (eventTranslation == 'tap') {
-        fn = function () {
+        fn = function (event) {
             if (typeof obj.clickable != 'undefined' && obj.clickable == false) {
                 return;
             }
 
-            functionToRun();
+            functionToRun(event);
         }
     }
+
+    var useFn = function (e) {
+        var eventHooking = function() {};
+        eventHooking.prototype = new jsMaps.Event(e,event,content);
+
+        eventHooking.prototype.getCursorPosition = function () {
+            if (typeof this.eventObject.currentPointer == 'undefined') {
+                return {lat: 0, lng: 0};
+            }
+
+            var event = this.container.object.map.screenToGeo(this.eventObject.currentPointer.viewportX, this.eventObject.currentPointer.viewportY);
+            return  {lat: event.lat, lng: event.lng};
+        };
+
+        fn(new eventHooking);
+    };
 
     // Marker icon change
     if (typeof once != 'undefined' && once == true) {
@@ -145,13 +161,13 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
         var event1=function (evt) {
             obj.removeEventListener(eventTranslation, event1);
 
-            fn();
+            useFn(evt);
         };
 
         obj.addEventListener(eventTranslation, event1, false);
         return {eventObj: content, eventName: event};
     } else {
-        obj.addEventListener(eventTranslation, fn, false);
+        obj.addEventListener(eventTranslation, useFn, false);
         return {eventObj: content, eventName: event};
     }
 };
@@ -477,7 +493,6 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
     // Listen to the drag event and move the position of the marker
     // as necessary
     obj.addEventListener('drag', function (ev) {
-
         var target = ev.target,
             pointer = ev.currentPointer;
         if (target instanceof mapsjs.map.DomMarker) {

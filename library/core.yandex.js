@@ -233,21 +233,33 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
     var curCnt = jsMaps.Yandex.cnt;
 
     if (eventTranslation == 'click') {
-        fn = function () {
+        fn = function (event) {
             if (typeof content.object.clickable != 'undefined' && content.object.clickable == false) {
                 return;
             }
 
-            functionToRun();
+            functionToRun(event);
         }
     }
+
+    var useFn = function (e) {
+        var eventHooking = function() {};
+        eventHooking.prototype = new jsMaps.Event(e,event,content);
+
+        eventHooking.prototype.getCursorPosition = function () {
+            var event = this.eventObject.get('coords');
+            return  {lat: event[0], lng: event[1]};
+        };
+
+        fn(new eventHooking);
+    };
 
 
     ymaps.ready(function () {
         if (once) {
-            content.object.events.once(eventTranslation, fn);
+            content.object.events.once(eventTranslation, useFn);
         } else {
-            jsMaps.Yandex.attachedEvents[curCnt] = content.object.events.add(eventTranslation, fn);
+            jsMaps.Yandex.attachedEvents[curCnt] = content.object.events.add(eventTranslation, useFn);
         }
     }, this);
 
