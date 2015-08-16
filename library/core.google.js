@@ -122,6 +122,15 @@ jsMaps.Google.prototype.removeEvent = function (map,eventObject) {
 };
 
 /**
+ *
+ * @param element
+ * @param eventName
+ */
+jsMaps.Google.prototype.triggerEvent = function (element,eventName) {
+    google.maps.event.trigger(element.object, eventName);
+};
+
+/**
  * Bounds object
  *
  * @param map

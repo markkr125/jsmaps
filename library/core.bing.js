@@ -92,9 +92,8 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
     return new hooking();
 };
 
-jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) {
+jsMaps.Bing.eventTranslation = function (content,event) {
     var eventTranslation = '';
-    var fn = functionToRun;
 
     if (content.__className == 'MapStructure') {
         if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = 'targetviewchanged';
@@ -131,6 +130,14 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) 
         if (event == jsMaps.api.supported_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.rightclick) eventTranslation = 'rightclick';
     }
+
+    return eventTranslation;
+};
+
+jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) {
+    var eventTranslation = jsMaps.Bing.eventTranslation(content,event);
+
+    var fn = functionToRun;
 
     if (eventTranslation == 'click') {
         fn = function (event) {
@@ -175,6 +182,38 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) 
  */
 jsMaps.Bing.prototype.removeEvent = function (obj,eventObject) {
     Microsoft.Maps.Events.removeHandler(eventObject);
+};
+
+
+/**
+ *
+ * @param element
+ * @param eventName
+ */
+jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
+    var eventTranslation = jsMaps.Bing.eventTranslation(element,eventName);
+
+    var dispatchOn = element.object;
+    Microsoft.Maps.Events.invoke(dispatchOn,eventTranslation);
+};
+
+
+/**
+ *
+ * @param map
+ * @param eventObject
+ * @returns {*}
+ */
+jsMaps.Bing.prototype.removeEvent = function (map,eventObject) {
+    if (eventObject.eventObjCustom != 'undefined') {
+        jsMaps.removeEventListener(eventObject.eventObjCustom, eventObject.eventName, function () {});
+        return;
+    }
+
+    var obj = map.object;
+    if (typeof obj.map != 'undefined') obj = obj.map;
+
+    obj.removeEventListener(eventObject.eventName, function () {});
 };
 
 /**

@@ -137,6 +137,10 @@ jsMaps.api = {
         this.object.removeEvent(element,eventObject);
     },
 
+    trigger_event: function (element,eventName) {
+        this.object.triggerEvent(element,eventName);
+    },
+
     /**
      *
      * @param map

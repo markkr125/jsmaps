@@ -471,6 +471,7 @@ jsMaps.Abstract.prototype.polygons = [];
 jsMaps.Abstract.prototype.initializeMap = function(mapDomDocument,options,providerOptions) {};
 jsMaps.Abstract.prototype.attachEvent = function(content,event,fn,once) {};
 jsMaps.Abstract.prototype.removeEvent = function(map,eventObject) {};
+jsMaps.Abstract.prototype.triggerEvent = function(element,eventName) {};
 
 /**
  *

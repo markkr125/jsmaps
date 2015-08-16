@@ -178,16 +178,7 @@ jsMaps.Yandex.prototype.bounds = function (mapObject) {
 jsMaps.Yandex.cnt = 0;
 jsMaps.Yandex.attachedEvents = {};
 
-/**
- * Attach map events
- *
- * @param content
- * @param event
- * @param functionToRun
- * @param once
- * @returns {*}
- */
-jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once) {
+jsMaps.Yandex.eventTranslation = function (content,event) {
     var eventTranslation = '';
 
     if (content.__className == 'map') {
@@ -225,6 +216,21 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
         if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
         if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'optionschange';
     }
+
+    return eventTranslation;
+};
+
+/**
+ * Attach map events
+ *
+ * @param content
+ * @param event
+ * @param functionToRun
+ * @param once
+ * @returns {*}
+ */
+jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once) {
+    var eventTranslation = jsMaps.Yandex.eventTranslation (content,event);
 
     jsMaps.Yandex.cnt++;
     jsMaps.Yandex.attachedEvents[jsMaps.Yandex.cnt] = null;
@@ -275,6 +281,18 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
 jsMaps.Yandex.prototype.removeEvent = function (map, eventObject) {
     ymaps.ready(function () {
         jsMaps.Yandex.attachedEvents[eventObject.c].remove(eventObject.e,eventObject.f);
+    }, this);
+};
+
+/**
+ *
+ * @param element
+ * @param eventName
+ */
+jsMaps.Yandex.prototype.triggerEvent = function (element,eventName) {
+    ymaps.ready(function () {
+        var eventTranslation = jsMaps.Yandex.eventTranslation(element,eventName);
+        element.object.events.fire(eventTranslation);
     }, this);
 };
 

@@ -87,16 +87,7 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
     return new hooking();
 };
 
-/**
- * Attach map events
- *
- * @param content
- * @param event
- * @param functionToRun
- * @param once
- * @returns {*}
- */
-jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) {
+jsMaps.Here.eventName = function (event) {
     var eventTranslation = '';
 
     if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = 'mapviewchange';
@@ -119,6 +110,21 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
     if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'pointerup';
     if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'pointerdown';
     if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'visibilitychange';
+
+    return eventTranslation;
+};
+
+/**
+ * Attach map events
+ *
+ * @param content
+ * @param event
+ * @param functionToRun
+ * @param once
+ * @returns {*}
+ */
+jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) {
+    var eventTranslation = jsMaps.Here.eventName(event);
 
     var obj = content.object;
     if (typeof obj.map != 'undefined') obj = obj.map;
@@ -190,6 +196,19 @@ jsMaps.Here.prototype.removeEvent = function (map,eventObject) {
     obj.removeEventListener(eventObject.eventName, function () {});
 };
 
+/**
+ *
+ * @param element
+ * @param eventName
+ */
+jsMaps.Here.prototype.triggerEvent = function (element,eventName) {
+    var eventTranslation = jsMaps.Here.eventName(eventName);
+
+    var dispatchOn = element.object;
+
+    if (typeof element.object != 'undefined' && typeof element.object.map != 'undefined') dispatchOn = element.object.map;
+    dispatchOn.dispatchEvent(eventTranslation);
+};
 
 /**
  * Bounds object
