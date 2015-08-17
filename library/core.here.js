@@ -131,6 +131,17 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
 
     var fn = functionToRun;
 
+    if (event == jsMaps.api.supported_events.zoom_changed) {
+        var localZoom = content.object.map.getZoom();
+        fn = function (event) {
+            if(localZoom != content.object.map.getZoom()){
+                localZoom = content.object.map.getZoom();
+
+                functionToRun(event);
+            }
+        }
+    }
+
     if (eventTranslation == 'tap') {
         fn = function (event) {
             if (typeof obj.clickable != 'undefined' && obj.clickable == false) {

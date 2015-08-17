@@ -238,6 +238,17 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
     var fn = functionToRun;
     var curCnt = jsMaps.Yandex.cnt;
 
+    if (event == jsMaps.api.supported_events.zoom_changed) {
+        var localZoom = content.getZoom();
+        fn = function (event) {
+            if(localZoom != content.getZoom()){
+                localZoom = content.getZoom();
+
+                functionToRun(event);
+            }
+        }
+    }
+
     if (eventTranslation == 'click') {
         fn = function (event) {
             if (typeof content.object.clickable != 'undefined' && content.object.clickable == false) {

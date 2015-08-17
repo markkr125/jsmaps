@@ -108,7 +108,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.supported_events.mouseout) eventTranslation = 'mouseout';
         if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseover';
         if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'rightclick';
-        if (event == jsMaps.api.supported_events.tilesloaded || event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'tiledownloadcomplete';
+        if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'tiledownloadcomplete';
         if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'imagerychanged';
         if (event == jsMaps.api.supported_events.domready) eventTranslation = 'tiledownloadcomplete';
         if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
@@ -134,8 +134,22 @@ jsMaps.Bing.eventTranslation = function (content,event) {
     return eventTranslation;
 };
 
-jsMaps.Bing.prototype.attachEvent = function (content,event,functionToRun,once) {
+jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,once) {
     var eventTranslation = jsMaps.Bing.eventTranslation(content,event);
+    var functionToRun = functionToExecute;
+
+
+    if (content.__className == 'MapStructure' && event == jsMaps.api.supported_events.zoom_changed) {
+       var localZoom = content.object.getZoom();
+        functionToRun = function (event) {
+
+             if(localZoom != content.object.getZoom()){
+                 localZoom = content.object.getZoom();
+
+                 functionToExecute(event);
+            }
+        }
+    }
 
     var fn = functionToRun;
 
