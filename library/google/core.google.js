@@ -1,5 +1,7 @@
-jsMaps.Google = function(mapDomDocument) {};
-jsMaps.Google.prototype = new jsMaps.Abstract();
+if (typeof jsMaps.Google == 'undefined') {
+    jsMaps.Google = function(mapDomDocument) {};
+    jsMaps.Google.prototype = new jsMaps.Abstract();
+}
 
 /**
  * create the mal
@@ -509,116 +511,4 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
     };
 
     return new hooking();
-};
-
-/**
- *
- * @param {jsMaps.staticMapOptions} parameters
- * @param {jsMaps.staticMapMarker[]} markers
- * @param {jsMaps.staticMapPath} path
- */
-jsMaps.Google.prototype.staticMap = function (parameters,markers,path) {
-    var mapParts = [];
-    if (parameters.center != null) {
-        mapParts.push('center='+encodeURIComponent(parameters.center.lat)+','+encodeURIComponent(parameters.center.lng));
-    }
-
-    if (parameters.zoom != null) {
-        mapParts.push('zoom='+encodeURIComponent(parameters.zoom));
-    }
-
-    if (typeof parameters.maptype == 'undefined') parameters.maptype = jsMaps.staticMapOptions.supported_map_types.roadmap;
-
-    mapParts.push('size='+encodeURIComponent(parameters.size.width+'x'+parameters.size.height));
-    mapParts.push('maptype='+encodeURIComponent(parameters.maptype));
-
-    var map = 'https://maps.googleapis.com/maps/api/staticmap?'+mapParts.join('&');
-
-    if (typeof markers != 'undefined' && markers.length > 0) {
-        for (var i in markers) {
-            if (markers.hasOwnProperty(i) == false) continue;
-            var marker = markers[i];
-
-            var string = [];
-            if (marker.color!= '')  string.push('color:0x'+marker.color);
-            if (marker.label!= '')  string.push('label:'+marker.label);
-            string.push(marker.location.lat+','+marker.location.lng);
-
-            map += '&markers='+encodeURIComponent(string.join('|'));
-        }
-    }
-
-    if (typeof path != 'undefined') {
-        var pathData = 'color:0x'+path.color+'|weight:'+path.weight;
-        if (typeof path.fillColor != 'undefined') pathData += '|fillcolor:0x'+path.fillColor;
-
-        for (var p in path.path) {
-            if (path.path.hasOwnProperty(p) == false) continue;
-            var latLng = path.path[p];
-
-            pathData += '|'+latLng.lat+','+latLng.lng;
-        }
-
-        map += '&path='+encodeURIComponent(pathData);
-    }
-
-    return map;
-};
-
-/**
- *
- * @param search
- * @param fn
- */
-jsMaps.Google.prototype.addressGeoSearch = function (search, fn) {
-    new google.maps.Geocoder().geocode({'address': search}, function (results, status) {
-        var geoCoder = {'results': []};
-
-        // Google return an error
-        if (status != google.maps.GeocoderStatus.OK) {
-            fn(geoCoder);
-            return;
-        }
-
-        // create the unified geocode structure
-        if (results.length > 0) {
-
-            for (var i in results) {
-                if (results.hasOwnProperty(i) == false) continue;
-                var result = results[i];
-
-                var formatted_address;
-                if (typeof result.formatted_address != 'undefined') {
-                    formatted_address = result.formatted_address;
-                } else {
-                    var address_components = [];
-
-                    for (var c in result.address_components) {
-                        if (result.address_components.hasOwnProperty(c) == false) continue;
-                        address_components.push(result.address_components[c].long_names);
-                    }
-
-                    formatted_address = address_components.join (', ');
-                }
-
-                var location = new jsMaps.geo.Location(result.geometry.location.lat(),result.geometry.location.lng());
-                var view_port_google = result.geometry.viewport;
-
-                var topLeft = view_port_google.getNorthEast();
-                var bottomRight = view_port_google.getSouthWest();
-
-                var view_port = jsMaps.geo.View_port;
-
-                view_port.getTopLeft = {lat: topLeft.lat(), lng: topLeft.lng()};
-                view_port.getBottomRight = {lat: bottomRight.lat(), lng: bottomRight.lng()};
-                view_port.location_type = result.geometry.location_type;
-
-                var geoCoderResult = new jsMaps.AddressSearchResult(formatted_address, result.types, (typeof results.partial_match != 'undefined' && results.partial_match == true), new jsMaps.Geometry(location,view_port));
-
-                geoCoder['results'].push(geoCoderResult);
-            }
-        }
-
-        fn(geoCoder);
-    });
 };

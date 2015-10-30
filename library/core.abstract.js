@@ -103,7 +103,11 @@ jsMaps.supported_location_types = {
 };
 
 jsMaps.geo = function () {};
+
 jsMaps.geo.Location = function (lat,lng) {
+    lat = parseFloat(lat);
+    lng = parseFloat(lng);
+
     return {lat: lat, lng: lng};
 };
 
@@ -526,6 +530,50 @@ jsMaps.Abstract.prototype.staticMap = function(parameters,markers,path) {};
  */
 jsMaps.Abstract.prototype.addressGeoSearch = function(search,fn) {};
 
+/**
+ * Taken from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Compatibility
+ */
+if (!Array.prototype.indexOf)
+{
+    Array.prototype.indexOf = function(elt /*, from*/)
+    {
+        var len = this.length >>> 0;
+
+        var from = Number(arguments[1]) || 0;
+        from = (from < 0)
+            ? Math.ceil(from)
+            : Math.floor(from);
+        if (from < 0)
+            from += len;
+
+        for (; from < len; from++)
+        {
+            if (from in this &&
+                this[from] === elt)
+                return from;
+        }
+        return -1;
+    };
+}
+
+/**
+ * http://stackoverflow.com/questions/18020265/object-create-not-supported-in-ie8
+ */
+if (!Object.create) {
+    Object.create = function(o, properties) {
+        if (typeof o !== 'object' && typeof o !== 'function') throw new TypeError('Object prototype may only be an Object: ' + o);
+        else if (o === null) throw new Error("This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.");
+
+        if (typeof properties != 'undefined') throw new Error("This browser's implementation of Object.create is a shim and doesn't support a second argument.");
+
+        function F() {}
+
+        F.prototype = o;
+
+        return new F();
+    };
+}
+
 function FatalError(){ Error.apply(this, arguments); this.name = "FatalError"; }
 FatalError.prototype = Object.create(Error.prototype);
 
@@ -551,10 +599,23 @@ jsMaps.Event = function (e,eventName,container) {
 
 
 jsMaps.loader = function(fn) {
-    if (document.readyState != 'loading'){
-        fn();
+    if ( document.addEventListener ) {
+        // Use the handy event callback
+        document.addEventListener( "DOMContentLoaded", function(){
+            document.removeEventListener( "DOMContentLoaded", arguments.callee, false );
+            fn();
+        }, false );
+
     } else {
-        document.addEventListener('DOMContentLoaded', fn);
+        // ensure firing before onload,
+        // maybe late but safe also for iframes
+        document.attachEvent("onreadystatechange", function(){
+            if ( document.readyState === "complete" ) {
+                document.detachEvent( "onreadystatechange", arguments.callee );
+                fn();
+            }
+        });
+
     }
 };
 
@@ -636,6 +697,24 @@ jsMaps.convertHex = function (hex,opacity,returnArray){
 if (typeof Array.isArray === 'undefined') {
     Array.isArray = function(obj) {
         return Object.prototype.toString.call(obj) === '[object Array]';
+    };
+}
+
+if (('ActiveXObject' in window) && !document.addEventListener) {
+    Function.prototype.bind = (function () {
+    }).bind || function (b) {
+        if (typeof this !== "function") {
+            throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+        }
+        function c() {
+        }
+
+        var a = [].slice, f = a.call(arguments, 1), e = this, d = function () {
+            return e.apply(this instanceof c ? this : b || window, f.concat(a.call(arguments)));
+        };
+        c.prototype = this.prototype;
+        d.prototype = new c();
+        return d;
     };
 }
 

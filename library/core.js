@@ -1,4 +1,4 @@
-var SUPPORTED_MAP_PROVIDERS = ['google','here','bing','yandex'];
+var SUPPORTED_MAP_PROVIDERS = ['google','here','bing','yandex','native'];
 
 jsMaps.config = {
     here: {
@@ -47,7 +47,7 @@ jsMaps.api = {
         tilesloaded: 'tilesloaded',
         tilt_changed: 'tilt_changed',
         zoom_changed: 'zoom_changed',
-        domready: 'domready'
+        domready: 'domready' // only for info window
     },
     additional_events: { // Events that a re specific only for poly lines, markers etc...
         icon_changed: 'icon_changed',
@@ -174,6 +174,10 @@ jsMaps.api = {
 
         if (provider == 'yandex') {
             object = new jsMaps.Yandex();
+        }
+
+        if (provider == 'native') {
+            object = new jsMaps.Native();
         }
 
         return object;
