@@ -1,4 +1,4 @@
-# JsMaps
+# JsMaps - Interactive Javascript Maps
 JsMaps is a Javascript library with a full featured Interactive Slippy Map, with no external dependencies, only needs a tile server url. JsMaps also provides a single, common interface for a wide variety of Javascript map APIs, allowing a a developer to easliy switch from one maps API to another.
 
 [Project Home Page (includes examples)](http://markkr125.github.io/jsmaps/)
