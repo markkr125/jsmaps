@@ -1,0 +1,41 @@
+---
+layout: example
+title: Geocoder
+permalink: /examples/geocoder/
+description: This example displays geocode results, please note, that results data and quality are different on every mapping provider.
+engines: google yandex bing here
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        $('#load-geo-data').click(function () {
+            jsMaps.api.addressSearch('%supplier%','Eiffel Tower, Avenue Anatole France, Paris, France',function (data){
+                $('#geoData').find('code').html(JSON.stringify(data,null,2));
+                $('pre code').each(function (i, block) {
+                    hljs.highlightBlock(block);
+                });
+            });
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/highlight.js/8.9.1/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/highlight.js/8.9.1/languages/json.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/8.9.1/styles/default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/8.9.1/styles/github.min.css">
+<form>
+    <div class="form-group">
+        <p><button type="button" id="load-geo-data" class="btn btn-primary">Show geocoder results</button></p>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="geoData">
+                <pre><code></code> </pre>
+            </div>
+
+        </div>
+    </div>
+</form>

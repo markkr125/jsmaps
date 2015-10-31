@@ -1,0 +1,31 @@
+- name: Basic Map
+  description: This example displays a basic movable map with all enabled options.
+  link: /examples/basic_map/
+
+- name: Draggable Marker
+  description: This example displays a  draggable marker on the map.
+  link: /examples/draggable_marker/
+
+- name: Infobox
+  description: This example displays a map with two markers, clicking on a marker opens an infobubble which holds HTML content related to the marker.
+  link: /examples/infobox/
+
+- name: Map Events
+  description: This example displays how the events are being handled  on verious API's
+  link: /examples/map_events/
+
+- name: Polyline
+  description: This example displays polylines with different options enabled.
+  link: /examples/polylines/
+
+- name: Polygon
+  description: This example displays polygons with different options enabled.
+  link: /examples/polygons/
+
+- name: Static Map
+  description: This example displays a static map link generator.
+  link: /examples/static_map/
+
+- name: Geocoder
+  description: This example displays geocode results, please note, that results data and quality are different on every mapping provider.
+  link: /examples/geocoder/

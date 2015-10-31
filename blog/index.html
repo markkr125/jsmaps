@@ -1,0 +1,63 @@
+---
+layout: default
+title: Blog
+is-blog: 1
+---
+<h1>Posts <small><a href="{{ "/feed.xml" | prepend: site.baseurl }}" title="Subscribe Via RSS"><i class="fa fa-rss"></i></a></small></h1>
+
+{% for post in paginator.posts %}
+<hr />
+<h4><a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></h4>
+<p>{{ post.excerpt | remove: '<p>' | remove: '</p>' }}</p>
+<div>
+    <span class="badge">{{ post.date | date: "%b %-d, %Y" }}</span>
+</div>
+{% endfor %}
+
+<!-- Pagination links -->
+{% if paginator.total_pages > 1 %}
+<nav>
+    <ul class="pagination">
+        {% if paginator.previous_page %}
+        <li>
+            <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+            <a href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+
+        {% for page in (1..paginator.total_pages) %}
+        {% if page == paginator.page %}
+        <li class="disabled"><a href="#">{{ page }}</a></li>
+        {% elsif page == 1 %}
+        <li><a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">{{ page }}</a></li>
+        {% else %}
+        <li><a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+
+        {% if paginator.next_page %}
+        <li>
+            <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="disabled">
+            <a href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        {% endif %}
+
+
+    </ul>
+</nav>
+{% endif %}

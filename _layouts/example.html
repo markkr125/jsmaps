@@ -1,0 +1,48 @@
+---
+layout: default
+example: 1
+---
+<ol class="breadcrumb">
+    <li><a href="{{ '/examples/' | prepend: site.baseurl }}">Examples</a></li>
+    <li class="active">{{ page.title }}</li>
+</ol>
+
+<div class="page-header">
+    <h2>{{ page.title }} <br /><small>{{ page.description }}</small></h2>
+</div>
+<div class="btn-group" id="suppliers-btn-group" role="group">
+
+</div>
+<p class="lead"><iframe id="example-frame" scrolling="yes" src=""></iframe></p>
+
+<div class="panel with-nav-tabs panel-primary">
+    <div class="panel-heading">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#Javascript" data-toggle="tab">Javascript</a></li>
+            <li><a href="#fullHtml" data-toggle="tab">Full HTML</a></li>
+        </ul>
+    </div>
+    <div class="panel-body">
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="Javascript"><pre><code class="javascript hljs"></code></pre></div>
+            <div class="tab-pane fade" id="fullHtml"><pre><code class="xml hljs">
+            </code></pre></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    function heredoc (f) {
+        return f.toString().match(/\/\*\s*([\s\S]*?)\s*\*\//m)[1];
+    }
+
+    var txt = heredoc(function(){
+    /*
+     {{ content | uri_escape}}
+     */
+    });
+
+    ExampleLoader.exampleButtons(txt,"{{page.engines}}");
+});
+</script>

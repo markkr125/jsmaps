@@ -1,0 +1,29 @@
+---
+layout: example
+title: Basic Map
+permalink: /examples/basic_map/
+description: This example displays a basic movable map with all enabled options.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+    });
+</script>
+
+<div id='map'></div>

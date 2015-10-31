@@ -1,0 +1,66 @@
+---
+layout: example
+title: Polygon
+permalink: /examples/polygons/
+description: This example displays polygons with different options enabled.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+        var polygon = [
+            {lat: 32.07959287095117, lng: 34.77048397064209},
+            {lat: 32.084901663548315, lng: 34.771857261657715},
+            {lat: 32.08395628469357, lng: 34.77966785430908},
+            {lat: 32.07893834092388, lng: 34.77829456329346},
+        ];
+
+        // Construct the polygon.
+        jsMaps.api.polygon(map,{
+            paths: polygon,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            editable: true,
+            draggable: true
+        });
+
+        var polyLine2 = [
+            {lat: 32.083301785911715,lng: 34.78421688079834},
+            {lat: 32.076683812735105,lng: 34.78292942047119},
+            {lat: 32.079156518120385,lng: 34.79039669036865}
+        ];
+
+        // Construct the polygon.
+        jsMaps.api.polygon(map,{
+            paths: polyLine2,
+            strokeColor: '#33D92E',
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+            fillColor: '#33D92E',
+            fillOpacity: 0.35,
+            editable: true,
+            draggable: true
+        });
+    });
+</script>
+
+<div id='map'></div>

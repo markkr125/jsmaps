@@ -1,0 +1,65 @@
+---
+layout: example
+title: Infobox
+permalink: /examples/infobox/
+description: This example displays a map with two markers, clicking on a marker opens an infobubble which holds HTML content related to the marker.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+        var marker1 = jsMaps.api.marker(map,{position: {lat: 32.071351,lng: 34.807546}, title: 'Marker No 1',draggable: true});
+        var marker2 = jsMaps.api.marker(map,{position: {lat: 32.083458,lng: 34.772921}, title: 'Marker No 2',draggable: true});
+
+        var contentString = '<div id="content">'+
+                '<div id="siteNotice">'+
+                '</div>'+
+                '<h1 id="firstHeading" class="firstHeading">Text displayed on click</h1>'+
+                '<div id="bodyContent">'+
+                '<p>This infobox is displayed only on click</p>'+
+                '</div>'+
+                '</div>';
+
+        var contentString2 = '<div id="content">'+
+                '<div id="siteNotice">'+
+                '</div>'+
+                '<h1 id="firstHeading" class="firstHeading">Text displayed on hover</h1>'+
+                '<div id="bodyContent">'+
+                '<p>This infobox is displayed only on hover</p>'+
+                '</div>'+
+                '</div>';
+
+        var infoWindow = jsMaps.api.infoWindow({content: contentString});
+        var infoWindow2 = jsMaps.api.infoWindow({content: contentString2});
+
+        jsMaps.api.attach_event(marker1,'click',function() {
+            infoWindow.open(map,marker1);
+        });
+
+        jsMaps.api.attach_event(marker2,'mouseover',function() {
+            infoWindow2.open(map,marker2);
+        });
+
+        jsMaps.api.attach_event(marker2,'mouseout',function() {
+            infoWindow2.close();
+        });
+    });
+</script>
+
+<div id='map'></div>

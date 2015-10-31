@@ -1,0 +1,95 @@
+---
+layout: example
+title: Map Events
+permalink: /examples/map_events/
+description: This example displays how the events are being handled on verious API's
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+        function highlight_effect (selector) {
+            $('#'+selector).addClass("active"); setTimeout(function () {$('#'+selector).removeClass("active");} ,1000);
+        }
+
+        jsMaps.api.attach_event(map, 'bounds_changed', function () { highlight_effect('bounds_changed'); });
+        jsMaps.api.attach_event(map, 'center_changed', function () { highlight_effect('center_changed'); });
+        jsMaps.api.attach_event(map, 'click', function () { highlight_effect('click'); });
+        jsMaps.api.attach_event(map, 'dblclick', function () { highlight_effect('dblclick'); });
+        jsMaps.api.attach_event(map, 'drag', function () { highlight_effect('drag'); });
+        jsMaps.api.attach_event(map, 'dragend', function () { highlight_effect('dragend'); });
+        jsMaps.api.attach_event(map, 'idle', function () { highlight_effect('idle'); });
+        jsMaps.api.attach_event(map, 'dragstart', function () { highlight_effect('dragstart'); });
+        jsMaps.api.attach_event(map, 'maptypeid_changed', function () { highlight_effect('maptypeid_changed'); });
+        jsMaps.api.attach_event(map, 'mousemove', function () { highlight_effect('mousemove'); });
+        jsMaps.api.attach_event(map, 'mouseout', function () { highlight_effect('mouseout'); });
+        jsMaps.api.attach_event(map, 'mouseover', function () { highlight_effect('mouseover'); });
+        jsMaps.api.attach_event(map, 'rightclick', function () { highlight_effect('rightclick'); });
+        jsMaps.api.attach_event(map, 'tilesloaded', function () { highlight_effect('tilesloaded'); });
+        jsMaps.api.attach_event(map, 'tilt_changed', function () { highlight_effect('tilt_changed'); });
+        jsMaps.api.attach_event(map, 'zoom_changed', function () { highlight_effect('zoom_changed'); });
+        jsMaps.api.attach_event(map, 'mouseup', function () { highlight_effect('mouseup'); });
+        jsMaps.api.attach_event(map, 'mousedown', function () { highlight_effect('mousedown'); });
+    });
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+    .nav-example li a{
+        padding: 0 !important;
+    }
+
+    #map * {
+        -webkit-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8" style="padding: 0;margin: 0;">
+            <div id="map" style="height: 450px; background: grey"></div>
+        </div>
+        <div class="col-md-4">
+            <ul class="nav nav-pills nav-stacked nav-example">
+                <li id="bounds_changed"><a>bounds_changed</a></li>
+                <li id="center_changed"><a>center_changed</a></li>
+                <li id="click"><a>click</a></li>
+                <li id="dblclick"><a>dblclick</a></li>
+                <li id="drag"><a>drag</a></li>
+                <li id="dragend"><a>dragend</a></li>
+                <li id="dragstart"><a>dragstart</a></li>
+                <li id="idle"><a>idle</a></li>
+                <li id="maptypeid_changed"><a>maptypeid_changed</a></li>
+                <li id="mousemove"><a>mousemove</a></li>
+                <li id="mouseout"><a>mouseout</a></li>
+                <li id="mouseover"><a>mouseover</a></li>
+                <li id="rightclick"><a>rightclick</a></li>
+                <li id="tilesloaded"><a>tilesloaded</a></li>
+                <li id="tilt_changed"><a>tilt_changed</a></li>
+                <li id="zoom_changed"><a>zoom_changed</a></li>
+                <li id="mouseup"><a>mouseup</a></li>
+                <li id="mousedown"><a>mousedown</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

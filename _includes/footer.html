@@ -1,0 +1,58 @@
+<hr>
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-6">        <ul class="social-media-list">
+                {% if site.github_username %}
+                <li>
+                    Developed By: <a href="https://github.com/{{ site.github_username }}" target="_blank">
+              <span class="icon  icon--github">
+                <i class="fa fa-github"></i>
+              </span>
+
+                        <span class="username">{{ site.github_username }}</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    Project Repository: <a href="https://github.com/markkr125/jsmaps/" target="_blank">
+              <span class="icon  icon--github">
+                <i class="fa fa-external-link"></i>
+              </span>
+
+                    <span class="username">GitHub Home Page</span>
+                </a>
+                </li>
+                <li>
+                    Issue tracker: <a href="https://github.com/markkr125/jsmaps/issues" target="_blank">
+              <span class="icon  icon--github">
+                <i class="fa fa-bug"></i>
+              </span>
+                    <span class="username">GitHub Issues</span>
+                </a>
+                </li>
+                {% if site.twitter_username %}
+                <li>
+                    <a href="https://twitter.com/{{ site.twitter_username }}">
+              <span class="icon  icon--twitter">
+                <i class="fa fa-twitter"></i>
+              </span>
+
+                        <span class="username">{{ site.twitter_username }}</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li>
+                    <br />
+                    <iframe src="https://ghbtns.com/github-btn.html?user=markkr125&repo=jsmaps&type=fork&count=true&v=2" allowtransparency="true" frameborder="0" scrolling="0" width="95" height="20"></iframe>
+                    <iframe src="https://ghbtns.com/github-btn.html?user=markkr125&repo=jsmaps&type=star&count=true&v=2" allowtransparency="true" frameborder="0" scrolling="0" width="95" height="20"></iframe>
+                    <iframe src="https://ghbtns.com/github-btn.html?user=markkr125&repo=jsmaps&type=watch&count=true&v=2" allowtransparency="true"  frameborder="0" scrolling="0" width="95" height="20"></iframe>
+                    <br /><br />
+                </li>
+
+            </ul></div>
+            <div class="col-xs-12 col-md-6"><h4><i class="fa fa-map-o"></i> {{ site.title }}</h4>{{ site.description }}</div>
+        </div>
+    </div>
+</footer>

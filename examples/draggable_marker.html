@@ -1,0 +1,32 @@
+---
+layout: example
+title: Draggable Marker
+permalink: /examples/draggable_marker/
+description: This example displays a draggable marker on the map.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+        jsMaps.api.marker(map,{position: {lat: 32.071351,lng: 34.807546}, title: 'Marker No 1',draggable: true});
+        jsMaps.api.marker(map,{position: {lat: 32.083458,lng: 34.772921}, title: 'Marker No 2',draggable: true});
+    });
+</script>
+
+<div id='map'></div>

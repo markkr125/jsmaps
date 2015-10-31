@@ -1,0 +1,18 @@
+# Site settings
+title: JsMaps - Interactive Javascript Maps
+email: mark125@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  JsMaps is a Javascript library with a full featured Interactive Slippy Map, with no external dependencies, only needs a tile server url.
+  JsMaps also provides a single, common interface for a wide variety of Javascript map APIs, allowing a a developer to easliy switch from one maps API to another.
+baseurl: "/jsmaps" # the subpath of your site, e.g. /blog/
+url: "http://yourdomain.com" # the base hostname & protocol for your site
+github_username:  markkr125
+permalink: /blog/:year/:month/:day/:title/
+paginate_path: "/blog/page:num"
+paginate: 10
+
+# Build settings
+markdown: redcarpet
+
+gems:
+  - jekyll-sitemap

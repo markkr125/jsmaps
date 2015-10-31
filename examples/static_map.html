@@ -1,0 +1,66 @@
+---
+layout: example
+title: Static Map
+permalink: /examples/static_map/
+description: This example displays a static map link generator.
+engines: google yandex bing here
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var paths = [
+            {lat: 51.509407,lng: -0.130628},
+            {lat:51.509476,lng: -0.130142},
+            {lat:51.509771,lng: -0.130153},
+            {lat:51.509678,lng: -0.130839},
+            {lat:51.509875,lng: -0.130563}
+        ];
+
+        var path = jsMaps.staticMapPath('green', 5, paths, 'green');
+
+        var markers = [
+            jsMaps.staticMapMarker('blue','A', 51.509407,-0.130628),
+            jsMaps.staticMapMarker('brown','B',51.509407,-0.130142),
+            jsMaps.staticMapMarker('yellow','C',51.509771,-0.130153),
+            jsMaps.staticMapMarker('orange','D',51.509678,-0.130839),
+            jsMaps.staticMapMarker('red','E',51.509875, -0.130563)
+        ];
+
+        var mapLink = jsMaps.api.staticMap('%supplier%', {
+            center: {lat: 51.509875, lng:  -0.130628},
+            zoom: 18,
+            size: {width: 400, height: 389}
+        },markers, path);
+
+        $('#map-link-container').attr('data-src',mapLink);
+
+        $('#load-image').click(function () {
+            var img = $('#map-link-container');
+            var imgVar = img.attr('data-src');
+
+            img.attr('src',imgVar);
+        });
+    });
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+    .nav-example li a{
+        padding: 0 !important;
+    }
+
+    #map * {
+        -webkit-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+    }
+</style>
+<form>
+    <div class="form-group">
+        <p><button type="button" id="load-image" class="btn btn-primary">Load the Image</button></p>
+        <img border="0" id="map-link-container" style="width: 400px; height: 389px;" src="" data-src="" />
+    </div>
+</form>

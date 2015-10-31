@@ -1,0 +1,61 @@
+---
+layout: example
+title: Polyline
+permalink: /examples/polylines/
+description: This example displays polylines with different options enabled.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+        var polyLine1 = [
+            {lat: 32.0899919969712,lng:  34.785847663879395},
+            {lat: 32.089337541416015,lng:  34.79365825653076},
+            {lat: 32.0843926146109,lng:  34.78516101837158},
+            {lat: 32.083301785911715,lng:  34.79151248931885}
+        ];
+
+        jsMaps.api.polyLine(map,{
+            path: polyLine1,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 6,
+            draggable: true,
+            editable: false
+        });
+
+        var polyLine2 = [
+            {lat: 32.08730142749022,lng: 34.77065563201904},
+            {lat: 32.086210633510404,lng: 34.77915287017822},
+            {lat: 32.07842925877363,lng: 34.766879081726074},
+            {lat: 32.07748381297294,lng: 34.77597713470459}
+        ];
+
+        jsMaps.api.polyLine(map,{
+            path: polyLine2,
+            strokeColor: '#33D92E',
+            strokeOpacity: 1.0,
+            strokeWeight: 6,
+            draggable: true,
+            editable: true
+        });
+    });
+</script>
+
+<div id='map'></div>

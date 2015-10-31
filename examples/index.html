@@ -1,0 +1,71 @@
+---
+layout: default
+title: Examples
+permalink: /examples/
+id: examples
+---
+<script>
+$(function() {
+    $('#text-search').keyup(function(){
+        var $page = $('#examples-list');
+        var searchedText = $(this).val();
+
+        $page.find('[data-role="example-description"]').each(function() {
+            var description = $(this).text();
+            description = description.replace(/<span>/g, "").replace(/<\/span>/g, "");
+
+            var theRegEx = new RegExp("("+searchedText+")", "igm");
+            var newHtml = description.replace(theRegEx ,"<span>$1</span>");
+
+            var updated = false;
+            if (newHtml != description) {
+                updated = true;
+            }
+            var parentElem = $(this).parent();
+
+            if (updated) {
+                parentElem.removeClass('hide');
+            } else {
+                if (parentElem.hasClass('hide') == false) {
+                    parentElem.addClass('hide');
+                }
+            }
+
+            $(this).html(newHtml);
+        });
+    });
+});
+</script>
+
+<div class="row row-offcanvas row-offcanvas-right">
+    <div class="col-xs-12">
+        <div class="jumbotron">
+            <h1>JsMaps Examples</h1>
+            <p>All examples are done using the native map, and the external API abstraction. Please note that not all features are supported equally, due to differences on the external APIs.</p>
+
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3">
+                    <div>
+                        <div class="input-group stylish-input-group">
+                            <input type="text" class="form-control" id="text-search" placeholder="Search Examples" />
+                    <span class="input-group-addon">
+                        <button type="submit">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="examples-list">
+            {% for example in site.data.examples %}
+            <div class="col-xs-6 col-lg-4">
+                <h2 data-role="example-name">{{ example.name }}</h2>
+                <p data-role="example-description">{{ example.description }}</p>
+                <p><a class="btn btn-default" href="{{ example.link }}" role="button">View example &raquo;</a></p>
+            </div><!--/.col-xs-6.col-lg-4-->
+            {% endfor %}
+        </div><!--/row-->
+    </div><!--/.col-xs-12.col-sm-9-->
+</div><!--/row-->
