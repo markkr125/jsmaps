@@ -1,0 +1,19 @@
+{
+  "name": "jsmaps",
+  "description": "Provides a full featured interactive map, with no external dependencies, also provides an interface for a wide variety of mapping APIs.",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "jsmaps",
+    "maps"
+  ],
+  "authors": [
+    { "name": "markkr125", "email": "mark125@gmail.com" }
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*"
+  ],
+  "homepage": "http://jsmaps.net"
+}
