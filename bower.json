@@ -6,7 +6,10 @@
   ],
   "keywords": [
     "jsmaps",
-    "maps"
+    "maps",
+    "map",
+    "slippy map",
+    "javascript map"
   ],
   "authors": [
     { "name": "markkr125", "email": "mark125@gmail.com" }
