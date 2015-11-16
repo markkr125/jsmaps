@@ -1,0 +1,25 @@
+{
+  "name": "jsmaps",
+  "version": "0.0.1",
+  "description": "Full featured interactive slippy map, and also an abstraction layer for popular javascript mapping apis. Supported Google Maps, Bing Maps, Yandex Maps and Here maps. ",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markkr125/jsmaps.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "jsmaps",
+    "maps",
+    "map",
+    "slippy map",
+    "javascript map"
+  ],
+  "author": "mark125@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/markkr125/jsmaps/issues"
+  },
+  "homepage": "http://jsmaps.net"
+}
