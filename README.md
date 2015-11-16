@@ -3,7 +3,7 @@ JsMaps is a Javascript library with a full featured Interactive Slippy Map, with
 
 [Project Home Page (includes examples)](http://jsmaps.net) 
 
-[API Reference] (https://github.com/markkr125/jsmaps/wiki/API-Reference)
+[API Reference](https://github.com/markkr125/jsmaps/wiki/API-Reference)
 
 ## Supported External APIs
 * [Google v3](https://developers.google.com/maps/)
