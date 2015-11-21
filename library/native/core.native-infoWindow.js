@@ -464,31 +464,31 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
         }
         // move right
         else if (this.infobox.offsetLeft < 10) {
-            if (this.infobox.offsetLeft > 0) mapMoveSpeedX = 10 - this.infobox.offsetLeft;
-            else if (mapMoveSpeedX < mapMoveMaxSpeed) mapMoveSpeedX++;
+            mapMoveSpeedX = (1 - (this.mapObj.size.width - this.infobox.offsetLeft) / (this.mapObj.size.width / 10)) * mapMoveMaxSpeed;
+
             // move right down
             if (this.infobox.offsetTop < 10) {
-                if (this.infobox.offsetTop > 0) mapMoveSpeedY = 10 - this.infobox.offsetTop;
-                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+                mapMoveSpeedY = (1 - (this.mapObj.size.height - this.infobox.offsetTop) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
+
                 window.clearInterval(this.mapmoveInterval);
                 this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(mapMoveSpeedX, mapMoveSpeedY);
+                    that.mapObj.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
                 }, 10);
             }
             // move right up
             else if (this.xy["y"] > (this.mapObj.size.height - 10)) {
-                if (this.xy["y"] < this.mapObj.size.height) mapMoveSpeedY = 10 - (this.mapObj.size.height - this.xy["y"]);
-                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+                mapMoveSpeedY = (1 - (this.xy["y"] / (this.mapObj.size.height / 10))) * mapMoveMaxSpeed;
+
                 window.clearInterval(this.mapmoveInterval);
                 this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
+                    that.mapObj.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
                 }, 10);
             }
             // move right
             else {
                 window.clearInterval(this.mapmoveInterval);
                 this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(mapMoveSpeedX, 0);
+                    that.mapObj.moveXY(-mapMoveSpeedX, 0);
                 }, 10);
             }
         }
