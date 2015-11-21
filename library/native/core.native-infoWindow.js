@@ -80,6 +80,7 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
     this.infobox.content.style.position = "absolute";
     this.infobox.content.className = "infoWindow";
     this.infobox.content.style.backgroundColor = "white";
+    this.infobox.content.widthUpdated = false;
     if (this.InfoWindowOptions.content) {
         this.infobox.content.innerHTML = this.InfoWindowOptions.content;
 
@@ -299,12 +300,16 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
         this.opened = true;
         this.mapObj.addOverlay(this);
 
-        // adjust infobox-width according to content
+
         if (parseInt(this.infobox.content.offsetWidth) > (270 - 20)) {	// larger than minWidth
-            this.infobox.style.width = parseInt(this.infobox.content.offsetWidth) + 20 + "px";
+            if (this.infobox.content.widthUpdated == false) {
+                this.infobox.style.width = parseInt(this.infobox.content.offsetWidth) + 20 + "px";
+                this.infobox.content.widthUpdated = true;
+            }
         }
-        else
+        else  {
             this.infobox.style.width = "270px";
+        }
 
         if (parseInt(this.infobox.content.offsetWidth) > (parseInt(this.mapObj.size.width) - 40)) {	// larger than map
             this.infobox.style.width = parseInt(this.mapObj.size.width) - 20 + "px";	// fixed distance of 10px left an right to mapedge
@@ -362,6 +367,7 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
 
         // todo:scrolling in content on touch-device, suppress moving map on infobox
 
+
         // add callback to anchorpoint to move infowindow when moving anchorpoint
         if (this.anchorObject) {
             var that = this;
@@ -410,6 +416,7 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
      */
     this.setContent = function (content) {
         this.infobox.content.innerHTML = content;
+        this.infobox.content.widthUpdated = false;
         jsMaps.Native.Event.trigger(this.infobox,jsMaps.api.supported_events.domready);
     };
 
@@ -487,12 +494,12 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
         }
         else {
             // move down
-            if (offset.top < 10) {
-                if (offset.top > 0) mapMoveSpeedY = 10 - offset.top;
-                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+            if (this.infobox.offsetTop< 10) {
+                mapMoveSpeedY = (1 - (this.mapObj.size.height - this.infobox.offsetTop) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
                 window.clearInterval(this.mapmoveInterval);
+
                 this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(0, mapMoveSpeedY);
+                    that.mapObj.moveXY(0, -mapMoveSpeedY);
                 }, 10);
             }
             // move up
