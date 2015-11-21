@@ -440,8 +440,8 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
             if (this.infobox.offsetTop < 10) {
                 if (this.infobox.offsetTop > 0) mapMoveSpeedY = 10 - this.infobox.offsetTop;
                 else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
                 }, 10);
             }
@@ -449,71 +449,71 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
             else if (this.xy["y"] > (this.mapObj.size.height - 10)) {
                 if (this.xy["y"] < this.mapObj.size.height) mapMoveSpeedY = 10 - (this.mapObj.size.height - this.xy["y"]);
                 else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
                 }, 10);
             }
             // move left
             else {
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, 0);
                 }, 10);
             }
         }
         // move right
         else if (this.infobox.offsetLeft < 10) {
-            mapMoveSpeedX = (1 - (this.mapObj.size.width - this.infobox.offsetLeft) / (this.mapObj.size.width / 10)) * mapMoveMaxSpeed;
-
+            if (this.infobox.offsetLeft > 0) mapMoveSpeedX = 10 - this.infobox.offsetLeft;
+            else if (mapMoveSpeedX < mapMoveMaxSpeed) mapMoveSpeedX++;
             // move right down
             if (this.infobox.offsetTop < 10) {
-                mapMoveSpeedY = (1 - (this.mapObj.size.height - this.infobox.offsetTop) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
-
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
+                if (this.infobox.offsetTop > 0) mapMoveSpeedY = 10 - this.infobox.offsetTop;
+                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
+                    that.mapObj.moveXY(mapMoveSpeedX, mapMoveSpeedY);
                 }, 10);
             }
             // move right up
             else if (this.xy["y"] > (this.mapObj.size.height - 10)) {
-                mapMoveSpeedY = (1 - (this.xy["y"] / (this.mapObj.size.height / 10))) * mapMoveMaxSpeed;
-
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
+                if (this.xy["y"] < this.mapObj.size.height) mapMoveSpeedY = 10 - (this.mapObj.size.height - this.xy["y"]);
+                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
+                    that.mapObj.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
                 }, 10);
             }
             // move right
             else {
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(-mapMoveSpeedX, 0);
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
+                    that.mapObj.moveXY(mapMoveSpeedX, 0);
                 }, 10);
             }
         }
         else {
             // move down
-            if (this.infobox.offsetTop< 10) {
-                mapMoveSpeedY = (1 - (this.mapObj.size.height - this.infobox.offsetTop) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
-                window.clearInterval(this.mapmoveInterval);
-
-                this.mapmoveInterval = window.setInterval(function () {
-                    that.mapObj.moveXY(0, -mapMoveSpeedY);
+            if (offset.top < 10) {
+                if (offset.top > 0) mapMoveSpeedY = 10 - offset.top;
+                else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
+                    that.mapObj.moveXY(0, mapMoveSpeedY);
                 }, 10);
             }
             // move up
             else if (this.xy["y"] > (this.mapObj.size.height - 10)) {
                 if (this.xy["y"] < this.mapObj.size.height) mapMoveSpeedY = 10 - (this.mapObj.size.height - this.xy["y"]);
                 else if (mapMoveSpeedY < mapMoveMaxSpeed) mapMoveSpeedY++;
-                window.clearInterval(this.mapmoveInterval);
-                this.mapmoveInterval = window.setInterval(function () {
+                window.clearTimeout(this.mapmoveInterval);
+                this.mapmoveInterval = window.setTimeout(function () {
                     that.mapObj.moveXY(0, -mapMoveSpeedY);
                 }, 10);
             }
             // stop moving
             else {
-                window.clearInterval(this.mapmoveInterval);
+                window.clearTimeout(this.mapmoveInterval);
                 mapMoveSpeed = 1;
                 this.opened = false;
             }
