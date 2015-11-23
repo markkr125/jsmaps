@@ -9,6 +9,15 @@ JsMaps is a Javascript library with a full featured Interactive Slippy Map, with
 
 [API Reference](https://github.com/markkr125/jsmaps/wiki/API-Reference)
 
+## Installation
+
+Several installation options are available:
+
+* [Download the latest release](https://github.com/markkr125/jsmaps/releases).
+* Clone the repo: `git clone https://github.com/markkr125/jsmaps.git`.
+* Install with [Bower](http://bower.io): `bower install jsmaps`.
+* Install with [npm](https://www.npmjs.com): `npm install jsmaps`.
+
 ## Supported External APIs
 * [Google v3](https://developers.google.com/maps/)
 * [Here Maps v3](https://developer.here.com/) 
