@@ -197,6 +197,30 @@ jsMaps.PolyLineOptions = function () {
 
 /**
  *
+ * @returns {{clickable: boolean, draggable: boolean, editable: boolean, fillColor: string, fillOpacity: number, radius: number, strokeColor: string, strokeOpacity: number, strokeWeight: number, visible: boolean, zIndex: number, circleId: string, center: {lat: number, lng: number}}}
+ * @constructor
+ */
+jsMaps.CircleOptions = function () {
+    return {
+        clickable: true,
+        draggable: false,
+        editable: false,
+        fillColor: '',
+        fillOpacity: 0.0,
+        radius: 0,
+        strokeColor: '',
+        strokeOpacity: 0.0,
+        strokeWeight: 10,
+        visible: true,
+        zIndex: 1,
+        circleId: '',
+        center: {lat: 0, lng: 0}
+    }
+};
+
+
+/**
+ *
  * @returns {{clickable: boolean, draggable: boolean, editable: boolean, fillColor: string, fillOpacity: number, paths: Array, strokeColor: string, strokeOpacity: number, strokeWeight: number, visible: boolean, zIndex: number, polygonId: string}}
  * @constructor
  */
@@ -259,6 +283,43 @@ jsMaps.PolyLineStructure = function () {
         },
 
         removeLine: function () {
+        }
+    }
+};
+
+jsMaps.CircleStructure = function () {
+    return {
+        object: null,
+        circleId: null,
+        getBounds: function () {
+        },
+        getCenter: function () {
+        },
+        getDraggable: function () {
+        },
+        getEditable: function () {
+        },
+        getRadius: function () {
+        },
+        getVisible: function () {
+        },
+        setCenter: function (lat, lng) {
+        },
+        setDraggable: function (draggable) {
+        },
+        setEditable: function (editable) {
+        },
+        /**
+         *
+         * @param {jsMaps.MapStructure} map
+         */
+        setMap: function (map) {
+        },
+        setVisible: function (visible) {
+        },
+        setRadius: function (radius) {
+        },
+        removeCircle: function () {
         }
     }
 };
@@ -514,6 +575,13 @@ jsMaps.Abstract.prototype.polyLine = function(map,parameters) {};
  * @returns jsMaps.PolygonStructure
  */
 jsMaps.Abstract.prototype.polygon = function(map,parameters) {};
+
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.CircleOptions} parameters
+ * @returns jsMaps.CircleStructure
+ */
+jsMaps.Abstract.prototype.circle = function(map,parameters) {};
 
 /**
  * @param {jsMaps.staticMapOptions} parameters

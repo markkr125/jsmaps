@@ -301,6 +301,30 @@ jsMaps.api = {
         return polygon;
     },
 
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @param {jsMaps.CircleOptions} parameters
+     * @returns jsMaps.CircleStructure
+     */
+    circle: function (map, parameters) {
+        if (typeof parameters != 'undefined') {
+            parameters = jsMaps.merge(new jsMaps.PolygonOptions(),parameters);
+        }
+
+        var circle = this.object.circle(map,parameters);
+
+        if (parameters.circleId == null && circle.circleId == null) {
+            this.polygonIdCounter++;
+            circle.circleId = this.polygonIdCounter;
+        } else if (parameters.circleId != null && circle.circleId == null) {
+            circle.circleId = parameters.circleId;
+        }
+
+        map.parent.polygons.push(circle);
+
+        return circle;
+    },
+
     removePolyLine: function (map,PolyLineIds) {
         var checkPolyLine = (typeof PolyLineIds != 'undefined');
         var object = map.parent;
