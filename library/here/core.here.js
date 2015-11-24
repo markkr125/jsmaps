@@ -235,7 +235,7 @@ jsMaps.Here.prototype.bounds = function (mapObject) {
     if (typeof mapObject != 'undefined') {
         if (typeof mapObject.object != 'undefined')  mapObject = mapObject.object;
 
-        var boundsArray = mapObject.map.getViewBounds();
+        var boundsArray = (typeof mapObject.getBounds !='undefined') ? mapObject.getBounds() : mapObject.map.getViewBounds();
 
         var topLeft = boundsArray.getTopLeft();
         var center = boundsArray.getCenter();
@@ -1007,6 +1007,96 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
         mapObjectTmp.removeObject(this.object);
     };
 
+
+    return new hooking();
+};
+
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.CircleOptions} parameters
+ * @returns jsMaps.CircleStructure
+ */
+jsMaps.Here.prototype.circle = function (map,parameters) {
+    var options = {
+        zIndex: parameters.zIndex,
+        visibility: parameters.visible,
+        style: { lineWidth: parameters.strokeWeight, strokeColor: jsMaps.convertHex(parameters.strokeColor,parameters.strokeOpacity*100) , fillColor: jsMaps.convertHex(parameters.fillColor,parameters.fillOpacity*100)}
+    };
+
+    var circle = new H.map.Circle(parameters.center,parameters.radius, options);
+
+    var obj = map.object.map;
+    var behavior = map.object.behavior;
+
+    obj.addObject(circle);
+
+    circle.clickable = parameters.clickable;
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.CircleStructure();
+
+    hooking.prototype.object = circle;
+
+    hooking.prototype.getBounds = function () {
+        return jsMaps.Here.prototype.bounds(this.object);
+    };
+
+    hooking.prototype.getCenter = function () {
+        var center = this.getCenter();
+        return {lat: center.lat,lng: center.lng};
+    };
+
+    hooking.prototype.getDraggable = function () {
+        return false; // todo: support this
+    };
+
+    hooking.prototype.getEditable = function () {
+        return false; // todo: support this
+    };
+
+    hooking.prototype.getRadius = function () {
+        return this.object.getRadius();
+    };
+
+    hooking.prototype.getVisible = function () {
+        return this.object.getVisibility();
+    };
+
+    hooking.prototype.setCenter = function (lat, lng) {
+        this.object.setCenter({lat: lat, lng: lng});
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+        // not supported
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        // not supported
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        var originMap =this.object.getRootGroup();
+
+        originMap.removeObject(this.object);
+        map.object.map.addObject(this.object);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        this.object.setVisibility(visible);
+    };
+
+    hooking.prototype.setRadius = function (radius) {
+        this.object.setRadius(radius);
+    };
+
+    hooking.prototype.removeCircle = function () {
+        var mapObjectTmp = this.object.getRootGroup();
+        mapObjectTmp.removeObject(this.object);
+    };
 
     return new hooking();
 };
