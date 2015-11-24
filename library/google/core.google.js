@@ -543,7 +543,7 @@ jsMaps.Google.prototype.circle = function (map,parameters) {
     hooking.prototype.object = Circle;
 
     hooking.prototype.getBounds = function () {
-        return this.object.getBounds();
+        return jsMaps.Google.prototype.bounds(this);
     };
 
     hooking.prototype.getCenter = function () {

@@ -707,7 +707,6 @@ jsMaps.Yandex.prototype.polygon = function (map,parameters) {
     hooking.prototype.object = null;
 
     ymaps.ready(function () {
-
         var Polygon = new ymaps.Polygon([jsMaps.Yandex.toYandexPath(parameters.paths)],{},options);
         Polygon.editable = parameters.editable;
         Polygon.clickable = parameters.clickable;
@@ -819,3 +818,155 @@ jsMaps.Yandex.prototype.polygon = function (map,parameters) {
     return new hooking();
 };
 
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.CircleOptions} parameters
+ * @returns jsMaps.CircleStructure
+ */
+jsMaps.Yandex.prototype.circle = function (map,parameters) {
+    var options = {
+        draggable: parameters.draggable,
+        fillColor: parameters.fillColor,
+        fillOpacity: parameters.fillOpacity,
+        strokeColor: parameters.strokeColor,
+        strokeOpacity: parameters.strokeOpacity,
+        strokeWidth: parameters.strokeWeight,
+        visible: parameters.visible,
+        zIndex: parameters.zIndex
+    };
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.CircleStructure();
+
+    hooking.prototype.object = null;
+
+    ymaps.ready(function () {
+        var circle = new ymaps.Circle([
+            // The coordinates of the center of the circle.
+            [parameters.center.lat, parameters.center.lng],
+            // The radius of the circle in meters.
+            parameters.radius
+        ], {}, options);
+
+        circle.editable = parameters.editable;
+        circle.clickable = parameters.clickable;
+
+        map.object.geoObjects.add(circle);
+
+        // Currently not supported by yandex
+        //if (parameters.editable) {
+        //    circle.editor.startEditing();
+        //}
+        hooking.prototype.object = circle;
+    }, this);
+
+    hooking.prototype.getBounds = function () {
+        if (this.object == null) {
+            return null;
+        }
+
+        return jsMaps.Yandex.prototype.bounds(this.object.geometry);
+    };
+
+    hooking.prototype.getCenter = function () {
+        if (this.object == null) {
+            return parameters.center;
+        }
+
+        var pos = this.object.geometry.getCoordinates();
+        return {lat: pos[0], lng: pos[1]};
+    };
+
+    hooking.prototype.getDraggable = function () {
+        if (this.object == null) {
+            return parameters.draggable;
+        }
+
+        return this.object.options.get('draggable');
+    };
+
+    hooking.prototype.getEditable = function () {
+        if (this.object == null) {
+            return parameters.editable;
+        }
+
+        return this.object.editable;
+    };
+
+    hooking.prototype.getRadius = function () {
+        if (this.object == null) {
+            return parameters.radius;
+        }
+
+        return this.object.geometry.getRadius();
+    };
+
+    hooking.prototype.getVisible = function () {
+        if (this.object == null) {
+            return parameters.visible;
+        }
+
+        return this.object.options.get('visible');
+    };
+
+    hooking.prototype.setCenter = function (lat, lng) {
+        ymaps.ready(function () {
+            this.object.geometry.setCoordinates([lat,lng]);
+        }, this);
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+        ymaps.ready(function () {
+            this.object.options.set('draggable',draggable);
+        }, this);
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        ymaps.ready(function () {
+            this.object.editable = editable;
+
+            if (editable == true) {
+                this.object.editor.startEditing();
+            } else {
+                this.object.editor.stopEditing()
+            }
+        }, this);
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        ymaps.ready(function () {
+            this.object.geometry.setMap(map.object);
+        }, this);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        ymaps.ready(function () {
+            this.object.options.set('visible', visible);
+
+            if (visible == false && this.object.editable == true) {
+                this.object.editor.stopEditing();
+            } else if (visible == true && this.object.editable == true) {
+                this.object.editor.startEditing();
+            }
+        }, this);
+    };
+
+    hooking.prototype.setRadius = function (radius) {
+        ymaps.ready(function () {
+            this.object.geometry.setRadius(radius);
+        }, this);
+    };
+
+    hooking.prototype.removeCircle = function () {
+        ymaps.ready(function () {
+            var parentMap = this.object.getMap();
+            parentMap.geoObjects.remove(this.object);
+        }, this);
+    };
+
+    return new hooking();
+};
