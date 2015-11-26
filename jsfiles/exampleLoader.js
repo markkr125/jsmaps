@@ -36,39 +36,39 @@ function htmlEntities(str) {
 var ExampleLoader = {
     jsFiles: function (supplier) {
         var files = {
-            'native': ['<link type="text/css" rel="stylesheet" href="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native.css" />',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.abstract.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native-ui.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native-helper.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native-marker.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native-infoWindow.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/native/core.native-vector.js" type="text/javascript"></script>'
+            'native': ['<link type="text/css" rel="stylesheet" href="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native.css" />',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-ui.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-helper.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-marker.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-infoWindow.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-vector.js" type="text/javascript"></script>'
             ],
             'google': [
                 '<script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.abstract.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/google/core.google.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/google/core.google-geocoder.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/google/core.google-staticmap.js" type="text/javascript"></script>'
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/google/core.google.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/google/core.google-geocoder.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/google/core.google-staticmap.js" type="text/javascript"></script>'
             ],
             'yandex': [
                 '<script src="http://api-maps.yandex.ru/2.1/?lang=en_US" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.abstract.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/yandex/core.yandex.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/yandex/core.yandex-geocoder.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/yandex/core.yandex-staticmap.js" type="text/javascript"></script>'
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/yandex/core.yandex.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/yandex/core.yandex-geocoder.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/yandex/core.yandex-staticmap.js" type="text/javascript"></script>'
             ],
             'bing': [
                 '<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.abstract.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/bing/core.bing.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/bing/core.bing-geocoder.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/bing/core.bing-staticmap.js" type="text/javascript"></script>'
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing-geocoder.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing-staticmap.js" type="text/javascript"></script>'
             ],
             'here': [
                 '<link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.0/mapsjs-ui.css" />',
@@ -77,11 +77,11 @@ var ExampleLoader = {
                 '<script type="text/javascript" charset="UTF-8" src="https://js.api.here.com/v3/3.0/mapsjs-ui.js"></script>',
                 '<script type="text/javascript" charset="UTF-8" src="https://js.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>',
                 '<script src="http://js.api.here.com/v3/3.0/mapsjs-pano.js" type="text/javascript" charset="utf-8"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.abstract.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/core.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/here/core.here.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/here/core.here-geocoder.js" type="text/javascript"></script>',
-                '<script src="https://rawgit.com/markkr125/jsmaps/master/library/here/core.here-staticmap.js" type="text/javascript"></script>'
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-geocoder.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-staticmap.js" type="text/javascript"></script>'
             ]
         };
 
