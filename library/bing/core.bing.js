@@ -243,6 +243,8 @@ jsMaps.Bing.prototype.bounds = function (mapObject) {
     if (typeof mapObject != 'undefined') {
         if (typeof mapObject.object != 'undefined') {
             bounds = mapObject.object.getBounds();
+        }else if (typeof mapObject.getNorthwest != 'undefined') {
+            bounds = mapObject;
         } else {
             bounds = mapObject.getBounds();
         }
@@ -623,6 +625,8 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
 
         map.entities.push(this.object);
         map.entities.push(this.EditHandleLayer);
+
+        this.mapObject = map;
     };
 
     hooking.prototype.setVisible = function (visible) {
@@ -754,6 +758,8 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
 
         map.entities.push(this.object);
         map.entities.push(this.EditHandleLayer);
+
+        this.mapObject = map;
     };
 
     hooking.prototype.setVisible = function (visible) {
@@ -765,5 +771,134 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
         this.mapObject.entities.remove(this.EditHandleLayer);
     };
 
+    return new hooking();
+};
+
+jsMaps.Bing.drawCircle = function (latin, lonin, radius) {
+    var locs = [];
+    var lat1 = latin * Math.PI / 180.0;
+    var lon1 = lonin * Math.PI / 180.0;
+    var d = radius / 1000 / 6371;
+    var x;
+    for (x = 0; x <= 360; x+=10) {
+        var tc = (x / 90) * Math.PI / 2;
+        var lat = Math.asin(Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(tc));
+        lat = 180.0 * lat / Math.PI;
+        var lon;
+        if (Math.cos(lat1) == 0) {
+            lon = lonin; // endpoint a pole
+        }
+        else {
+            lon = ((lon1 - Math.asin(Math.sin(tc) * Math.sin(d) / Math.cos(lat1)) + Math.PI) % (2 * Math.PI)) - Math.PI;
+        }
+        lon = 180.0 * lon / Math.PI;
+        var loc = new Microsoft.Maps.Location(lat, lon);
+        locs.push(loc);
+    }
+    return locs;
+};
+
+
+/**
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.CircleOptions} parameters
+ * @returns jsMaps.CircleStructure
+ */
+jsMaps.Bing.prototype.circle = function (map,parameters) {
+    var fillColor = jsMaps.convertHex(parameters.fillColor, parameters.fillOpacity * 100, true);
+    var strokeColor = jsMaps.convertHex(parameters.strokeColor, parameters.strokeColor * 100, true);
+
+    var options = {
+        fillColor: new Microsoft.Maps.Color((255 * fillColor.opacity), fillColor.red, fillColor.greed, fillColor.blue),
+        strokeColor: new Microsoft.Maps.Color((255 * strokeColor.opacity), strokeColor.red, strokeColor.greed, strokeColor.blue),
+        strokeThickness: parameters.strokeWeight,
+        visible: parameters.visible
+    };
+
+    var circle = new Microsoft.Maps.Polygon(jsMaps.Bing.drawCircle(parameters.center.lat, parameters.center.lng, parameters.radius), options);
+    circle.clickable = parameters.clickable;
+
+    // Add the polyline to the map
+    map.object.entities.push(circle);
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.CircleStructure();
+
+    hooking.prototype.object = circle;
+    hooking.prototype.mapObject = map.object;
+
+    /**
+     *
+     * @type {jsMaps.CircleOptions}
+     */
+    hooking.prototype.parameters = parameters;
+
+    /**
+     * http://stackoverflow.com/questions/9528669/how-to-correctly-get-the-bounding-box-using-locationrect-fromlocations-when-lo
+     * @returns {hooking}
+     */
+    hooking.prototype.getBounds = function () {
+        var bounds = Microsoft.Maps.LocationRect.fromLocations(this.object.getLocations());
+        return jsMaps.Bing.prototype.bounds(bounds);
+    };
+
+    /**
+     * @returns {{lat: (map.center.latitude|*|mapd.center.latitude|jsMaps.api.options.center.latitude|Number), lng: (map.center.longitude|*|mapd.center.longitude|jsMaps.api.options.center.longitude|Number)}}
+     */
+    hooking.prototype.getCenter = function () {
+        var bounds = Microsoft.Maps.LocationRect.fromLocations(this.object.getLocations());
+        return {lat: bounds.center.latitude, lng: bounds.center.longitude};
+    };
+
+    hooking.prototype.getDraggable = function () {
+        return false;
+    };
+
+    hooking.prototype.getEditable = function () {
+        return false;
+    };
+
+    hooking.prototype.getRadius = function () {
+        return this.parameters.radius;
+    };
+
+    hooking.prototype.getVisible = function () {
+        return this.object.getVisible();
+    };
+
+    hooking.prototype.setCenter = function (lat, lng) {
+        this.parameters.center = {lat: lat, lng: lng};
+        this.object.setLocations(jsMaps.Bing.drawCircle(lat, lng, this.parameters.radius));
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+       // not supported
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        // not supported
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        this.mapObject.entities.remove(this.object);
+        map.entities.push(this.object);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        this.object.setOptions({visible:visible});
+    };
+
+    hooking.prototype.setRadius = function (radius) {
+        this.parameters.radius = radius;
+        this.object.setLocations(jsMaps.Bing.drawCircle(this.parameters.center.lat, this.parameters.center.lng, this.parameters.radius));
+    };
+
+    hooking.prototype.removeCircle = function () {
+        this.mapObject.entities.remove(this.object);
+    };
     return new hooking();
 };
