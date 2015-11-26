@@ -2691,3 +2691,109 @@ jsMaps.Native.prototype.polygon = function (map,parameters) {
 
     return new hooking();
 };
+
+
+/**
+ * Create PolyLine
+ *
+ * @param {jsMaps.MapStructure} map
+ * @param {jsMaps.CircleOptions} parameters
+ * @returns jsMaps.CircleStructure
+ */
+jsMaps.Native.prototype.circle = function (map,parameters) {
+    var vector = new jsMaps.Native.Overlay.Vector({
+        clickable: parameters.clickable,
+        stroke: parameters.strokeColor,
+        strokeWidth: parameters.strokeWeight,
+        strokeOpacity: parameters.strokeOpacity,
+        fill:  parameters.fillColor,
+        fillOpacity: parameters.fillOpacity,
+        draggable: parameters.draggable,
+        editable: false, // currently not supported
+        visible: parameters.visible,
+        zIndex:  parameters.zIndex,
+        center: parameters.center,
+        radius: parameters.radius
+    }, [], jsMaps.Native.Vector.elements.circle);
+    map.object.addOverlay(vector);
+
+    var hooking = function () {
+    };
+    hooking.prototype = new jsMaps.CircleStructure();
+
+    hooking.prototype.object = vector;
+
+    hooking.prototype.getBounds = function () {
+        var bBox = new jsMaps.Native.prototype.bounds();
+        bBox.bounds = this.object.pointsBounds();
+
+        return bBox;
+    };
+
+    hooking.prototype.getCenter = function () {
+        var theCenter = this.getBounds().getCenter();
+        return {lat: theCenter.lat, lng: theCenter.lng};
+    };
+
+    hooking.prototype.getDraggable = function () {
+        return this.object._vectorOptions.draggable;
+    };
+
+    hooking.prototype.getEditable = function () {
+        return this.object._vectorOptions.editable;
+    };
+
+    hooking.prototype.getRadius = function () {
+        return this.object._vectorOptions.radius;
+    };
+
+    hooking.prototype.getVisible = function () {
+        return this.object._vectorOptions.visible;
+    };
+
+    hooking.prototype.setCenter = function (lat, lng) {
+        this.object._vectorOptions.center = {lat: lat, lng: lng};
+        this.object._vectorPoints = this.object.drawCircle(lat,lng,this.object._vectorOptions.radius);
+        this.object.render(true);
+    };
+
+    hooking.prototype.setDraggable = function (draggable) {
+        this.object._vectorOptions.draggable = draggable;
+    };
+
+    hooking.prototype.setEditable = function (editable) {
+        this.object._vectorOptions.editable = editable;
+        this.object.render(true);
+    };
+
+    /**
+     * @param {jsMaps.MapStructure} map
+     * @returns {{lat: *, lng: *}}
+     */
+    hooking.prototype.setMap = function (map) {
+        this.object.theMap.removeOverlay(this.object);
+        map.object.addOverlay(this.object);
+        this.object.theMap = map.object;
+        this.object._vectorOptions.map = map.object;
+
+        this.object.render(true);
+    };
+
+    hooking.prototype.setVisible = function (visible) {
+        this.object.setVisible(visible);
+    };
+
+    hooking.prototype.setRadius = function (radius) {
+        var center = this.getCenter();
+
+        this.object._vectorOptions.radius = radius;
+        this.object._vectorPoints = this.object.drawCircle(center.lat,center.lng,this.object._vectorOptions.radius);
+        this.object.render(true);
+    };
+
+    hooking.prototype.removeCircle = function () {
+        this.object.destroy();
+    };
+
+    return new hooking();
+};

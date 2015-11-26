@@ -3,7 +3,8 @@ jsMaps.Native.Vector = {
     svg: 'svg',
     elements: {
         polyLine: 'polyLine',
-        polygon: 'polygon'
+        polygon: 'polygon',
+        circle: 'circle'
     }
 };
 
@@ -18,7 +19,39 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     this._backend = jsMaps.Native.Vector.svg;
     if (jsMaps.Native.Browser.ielt9) this._backend = jsMaps.Native.Vector.vml;
 
-    this._vectorPoints   = vectorPoints;
+    this.drawCircle = function (latin, lonin, radius) {
+        var locs = [];
+        var lat1 = latin * Math.PI / 180.0;
+        var lon1 = lonin * Math.PI / 180.0;
+        var d = radius / 1000 / 6371;
+        var x;
+        for (x = 0; x <= 360; x+=10) {
+            var tc = (x / 90) * Math.PI / 2;
+            var lat = Math.asin(Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(tc));
+            lat = 180.0 * lat / Math.PI;
+            var lon;
+            if (Math.cos(lat1) == 0) {
+                lon = lonin; // endpoint a pole
+            }
+            else {
+                lon = ((lon1 - Math.asin(Math.sin(tc) * Math.sin(d) / Math.cos(lat1)) + Math.PI) % (2 * Math.PI)) - Math.PI;
+            }
+            lon = 180.0 * lon / Math.PI;
+            var loc = new jsMaps.geo.Location(lat, lon);
+            locs.push(loc);
+        }
+        return locs;
+    };
+
+
+    if (vectorType == jsMaps.Native.Vector.elements.circle && typeof vectorOptions.center!='undefined'  && typeof vectorOptions.radius != 'undefined') {
+        this._vectorPoints   = this.drawCircle(vectorOptions.center.lat,vectorOptions.center.lng,vectorOptions.radius);
+        vectorType = jsMaps.Native.Vector.elements.polygon;
+
+    } else {
+        this._vectorPoints   = vectorPoints;
+    }
+
     this._vectorType     = vectorType;
     this._vectorOptions  = vectorOptions;
     this.clickable       = (typeof vectorOptions.clickable!='undefined') ? vectorOptions.clickable: true;
