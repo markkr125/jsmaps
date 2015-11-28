@@ -32,7 +32,7 @@ jsMaps.loader(function (){
     });
 {% endhighlight %}
 
-Check out the <a href="{{ "/examples/" | prepend: site.baseurl }}" target="_blank">Examples</a> what this backend is capable of.
+Check out the <a href="{{ "/examples/" | prepend: site.baseurl }}" target="_blank">Examples</a> to see what this backend is capable of.
 
 [khtml-maplib]:    https://github.com/robotnic/khtml.maplib
 [OpenStreetMap]:   https://www.openstreetmap.org/

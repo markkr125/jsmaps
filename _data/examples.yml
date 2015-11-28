@@ -22,6 +22,10 @@
   description: This example displays polygons with different options enabled.
   link: /examples/polygons/
 
+- name: Circle
+  description: This example displays a simple circle with different options enabled.
+  link: /examples/circle/
+
 - name: Static Map
   description: This example displays a static map link generator.
   link: /examples/static_map/

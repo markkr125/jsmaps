@@ -1,0 +1,42 @@
+---
+layout: example
+title: Circle
+permalink: /examples/circle/
+description: This example displays a simple circle with different options enabled.
+engines: ALL
+id: example
+---
+<script type='text/javascript'>
+    jsMaps.loader(function (){
+        // PlaceHolder
+        var map = jsMaps.api.init(
+                '#map',
+                '%supplier%',
+                {
+                    center: {
+                        latitude: 32.078930,
+                        longitude: 34.773241
+                    },
+                    zoom: 14,
+                    mouse_scroll: true,
+                    zoom_control: true,
+                    map_type: true
+                },{'placeholder':1}
+        );
+
+
+        jsMaps.api.circle(map,{
+            center:  {lat: 32.07959287095117, lng: 34.77048397064209},
+            radius: 1000,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            editable: true,
+            draggable: true
+        });
+    });
+</script>
+
+<div id='map'></div>
