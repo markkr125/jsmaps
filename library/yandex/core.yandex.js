@@ -55,7 +55,11 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
     };
 
     hooking.prototype.latLngToPoint = function (lat, lng) {
-        var projection = this.object .options.get('projection');
+        if (this.object == null) {
+            return  {x: 0,y: 0}
+        }
+
+        var projection = this.object.options.get('projection');
         var xy = this.object.converter.globalToPage(
             projection.toGlobalPixels(
                 // geographical coordinates
