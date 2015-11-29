@@ -54,6 +54,19 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: mapCenter[0], lng: mapCenter[1]};
     };
 
+    hooking.prototype.latLngToPoint = function (lat, lng) {
+        var projection = this.object .options.get('projection');
+        var xy = this.object.converter.globalToPage(
+            projection.toGlobalPixels(
+                // geographical coordinates
+                [lat, lng],
+                this.object.getZoom()
+            )
+        );
+
+        return {x: xy[0],y: xy[1]}
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         ymaps.ready(function () {
             this.object.setCenter([lat,lng]);

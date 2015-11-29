@@ -57,6 +57,11 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat:center.latitude, lng: center.longitude};
     };
 
+    hooking.prototype.latLngToPoint = function (lat, lng) {
+        var xy = this.object.tryLocationToPixel(new Microsoft.Maps.Location(lat, lng));
+        return {x: xy.x,y: xy.y}
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         var mapOptions = this.object.getOptions();
         mapOptions.center = new Microsoft.Maps.Location(lat, lng);

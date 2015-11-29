@@ -424,6 +424,10 @@ jsMaps.MapStructure = function () {
         setCenter: function (lat, lng) {
         },
 
+        latLngToPoint: function (lat, lng) {
+            return {x:0,y:0};
+        },
+
         /**
          * @returns jsMaps.BoundsStructure
          */

@@ -1023,6 +1023,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         point = [];
         point["x"] = -x;
         point["y"] = -y;
+
         return (point);
     };
 
@@ -2153,6 +2154,13 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     hooking.prototype.getCenter = function () {
         var map = this.object.getCenter();
         return {lat: map.lat, lng: map.lng};
+    };
+
+    hooking.prototype.latLngToPoint = function (lat, lng) {
+        var point = new jsMaps.geo.Location(lat, lng);
+        var xy = this.object.latlngToXY(point);
+
+        return {x: xy['x'],y: xy['y']}
     };
 
     hooking.prototype.setCenter = function (lat, lng) {

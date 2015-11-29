@@ -59,6 +59,11 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat: jsMaps.Here.MapCenter.lat, lng: jsMaps.Here.MapCenter.lng};
     };
 
+    hooking.prototype.latLngToPoint = function (lat, lng) {
+        var xy = this.object.map.geoToScreen({lat: lat,lng: lng});
+        return {x: xy.x,y: xy.y}
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         jsMaps.Here.MapCenter = {lat: lat,lng: lng};
         this.object.map.setCenter ({lat:lat, lng: lng});

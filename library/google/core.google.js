@@ -45,6 +45,25 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: map.lat(), lng: map.lng()};
     };
 
+    hooking.prototype.latLngToPoint = function (lat, lng) {
+        // Projection variables.
+        var _projection = this.object.getProjection();
+        var _topRight = _projection.fromLatLngToPoint(this.object.getBounds().getNorthEast());
+        var _bottomLeft = _projection.fromLatLngToPoint(this.object.getBounds().getSouthWest());
+        var _scale = Math.pow(2,this.object.getZoom());
+
+        // Create our point.
+        var _point = _projection.fromLatLngToPoint(
+            new google.maps.LatLng(lat,lng)
+        );
+
+        // Get the x/y based on the scale.
+        var _posLeft = (_point.x - _bottomLeft.x) * _scale;
+        var _posTop = (_point.y - _topRight.y) * _scale;
+
+        return {x:_posLeft,y: _posTop};
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         this.object.panTo(new google.maps.LatLng(lat, lng));
     };
