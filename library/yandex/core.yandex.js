@@ -56,7 +56,7 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
 
     hooking.prototype.latLngToPoint = function (lat, lng) {
         if (this.object == null) {
-            return  {x: 0,y: 0}
+            return  {x: 0,y: 0};
         }
 
         var projection = this.object.options.get('projection');
