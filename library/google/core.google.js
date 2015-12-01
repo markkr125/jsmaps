@@ -64,6 +64,17 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         return {x:_posLeft,y: _posTop};
     };
 
+    hooking.prototype.pointToLatLng = function (x, y) {
+        var point = {x:x,y:y};
+        var topRight = this.object.getProjection().fromLatLngToPoint(this.object.getBounds().getNorthEast());
+        var bottomLeft = this.object.getProjection().fromLatLngToPoint(this.object.getBounds().getSouthWest());
+        var scale = Math.pow(2, this.object.getZoom());
+        var worldPoint = new google.maps.Point(point.x / scale + bottomLeft.x, point.y / scale + topRight.y);
+        var latLngPosition = this.object.getProjection().fromPointToLatLng(worldPoint);
+
+        return {lat: latLngPosition.lat(),lng: latLngPosition.lng()};
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         this.object.panTo(new google.maps.LatLng(lat, lng));
     };

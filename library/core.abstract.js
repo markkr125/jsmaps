@@ -428,6 +428,10 @@ jsMaps.MapStructure = function () {
             return {x:0,y:0};
         },
 
+        pointToLatLng: function (x, y) {
+            return {lat:0,lng:0};
+        },
+
         /**
          * @returns jsMaps.BoundsStructure
          */
