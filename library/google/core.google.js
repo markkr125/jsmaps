@@ -79,8 +79,12 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         this.object.panBy(x*-1,y*-1);
     };
 
-    hooking.prototype.setCenter = function (lat, lng) {
-        this.object.panTo(new google.maps.LatLng(lat, lng));
+    hooking.prototype.setCenter = function (lat, lng,transition) {
+        if (transition == 1) {
+            this.object.panTo(new google.maps.LatLng(lat, lng));
+        }  else {
+            this.object.setCenter(new google.maps.LatLng(lat, lng));
+        }
     };
 
     hooking.prototype.getBounds = function () {

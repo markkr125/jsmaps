@@ -69,9 +69,9 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat:pos.lat,lng:pos.lng};
     };
 
-    hooking.prototype.setCenter = function (lat, lng) {
+    hooking.prototype.setCenter = function (lat, lng,transition) {
         jsMaps.Here.MapCenter = {lat: lat,lng: lng};
-        this.object.map.setCenter ({lat:lat, lng: lng});
+        this.object.map.setCenter ({lat:lat, lng: lng},transition);
     };
 
     hooking.prototype.getBounds = function () {

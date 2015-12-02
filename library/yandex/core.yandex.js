@@ -84,20 +84,13 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat:pos[0],lng:pos[1]};
     };
 
-    hooking.prototype.moveXY = function (x, y) {
+    hooking.prototype.setCenter = function (lat, lng, transition) {
         ymaps.ready(function () {
-            var center = this.getCenter();
-
-            var pixelCenter = this.latLngToPoint(center.lat,center.lng);
-            var newPixelCenter = this.pointToLatLng(pixelCenter.x-x,pixelCenter.y-y);
-
-            this.object.setCenter([newPixelCenter.lat,newPixelCenter.lng],this.object.getZoom(),{duration: 200});
-        },this);
-    };
-
-    hooking.prototype.setCenter = function (lat, lng) {
-        ymaps.ready(function () {
-            this.object.setCenter([lat,lng]);
+            if (transition == 1) {
+                this.object.setCenter([newPixelCenter.lat,newPixelCenter.lng],this.object.getZoom(),{duration: 200});
+            } else {
+                this.object.setCenter([lat,lng]);
+            }
         },this);
     };
 
