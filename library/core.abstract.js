@@ -432,6 +432,15 @@ jsMaps.MapStructure = function () {
             return {lat:0,lng:0};
         },
 
+        moveXY: function (x, y) {
+            var center = this.getCenter();
+
+            var pixelCenter = this.latLngToPoint(center.lat,center.lng);
+            var newPixelCenter = this.pointToLatLng(pixelCenter.x-x,pixelCenter.y-y);
+
+            this.setCenter(newPixelCenter.lat,newPixelCenter.lng);
+        },
+
         /**
          * @returns jsMaps.BoundsStructure
          */

@@ -2168,6 +2168,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         return {lat:pos.lat,lng:pos.lng};
     };
 
+    hooking.prototype.moveXY = function (x, y) {
+        this.object.moveXY(x,y);
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         this.object.centerAndZoom(new jsMaps.geo.Location(lat, lng),this.object.getZoom());
         jsMaps.Native.Event.trigger(this.object.mapParent,jsMaps.api.supported_events.center_changed);

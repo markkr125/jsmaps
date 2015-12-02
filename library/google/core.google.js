@@ -75,6 +75,10 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: latLngPosition.lat(),lng: latLngPosition.lng()};
     };
 
+    hooking.prototype.moveXY = function (x, y) {
+        this.object.panBy(x*-1,y*-1);
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         this.object.panTo(new google.maps.LatLng(lat, lng));
     };
