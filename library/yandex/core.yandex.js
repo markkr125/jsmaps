@@ -84,6 +84,17 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat:pos[0],lng:pos[1]};
     };
 
+    hooking.prototype.moveXY = function (x, y) {
+        ymaps.ready(function () {
+            var center = this.getCenter();
+
+            var pixelCenter = this.latLngToPoint(center.lat,center.lng);
+            var newPixelCenter = this.pointToLatLng(pixelCenter.x-x,pixelCenter.y-y);
+
+            this.object.setCenter([newPixelCenter.lat,newPixelCenter.lng],this.object.getZoom(),{duration: 200});
+        },this);
+    };
+
     hooking.prototype.setCenter = function (lat, lng) {
         ymaps.ready(function () {
             this.object.setCenter([lat,lng]);
