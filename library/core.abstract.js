@@ -432,6 +432,9 @@ jsMaps.MapStructure = function () {
             return {lat:0,lng:0};
         },
 
+        setDraggable: function (flag) {
+        },
+
         moveXY: function (x, y) {
             var center = this.getCenter();
 

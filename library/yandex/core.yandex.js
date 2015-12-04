@@ -54,6 +54,17 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: mapCenter[0], lng: mapCenter[1]};
     };
 
+    hooking.prototype.setDraggable = function (flag) {
+        ymaps.ready(function () {
+            if (flag) {
+                this.object.behaviors.enable(['drag'])
+            } else {
+                this.object.behaviors.disable(['drag'])
+            }
+
+        },this);
+    };
+
     hooking.prototype.latLngToPoint = function (lat, lng) {
         if (this.object == null) {
             return  {x: 0,y: 0};

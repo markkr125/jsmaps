@@ -366,6 +366,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             window.jsMaps.Native.Event.returnValue = false; // The IE way
         }
 
+        if (this.draggable == false) return;
+
         this.lastMouseX = this.pageX(evt);
         this.lastMouseY = this.pageY(evt);
 
@@ -2113,6 +2115,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.zoomOutSpeed = 0.01;
     this.zoomOutInterval = null;
     this.zoomOutStarted = false;
+    this.draggable = false;
 
     var w;
 
@@ -2154,6 +2157,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     hooking.prototype.getCenter = function () {
         var map = this.object.getCenter();
         return {lat: map.lat, lng: map.lng};
+    };
+
+    hooking.prototype.setDraggable = function (flag) {
+        this.object.draggable = flag;
     };
 
     hooking.prototype.latLngToPoint = function (lat, lng) {

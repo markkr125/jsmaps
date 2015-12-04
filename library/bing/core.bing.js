@@ -51,10 +51,15 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
     hooking.prototype = new jsMaps.MapStructure();
     hooking.prototype.__className = 'MapStructure';
     hooking.prototype.object = map;
+    hooking.prototype.draggable = true;
 
     hooking.prototype.getCenter = function () {
         var center = this.object.getCenter();
         return {lat:center.latitude, lng: center.longitude};
+    };
+
+    hooking.prototype.setDraggable = function (flag) {
+        this.object.setOptions({disablePanning: !flag});
     };
 
     hooking.prototype.latLngToPoint = function (lat, lng) {

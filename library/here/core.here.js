@@ -30,7 +30,7 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
     var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
     var ui = H.ui.UI.createDefault(map, defaultLayers);
 
-    if (options.mouse_scroll == false) behavior.disable(H.mapevents.Behavior.WHEELZOOM);
+
     ui.getControl('zoom').setVisibility(options.zoom_control);
     ui.getControl('mapsettings').setVisibility(options.map_type);
 
@@ -49,6 +49,10 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
     map.addEventListener('mapviewchangeend', function(evt) {
         jsMaps.Here.MapZoom = this.getZoom();
 
+        if (options.mouse_scroll == false) {
+            behavior.disable(H.mapevents.Behavior.WHEELZOOM);
+        }
+
         var center = this.getCenter();
         jsMaps.Here.MapCenter = {lat: center.lat,lng: center.lng};
     });
@@ -57,6 +61,16 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
 
     hooking.prototype.getCenter = function () {
         return {lat: jsMaps.Here.MapCenter.lat, lng: jsMaps.Here.MapCenter.lng};
+    };
+
+    hooking.prototype.setDraggable = function (flag) {
+        var behavior = this.object.behavior;
+
+        if (flag === false) {
+            behavior.disable(H.mapevents.Behavior.DRAGGING);
+        } else {
+            behavior.enable(H.mapevents.Behavior.DRAGGING);
+        }
     };
 
     hooking.prototype.latLngToPoint = function (lat, lng) {
