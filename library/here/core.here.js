@@ -223,11 +223,6 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
  * @returns {*}
  */
 jsMaps.Here.prototype.removeEvent = function (map,eventObject) {
-    if (eventObject.eventObjCustom != 'undefined') {
-        jsMaps.removeEventListener(eventObject.eventObjCustom, eventObject.eventName, function () {});
-        return;
-    }
-
     var obj = map.object;
     if (typeof obj.map != 'undefined') obj = obj.map;
 
@@ -498,6 +493,7 @@ jsMaps.Here.ReturnStrip = function (path) {
     var strip = new H.geo.Strip();
 
     if (typeof path == 'undefined' || path == []) return [];
+    var cn;
 
     for (var i in path) {
         if (path.hasOwnProperty(i) == false) continue;
@@ -506,10 +502,23 @@ jsMaps.Here.ReturnStrip = function (path) {
             var recentArray = [];
             for (var c in path[i]) {
                 if (path[i].hasOwnProperty(c) == false) continue;
-                strip.pushLatLngAlt(path[i][c].lat, path[i][c].lng);
+
+                if (typeof path[i][c].center != 'undefined') {
+                    cn = path[i][c].center;
+                } else {
+                    cn = 0;
+                }
+
+                strip.pushLatLngAlt(path[i][c].lat, path[i][c].lng, cn);
             }
         } else {
-            strip.pushLatLngAlt(path[i].lat,path[i].lng);
+            if (typeof path[i].center != 'undefined') {
+                cn = path[i].center;
+            } else {
+                cn = 0;
+            }
+
+            strip.pushLatLngAlt(path[i].lat,path[i].lng, cn);
         }
     }
 
@@ -553,7 +562,6 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
         var target = ev.target,
             pointer = ev.currentPointer;
         if (target instanceof mapsjs.map.DomMarker) {
-
             var data = target.getData();
             if (typeof data.line!='undefined') {
                 var pos = obj.screenToGeo(pointer.viewportX, pointer.viewportY);
@@ -564,12 +572,31 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
 
                 var arrayOfPaths = [];
                 var path = data['line'].getStrip();
-                var changed = 0;
+
+
+                var prev = {lat: 0,lng: 0};
 
                 var eachFn = function(lat, lng, alt, idx) {
                     if (lat == old_pos.lat && lng ==old_pos.lng) {
                         lat = pos.lat;
                         lng = pos.lng;
+                    }
+
+                    if (prev.lat == 0) {
+                        prev = {lat: lat,lng: lng};
+                    } else {
+                        var hereCenter = new H.geo.Strip();
+                        hereCenter.pushLatLngAlt(prev.lat,prev.lng);
+                        hereCenter.pushLatLngAlt(lat,lng);
+
+                        var pt = hereCenter.getBounds().getCenter();
+
+                        if (pt.lat == old_pos.lat && pt.lng ==old_pos.lng) {
+                            arrayOfPaths.push ({lat: pt.lat, lng: pt.lng});
+                            pos = pt;
+                        }
+
+                        prev = {lat: lat,lng: lng};
                     }
 
                     arrayOfPaths.push ({lat: lat, lng: lng});
@@ -583,11 +610,8 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
             }
         }
 
-
     }, false);
 };
-
-
 
 
 jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, parameters) {
@@ -612,7 +636,7 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
 
     innerElement.style.color = 'red';
     innerElement.style.backgroundColor = 'white';
-    innerElement.style.border = '2px solid '+line.color;
+    innerElement.style.border = '1px solid '+line.color;
     innerElement.style.font = 'normal '+line.size+'px arial';
     innerElement.style.lineHeight = line.size+'px';
     innerElement.style.borderRadius="15px";
@@ -632,12 +656,22 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
     // Add text to the DOM element
     innerElement.innerHTML = '&nbsp;';
 
+    var innerElementClone = innerElement.cloneNode(true);
+    innerElementClone.style.border="1px solid "+line.color;
+    innerElementClone.style.borderRadius="50%";
+
+    innerElementClone.style.opacity = 0.7;
+    innerElementClone.style.filter = "alpha( opacity=60 )";
+
+    var outerElementClone = outerElement.cloneNode(false);
+    outerElementClone.appendChild(innerElementClone);
+
     function changeOpacity(evt) {
-        evt.target.style.opacity = 0.6;
+        evt.target.style.backgroundColor="yellow";
     }
 
     function changeOpacityToOne(evt) {
-        evt.target.style.opacity = 1;
+        evt.target.style.backgroundColor="white";
     }
 
     //create dom icon and add/remove opacity listeners
@@ -654,14 +688,36 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
         }
     });
 
+    //create dom icon and add/remove opacity listeners
+    var domIconCenter = new H.map.DomIcon(outerElementClone, {
+        // the function is called every time marker enters the viewport
+        onAttach: function(clonedElement, domIcon, domMarker) {
+            clonedElement.addEventListener('mouseover', changeOpacity);
+            clonedElement.addEventListener('mouseout', changeOpacityToOne);
+        },
+        // the function is called every time marker leaves the viewport
+        onDetach: function(clonedElement, domIcon, domMarker) {
+            clonedElement.removeEventListener('mouseover', changeOpacity);
+            clonedElement.removeEventListener('mouseout', changeOpacityToOne);
+        }
+    });
+
     for (var i in path) {
         if (path.hasOwnProperty(i) == false) continue;
-
         if (isPolygon == true && i == 0)  continue;
 
-        var marker =  new H.map.DomMarker({lat:path[i].lat, lng:  path[i].lng}, {icon: domIcon });
+        var center = 0;
+        var icon = {icon: domIcon };
+        if (typeof path[i].center != 'undefined' &&  path[i].center == 1) {
+            icon = {icon: domIconCenter };
+            center = 1;
+        }
+
+        var marker =  new H.map.DomMarker({lat:path[i].lat, lng:  path[i].lng}, icon);
+
         marker.setData({line: PolyLine,pos: {lat:path[i].lat, lng:  path[i].lng}});
         marker.draggable = true;
+        marker.center = center;
 
         obj.addObject(marker);
 
@@ -852,7 +908,7 @@ jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
     }
 
     var npath = [];
-
+    var noCenter = [];
     for (var n in newPaths) {
         if (newPaths.hasOwnProperty(n) == false) continue;
 
@@ -867,22 +923,244 @@ jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
             }
         }
 
+        newPaths[n].center = 0;
+
         if ( abort != 1) {
             npath.push(newPaths[n]);
-
+            noCenter.push(newPaths[n]);
             var hereCenter = new H.geo.Strip();
 
             hereCenter.pushLatLngAlt(testPath[0].lat,testPath[0].lng);
             hereCenter.pushLatLngAlt(testPath[1].lat,testPath[1].lng);
 
-            npath.push(hereCenter.getBounds().getCenter());
+            var path = hereCenter.getBounds().getCenter();
+            path.center = 1;
+
+            npath.push(path);
         }else {
             npath.push(newPaths[n]);
+            noCenter.push(newPaths[n]);
         }
     }
 
-    Polygon.setStrip(jsMaps.Here.ReturnStrip(npath));
+    Polygon.setStrip(jsMaps.Here.ReturnStrip(noCenter));
     return jsMaps.Here.EditPolyLine(npath,Polygon,obj,behavior,true,parameters);
+};
+
+jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parameters) {
+    var map = mapObject.object.map;
+    var behavior = mapObject.object.behavior;
+    var vector = vectorHooking.object;
+
+    vector.addEventListener('pointerdown',function (e){
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (typeof vectorHooking.markers!='undefined' && vectorHooking.markers.length > 0) {
+            for (var o in vectorHooking.markers) {
+                if (vectorHooking.markers.hasOwnProperty(o) == false) continue;
+                map.removeObject(vectorHooking.markers[o]);
+            }
+
+            vectorHooking.markers = undefined;
+        }
+
+        this.moving = true;
+
+        // calculate mouse cursor-offset on marker div
+        this.clickx = e.currentPointer.viewportX;
+        this.clicky = e.currentPointer.viewportY;
+
+        behavior.disable(H.mapevents.Behavior.DRAGGING);
+    }, false);
+
+
+    map.addEventListener('pointermove',function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (this.moving == false || (typeof this.clickx == 'undefined' && typeof this.clicky == 'undefined')) return;
+
+        var x =  e.currentPointer.viewportX;
+        var y = e.currentPointer.viewportY;
+
+        var latLng = map.screenToGeo(x, y);
+        var previousLoc = map.screenToGeo(this.clickx, this.clicky);
+
+        var latVariance = latLng.lat - previousLoc.lat;
+        var longVariance = latLng.lng - previousLoc.lng;
+
+        if (latVariance == 0 && longVariance == 0) return;
+
+        this.clickx = e.currentPointer.viewportX;
+        this.clicky = e.currentPointer.viewportY;
+
+        var strip = new H.geo.Strip();
+        var path = this.getStrip();
+
+        var eachFn = function(lat, lng, alt, idx) {
+            strip.pushLatLngAlt(lat+latVariance,lng+longVariance);
+        };
+
+        path.eachLatLngAlt(eachFn);
+        this.setStrip(strip);
+
+        jsMaps.Here.prototype.moveMap(mapObject,{x: x,y: y},this,'vector');
+    },false, vector);
+
+    map.addEventListener('pointerup',function (e) {
+        behavior.enable(H.mapevents.Behavior.DRAGGING);
+        this.moving = false;
+
+
+        if (typeof vectorHooking.markers!='undefined' && vectorHooking.markers.length > 0) {
+            for (var o in vectorHooking.markers) {
+                if (vectorHooking.markers.hasOwnProperty(o) == false) continue;
+                map.removeObject(vectorHooking.markers[o]);
+            }
+
+            vectorHooking.markers = undefined;
+        }
+
+        var path = this.getStrip();
+        var altArray = [];
+
+        var eachFn = function(lat, lng, alt, idx) {
+            altArray.push({lat:lat,lng:lng});
+        };
+
+        path.eachLatLngAlt(eachFn);
+
+        parameters.paths = altArray;
+
+        vectorHooking.markers = jsMaps.Here.EditablePolygon(this,parameters,map,behavior);
+    },false, vector);
+};
+
+jsMaps.Here.prototype.vectorPosition = function (mapObject,vector,point) {
+    var map = mapObject.object.map;
+
+    var previousLoc = map.screenToGeo(vector.clickx, vector.clicky);
+    var latLng = map.screenToGeo(point.x,point.y);
+
+    var latVariance = latLng.lat - previousLoc.lat;
+    var longVariance = latLng.lng - previousLoc.lng;
+
+    var strip = new H.geo.Strip();
+    var path = vector.getStrip();
+
+    var eachFn = function(lat, lng, alt, idx) {
+        strip.pushLatLngAlt(lat+latVariance,lng+longVariance);
+    };
+
+    path.eachLatLngAlt(eachFn);
+    vector.setStrip(strip);
+};
+
+jsMaps.Here.prototype.moveMap = function (mapObject,xy,object,objectType) {
+    var map = mapObject.object.map;
+    var viewPort = map.getViewPort();
+
+    var mapMoveSpeedX = 1;
+    var mapMoveSpeedY = 1;
+    var mapMoveMaxSpeed = 20;
+
+    // move left
+    if (xy["x"] < viewPort.width / 10) {
+        mapMoveSpeedX = (1 - (xy["x"] / (viewPort.width / 10))) * mapMoveMaxSpeed;
+
+        // move left up
+        if (xy["y"] < viewPort.height / 10) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(mapMoveSpeedX, mapMoveSpeedY);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
+            }, 10);
+        }
+        // move left down
+        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
+            }, 10);
+        }
+        // move left
+        else {
+            window.clearInterval(this.mapmoveInterval);
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(mapMoveSpeedX, 0);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]});
+            }, 10);
+        }
+    }
+    // move right
+    else if (xy["x"] > (viewPort.width - viewPort.width / 10)) {
+        mapMoveSpeedX = (1 - (viewPort.width - xy["x"]) / (viewPort.width / 10)) * mapMoveMaxSpeed;
+        // move right up
+        if (xy["y"] < viewPort.height / 10) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
+            }, 10);
+        }
+        // move right down
+        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
+            }, 10);
+        }
+        // move right
+        else {
+            window.clearInterval(this.mapmoveInterval);
+
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(-mapMoveSpeedX, 0);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]});
+            }, 10);
+        }
+    }
+    else {
+        // move up
+        if (xy["y"] < viewPort.height / 10) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(0, mapMoveSpeedY);
+
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"],y:  xy["y"]-mapMoveSpeedY});
+            }, 10);
+        }
+        // move down
+        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
+            this.mapmoveInterval = window.setInterval(function () {
+                mapObject.moveXY(0, -mapMoveSpeedY);
+                
+                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"],y:  xy["y"]+mapMoveSpeedY});
+            }, 10);
+        }
+        // stop moving
+        else {
+            window.clearInterval(this.mapmoveInterval);
+            mapMoveSpeedX = 1;
+            mapMoveSpeedY = 1;
+        }
+    }
 };
 
 /**
@@ -904,6 +1182,9 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
 
     obj.addObject(Polygon);
 
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.PolygonStructure();
+
     var markers = undefined;
     Polygon.clickable = parameters.clickable;
 
@@ -915,9 +1196,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
         Polygon.setData({'editEvent':false});
     }
 
-    var hooking = function () {};
-    hooking.prototype = new jsMaps.PolygonStructure();
-
+    hooking.prototype.markers = markers;
     hooking.prototype.object = Polygon;
 
     hooking.prototype.getEditable = function () {
@@ -948,21 +1227,21 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
 
     hooking.prototype.setEditable = function (editable) {
         if (editable == true){
-            if (typeof markers == 'undefined') {
+            if (typeof this.markers == 'undefined') {
                 this.object.setData({'editEvent':true});
-                markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
+                this.markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
             }
         }
         else {
             this.object.setData({'editEvent':false});
 
-            if (typeof markers!='undefined' && markers.length > 0) {
-                for (var o in markers) {
-                    if (markers.hasOwnProperty(o) == false) continue;
-                    obj.removeObject(markers[o]);
+            if (typeof this.markers!='undefined' && this.markers.length > 0) {
+                for (var o in this.markers) {
+                    if (this.markers.hasOwnProperty(o) == false) continue;
+                    obj.removeObject(this.markers[o]);
                 }
 
-                markers = undefined;
+                this.markers = undefined;
             }
         }
     };
@@ -970,10 +1249,10 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     hooking.prototype.setPath = function (pathArray) {
         var originMap =this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                originMap.removeObject(markers[o]);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                originMap.removeObject(this.markers[o]);
             }
         }
 
@@ -982,7 +1261,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
         var getEditable = this.getEditable();
 
         if (getEditable == true) {
-            markers = jsMaps.Here.EditablePolygon(this.object,this.getPath(),obj,behavior);
+            this.markers = jsMaps.Here.EditablePolygon(this.object,this.getPath(),obj,behavior);
         }
     };
 
@@ -993,11 +1272,11 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     hooking.prototype.setMap = function (map) {
         var originMap =this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
             for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                originMap.removeObject(markers[o]);
-                map.object.map.addObject(markers[o]);
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                originMap.removeObject(this.markers[o]);
+                map.object.map.addObject(this.markers[o]);
             }
         }
 
@@ -1006,10 +1285,10 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     };
 
     hooking.prototype.setVisible = function (visible) {
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                markers[o].setVisibility(visible);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                this.markers[o].setVisibility(visible);
             }
         }
 
@@ -1019,20 +1298,22 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     hooking.prototype.removePolyGon = function () {
         var mapObjectTmp = this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                mapObjectTmp.removeObject(markers[o]);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                mapObjectTmp.removeObject(this.markers[o]);
             }
 
-            markers = undefined;
+            this.markers = undefined;
         }
 
         mapObjectTmp.removeObject(this.object);
     };
 
+    var object = new hooking();
+    jsMaps.Here.prototype.draggableVector(object, map, parameters);
 
-    return new hooking();
+    return object;
 };
 
 /**

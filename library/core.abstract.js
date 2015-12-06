@@ -441,7 +441,7 @@ jsMaps.MapStructure = function () {
             var pixelCenter = this.latLngToPoint(center.lat,center.lng);
             var newPixelCenter = this.pointToLatLng(pixelCenter.x-x,pixelCenter.y-y);
 
-            this.setCenter(newPixelCenter.lat,newPixelCenter.lng, 1);
+            this.setCenter(newPixelCenter.lat,newPixelCenter.lng, 0);
         },
 
         /**
