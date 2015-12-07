@@ -441,6 +441,7 @@ jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parame
         e.stopPropagation();
         e.preventDefault();
 
+        if (this.dragggable == false) return;
         if (typeof vectorHooking.markers!='undefined' && vectorHooking.markers.length > 0) {
             for (var o in vectorHooking.markers) {
                 if (vectorHooking.markers.hasOwnProperty(o) == false) continue;
@@ -464,6 +465,7 @@ jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parame
         e.stopPropagation();
         e.preventDefault();
 
+        if (this.dragggable == false) return;
         if (this.moving == false || (typeof this.clickx == 'undefined' && typeof this.clicky == 'undefined')) return;
 
         var x =  e.currentPointer.viewportX;
@@ -582,12 +584,14 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     }
 
     Polygon.markers = markers;
+    Polygon.dragggable = parameters.draggable;
 
     hooking.prototype.markers = markers;
     hooking.prototype.object = Polygon;
 
     hooking.prototype.getEditable = function () {
-        return this.object.getEditable();
+        var tmp_data = this.object.getData();
+        return (typeof tmp_data.editEvent != 'editEvent')? tmp_data.editEvent: false;
     };
 
     hooking.prototype.getPath = function () {
@@ -609,7 +613,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     };
 
     hooking.prototype.setDraggable = function (draggable) {
-        // Not supported
+        this.object.dragggable = draggable;
     };
 
     hooking.prototype.setEditable = function (editable) {
