@@ -573,8 +573,16 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
                 var arrayOfPaths = [];
                 var path = data['line'].getStrip();
 
-
                 var prev = {lat: 0,lng: 0};
+
+                for (var m in data['line'].markers) {
+                    if (data['line'].markers.hasOwnProperty(m) == false) continue;
+                    var mr = data['line'].markers[m];
+
+                   if (target.center != mr.center) {
+                       mr.setVisibility(false);
+                   }
+                }
 
                 var eachFn = function(lat, lng, alt, idx) {
                     if (lat == old_pos.lat && lng ==old_pos.lng) {
@@ -1034,6 +1042,7 @@ jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parame
         parameters.paths = altArray;
 
         vectorHooking.markers = jsMaps.Here.EditablePolygon(this,parameters,map,behavior);
+        this.markers = vectorHooking.markers;
     },false, vector);
 };
 
@@ -1195,6 +1204,8 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     } else {
         Polygon.setData({'editEvent':false});
     }
+
+    Polygon.markers = markers;
 
     hooking.prototype.markers = markers;
     hooking.prototype.object = Polygon;
