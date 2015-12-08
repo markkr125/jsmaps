@@ -95,7 +95,7 @@ jsMaps.Here.DraggablePolylineMarker = function (obj,behavior) {
     }, false);
 };
 
-jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, parameters) {
+jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,shape, parameters) {
     var markers = [];
 
 
@@ -185,7 +185,7 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
 
     for (var i in path) {
         if (path.hasOwnProperty(i) == false) continue;
-        if (isPolygon == true && i == 0)  continue;
+        if (shape == 'polygon' && i == 0)  continue;
 
         var center = 0;
         var icon = {icon: domIcon };
@@ -195,6 +195,7 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
         }
 
         var marker =  new H.map.DomMarker({lat:path[i].lat, lng:  path[i].lng}, icon);
+        PolyLine.shape = shape;
 
         marker.setData({line: PolyLine,pos: {lat:path[i].lat, lng:  path[i].lng}});
         marker.draggable = true;
@@ -209,9 +210,6 @@ jsMaps.Here.EditPolyLine = function (path,PolyLine,obj,behavior,isPolygon, param
 
     return markers;
 };
-
-
-
 
 /**
  * Create PolyLine
@@ -242,7 +240,8 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
 
     if (parameters.editable != null && parameters.editable == true) {
         PolyLine.setData({'editEvent':true});
-        markers = jsMaps.Here.EditPolyLine(parameters.path,PolyLine,obj,behavior,false,parameters);
+        parameters.paths = parameters.path;
+        markers = jsMaps.Here.EditablePolygon(PolyLine,parameters,obj,behavior,'polyline');
     } else {
         PolyLine.setData({'editEvent':false});
     }
@@ -250,6 +249,11 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     var hooking = function () {};
     hooking.prototype = new jsMaps.PolyLineStructure();
 
+
+    PolyLine.markers = markers;
+    PolyLine.dragggable = parameters.draggable;
+
+    hooking.prototype.markers = markers;
     hooking.prototype.object = PolyLine;
 
     hooking.prototype.getEditable = function () {
@@ -285,21 +289,21 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
 
     hooking.prototype.setEditable = function (editable) {
         if (editable == true){
-            if (typeof markers == 'undefined') {
+            if (typeof this.markers == 'undefined') {
                 this.object.setData({'editEvent':true});
-                markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
+                this.markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
             }
         }
         else {
             this.object.setData({'editEvent':false});
 
-            if (typeof markers!='undefined' && markers.length > 0) {
-                for (var o in markers) {
-                    if (markers.hasOwnProperty(o) == false) continue;
-                    obj.removeObject(markers[o]);
+            if (typeof this.markers!='undefined' && markers.length > 0) {
+                for (var o in this.markers) {
+                    if (this.markers.hasOwnProperty(o) == false) continue;
+                    obj.removeObject(this.markers[o]);
                 }
 
-                markers = undefined;
+                this.markers = undefined;
             }
         }
     };
@@ -307,10 +311,10 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     hooking.prototype.setPath = function (pathArray) {
         var originMap =this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                originMap.removeObject(markers[o]);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                originMap.removeObject(this.markers[o]);
             }
         }
 
@@ -319,7 +323,8 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
         var getEditable = this.getEditable();
 
         if (getEditable == true) {
-            markers = jsMaps.Here.EditPolyLine(this.getPath(),this.object,obj,behavior);
+            parameters.paths = pathArray;
+            this.markers = jsMaps.Here.EditablePolygon(PolyLine,parameters,obj,behavior,'polyline');
         }
     };
 
@@ -334,11 +339,11 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     hooking.prototype.setMap = function (map) {
         var originMap =this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                originMap.removeObject(markers[o]);
-                map.object.map.addObject(markers[o]);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                originMap.removeObject(this.markers[o]);
+                map.object.map.addObject(this.markers[o]);
             }
         }
 
@@ -347,10 +352,10 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     };
 
     hooking.prototype.setVisible = function (visible) {
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                markers[o].setVisibility(visible);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                this.markers[o].setVisibility(visible);
             }
         }
 
@@ -360,35 +365,39 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     hooking.prototype.removeLine = function () {
         var mapObjectTmp = this.object.getRootGroup();
 
-        if (typeof markers!='undefined' && markers.length > 0) {
-            for (var o in markers) {
-                if (markers.hasOwnProperty(o) == false) continue;
-                mapObjectTmp.removeObject(markers[o]);
+        if (typeof this.markers!='undefined' && this.markers.length > 0) {
+            for (var o in this.markers) {
+                if (this.markers.hasOwnProperty(o) == false) continue;
+                mapObjectTmp.removeObject(this.markers[o]);
             }
 
-            markers = undefined;
+            this.markers = undefined;
         }
 
         mapObjectTmp.removeObject(this.object);
     };
 
-    return new hooking();
+    var object = new hooking();
+    jsMaps.Here.prototype.draggableVector(object, map, parameters);
+
+    return object;
 };
 
-
-
-jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
+jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior,shape) {
+    if (typeof shape == 'undefined') shape = 'polygon';
     Polygon.setData({'editEvent':true});
 
-    var newPaths = parameters.paths;
+    var newPaths =  parameters.paths;
 
     var pathLength = newPaths.length;
 
-    if (pathLength % 2 === 0 || pathLength % 3 === 0) {
-        var last = newPaths[pathLength-1];
+    if (shape == 'polygon') {
+        if (pathLength % 2 === 0 || pathLength % 3 === 0) {
+            var last = newPaths[pathLength-1];
 
-        if (last.lat != newPaths[0].lat && last.lng != newPaths[0].lng ) {
-            newPaths.push(newPaths[0]);
+            if (last.lat != newPaths[0].lat && last.lng != newPaths[0].lng ) {
+                newPaths.push(newPaths[0]);
+            }
         }
     }
 
@@ -429,7 +438,7 @@ jsMaps.Here.EditablePolygon = function (Polygon,parameters,obj,behavior) {
     }
 
     Polygon.setStrip(jsMaps.Here.ReturnStrip(noCenter));
-    return jsMaps.Here.EditPolyLine(npath,Polygon,obj,behavior,true,parameters);
+    return jsMaps.Here.EditPolyLine(npath,Polygon,obj,behavior,shape,parameters);
 };
 
 jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parameters) {
@@ -442,6 +451,7 @@ jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parame
         e.preventDefault();
 
         if (this.dragggable == false) return;
+
         if (typeof vectorHooking.markers!='undefined' && vectorHooking.markers.length > 0) {
             for (var o in vectorHooking.markers) {
                 if (vectorHooking.markers.hasOwnProperty(o) == false) continue;
@@ -520,7 +530,7 @@ jsMaps.Here.prototype.draggableVector = function (vectorHooking,mapObject,parame
 
         parameters.paths = altArray;
 
-        vectorHooking.markers = jsMaps.Here.EditablePolygon(this,parameters,map,behavior);
+        vectorHooking.markers = jsMaps.Here.EditablePolygon(this,parameters,map,behavior,this.shape);
         this.markers = vectorHooking.markers;
     },false, vector);
 };
