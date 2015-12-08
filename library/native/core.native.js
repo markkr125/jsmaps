@@ -2115,7 +2115,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.zoomOutSpeed = 0.01;
     this.zoomOutInterval = null;
     this.zoomOutStarted = false;
-    this.draggable = false;
+    this.draggable = true;
 
     var w;
 
