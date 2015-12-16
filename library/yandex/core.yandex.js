@@ -388,6 +388,40 @@ jsMaps.Yandex.prototype.marker = function (map,parameters) {
     ymaps.ready(function () {
         map = map.object;
 
+        var obj = null;
+
+        if (parameters.html != null && typeof parameters.html == 'object') {
+            obj = document.createElement('div');
+            obj.innerHTML = parameters.html.innerHTML;
+
+            options.iconLayout = ymaps.templateLayoutFactory.createClass('<div>' + parameters.html.innerHTML + '</div>');
+        } else if (parameters.html != null && typeof parameters.html == 'string') {
+            obj = document.createElement('div');
+            obj.appendChild(parameters.html);
+
+            options.iconLayout = ymaps.templateLayoutFactory.createClass('<div>' + parameters.html + '</div>');
+        }
+
+        var coordinates = [];
+
+        if (obj!=null) {
+            document.body.appendChild(obj);
+            obj.style.display = 'inline-block';
+            coordinates.push([-1*obj.offsetHeight,-1*obj.offsetHeight]);
+            coordinates.push([obj.offsetWidth,obj.offsetWidth]);
+
+            document.body.removeChild(obj);
+        }
+
+        if (typeof  options.iconLayout != 'undefined') {
+            options.iconShape = {
+                type: 'Rectangle',
+                coordinates: coordinates
+            };
+        }
+
+        if (parameters.draggable != null) options.draggable = parameters.draggable;
+
         hooking.prototype.object =  new ymaps.Placemark([parameters.position.lat, parameters.position.lng],props,options);
         hooking.prototype.collection = new ymaps.GeoObjectCollection(null, {});
         hooking.prototype.collection.add(hooking.prototype.object);
