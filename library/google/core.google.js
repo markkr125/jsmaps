@@ -218,6 +218,149 @@ jsMaps.Google.prototype.bounds = function (map) {
     return new hooking();
 };
 
+jsMaps.Google.domMarker  = function (div, args) {
+    this.divElem = div;
+    this.latlng = args.position;
+    this.args = args;
+    this.setMap(args.map);
+};
+
+jsMaps.Google.domMarker.prototype = new google.maps.OverlayView();
+
+jsMaps.Google.domMarker.prototype.draw = function() {
+    var self = this;
+    var div = this.div;
+
+    if (!div) {
+        div = this.divElem;
+        div.className = 'marker';
+        div.style.position = 'absolute';
+        if (this.args.title != null) div.setAttribute('title',this.args.title);
+        div.style.cursor = 'pointer';
+        div.style.display = 'inline-block';
+        div.draggable = this.args.draggable;
+
+        if (this.args.zIndex != null) div.style.zIndex = this.args.zIndex;
+
+        if (typeof(self.args.marker_id) !== 'undefined') {
+            div.dataset.marker_id = self.args.marker_id;
+        }
+
+        google.maps.event.addDomListener(div, "click", function(event) {
+            google.maps.event.trigger(self, "click");
+        });
+
+        var panes = this.getPanes();
+        panes.overlayImage.appendChild(div);
+
+        this.div = div;
+    }
+
+    var point = this.getProjection().fromLatLngToDivPixel(this.latlng);
+
+    if (point) {
+        div.style.left = point.x + 'px';
+        div.style.top = point.y + 'px';
+    }
+
+
+    var map = this.getMap();
+    var that = this;
+
+    if (this.div.eventAttached != true) {
+        this.div.eventAttached = true;
+        google.maps.event.addDomListener(map.getDiv(),
+            'mouseleave',
+            function () {
+                google.maps.event.trigger(map.getDiv(), 'mouseup');
+            }
+        );
+
+        google.maps.event.addDomListener(this.div,
+            'mousedown',
+            function (e) {
+                if (that.div.draggable == false) return;
+                this.style.cursor = 'move';
+                map.set('draggable', false);
+                that.set('origin', e);
+
+                that.moveHandler = google.maps.event.addDomListener(map.getDiv(),
+                    'mousemove',
+                    function (e) {
+                        if (that.div.draggable == false) return;
+
+                        var origin = that.get('origin'),
+                            left = origin.clientX - e.clientX,
+                            top = origin.clientY - e.clientY,
+                            pos = that.getProjection().fromLatLngToDivPixel(that.latlng);
+
+                        if (pos) {
+                            var latLng = that.getProjection().fromDivPixelToLatLng(new google.maps.Point(pos.x - left, pos.y - top));
+
+
+                            that.latlng = latLng;
+
+                            that.set('origin', e);
+                            that.set('position', latLng);
+                            that.draw();
+                        }
+                    });
+            }
+        );
+
+        google.maps.event.addDomListener(map.getDiv(), 'mouseup', function () {
+            map.set('draggable', true);
+            this.style.cursor = 'default';
+            google.maps.event.removeListener(that.moveHandler);
+        });
+    }
+};
+
+jsMaps.Google.domMarker.prototype.remove = function() {
+    if (this.div) {
+        this.div.parentNode.removeChild(this.div);
+        this.div = null;
+    }
+};
+
+jsMaps.Google.domMarker.prototype.getPosition = function() {
+    return this.latlng;
+};
+
+jsMaps.Google.domMarker.prototype.setPosition = function(latlng) {
+    this.latlng = latlng;
+    this.remove();
+    this.draw();
+};
+
+jsMaps.Google.domMarker.prototype.setVisible = function(variable) {
+    this.div.style.display = ((variable) ? 'inline-block': 'none');
+};
+
+jsMaps.Google.domMarker.prototype.getVisible = function() {
+    return ((this.div.style.display == 'inline-block'));
+};
+
+jsMaps.Google.domMarker.prototype.getIcon = function () {
+    return '';
+};
+
+jsMaps.Google.domMarker.prototype.setIcon = function (icon) {
+};
+
+jsMaps.Google.domMarker.prototype.getZIndex = function () {
+    return this.div.style.zIndex;
+};
+
+jsMaps.Google.domMarker.prototype.setZIndex = function (number) {
+    this.args.zIndex = number;
+    this.div.style.zIndex = number;
+};
+
+jsMaps.Google.domMarker.prototype.setDraggable = function (flag) {
+    this.div.draggable = flag;
+};
+
 /**
  * Generate markers
  *
@@ -231,7 +374,12 @@ jsMaps.Google.prototype.marker = function (map,parameters) {
     if (parameters.icon != null) options.icon = parameters.icon;
     if (parameters.draggable != null) options.draggable = parameters.draggable;
 
-    var marker = new google.maps.Marker(options);
+    var marker;
+    if (parameters.html == null) {
+        marker = new google.maps.Marker(options);
+    } else {
+        marker = new jsMaps.Google.domMarker(parameters.html,options);
+    }
 
     var hooking = function () {};
     hooking.prototype = new jsMaps.MarkerStructure();

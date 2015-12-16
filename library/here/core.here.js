@@ -300,7 +300,7 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
     // when starting to drag a marker object:
     obj.addEventListener('dragstart', function (ev) {
         var target = ev.target;
-        if (target instanceof H.map.Marker) {
+        if (target instanceof H.map.Marker || target instanceof H.map.DomMarker) {
             behavior.disable();
         }
     }, false);
@@ -310,7 +310,7 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
     // when dragging has completed
     obj.addEventListener('dragend', function (ev) {
         var target = ev.target;
-        if (target instanceof mapsjs.map.Marker) {
+        if (target instanceof mapsjs.map.Marker || target instanceof mapsjs.map.DomMarker) {
             behavior.enable();
         }
     }, false);
@@ -320,7 +320,7 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
     obj.addEventListener('drag', function (ev) {
         var target = ev.target,
             pointer = ev.currentPointer;
-        if (target instanceof mapsjs.map.Marker) {
+        if (target instanceof mapsjs.map.Marker || target instanceof mapsjs.map.DomMarker) {
             var pos = obj.screenToGeo(pointer.viewportX, pointer.viewportY);
 
             target.setPosition(pos);
@@ -338,8 +338,15 @@ jsMaps.Here.DraggableMarker = function (obj,behavior) {
  * @param {jsMaps.MarkerOptions} parameters
  */
 jsMaps.Here.prototype.marker = function (map,parameters) {
+    var marker;
 
-    var marker = new H.map.Marker({lat:parameters.position.lat, lng:  parameters.position.lng});
+    if (parameters.html == null) {
+        marker = new H.map.Marker({lat:parameters.position.lat, lng:  parameters.position.lng});
+    } else {
+        var domIcon = new H.map.DomIcon(parameters.html);
+        marker =  new H.map.DomMarker({lat:parameters.position.lat, lng:  parameters.position.lng}, {icon: domIcon });
+    }
+
     if (parameters.draggable != null) marker.draggable = parameters.draggable;
     if (parameters.icon != null) {
         var yourMarker  =  parameters.icon;

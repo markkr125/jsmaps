@@ -15,7 +15,8 @@ jsMaps.MarkerOptions = function () {
         title: null,
         zIndex: null,
         draggable: false,
-        markerId: null
+        markerId: null,
+        html: null
     }
 };
 

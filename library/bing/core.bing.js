@@ -320,6 +320,13 @@ jsMaps.Bing.prototype.marker = function (map,parameters) {
     if (parameters.icon != null) options.icon = parameters.icon;
     if (parameters.draggable != null) options.draggable = parameters.draggable;
 
+    var html;
+    if (parameters.html != null && typeof parameters.html == 'object') {
+        options.htmlContent = '<div>'+parameters.html.innerHTML+'</div>';
+    } else if (parameters.html != null && typeof parameters.html == 'string') {
+        options.htmlContent = '<div>'+parameters.html+'</div>';
+    }
+
     map = map.object;
 
     var marker = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(parameters.position.lat, parameters.position.lng), options);
