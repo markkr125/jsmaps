@@ -2380,10 +2380,14 @@ jsMaps.Native.prototype.marker = function (map,parameters) {
     };
 
     if (parameters.zIndex != null) options.zIndex = parameters.zIndex;
+
     if (parameters.icon != null) {
         options.icon = new jsMaps.Native.Overlay.MarkerImage(
             parameters.icon
         );
+    }else if (parameters.html != null) {
+        options.icon = parameters.html;
+        options.raiseOnDrag = false;
     }
 
     var marker = new jsMaps.Native.Overlay.Marker(options);
