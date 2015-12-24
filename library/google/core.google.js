@@ -45,6 +45,10 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: map.lat(), lng: map.lng()};
     };
 
+    hooking.prototype.getElement = function () {
+        return this.object.getDiv();
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         this.object.setOptions({draggable: flag});
     };

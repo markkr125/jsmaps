@@ -436,6 +436,17 @@ jsMaps.MapStructure = function () {
         setDraggable: function (flag) {
         },
 
+        getViewPort: function () {
+            var element = this.getElement();
+            return {width: element.offsetWidth,height: element.offsetHeight};
+        },
+
+        /**
+         * @returns HTMLDivElement
+         */
+        getElement: function () {
+        },
+
         moveXY: function (x, y) {
             var center = this.getCenter();
 

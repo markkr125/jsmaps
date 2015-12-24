@@ -2159,6 +2159,11 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         return {lat: map.lat, lng: map.lng};
     };
 
+    hooking.prototype.getElement = function () {
+        return this.object.clone;
+    };
+
+
     hooking.prototype.setDraggable = function (flag) {
         this.object.draggable = flag;
     };

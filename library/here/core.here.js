@@ -63,6 +63,15 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat: jsMaps.Here.MapCenter.lat, lng: jsMaps.Here.MapCenter.lng};
     };
 
+    hooking.prototype.getElement = function () {
+        return this.object.map.getElement();
+    };
+
+    hooking.prototype.getViewPort = function () {
+        var element = this.object.map.getViewPort();
+        return {width: element.width,height: element.height};
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         var behavior = this.object.behavior;
 
@@ -188,7 +197,8 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
                 return {lat: 0, lng: 0};
             }
 
-            var event = this.container.object.map.screenToGeo(this.eventObject.currentPointer.viewportX, this.eventObject.currentPointer.viewportY);
+            var mapObhect = (typeof this.container.map!='undefined') ? this.container.map.object: this.container.object;
+            var event = mapObhect.map.screenToGeo(this.eventObject.currentPointer.viewportX, this.eventObject.currentPointer.viewportY);
             return  {lat: event.lat, lng: event.lng};
         };
 
@@ -530,110 +540,4 @@ jsMaps.Here.ReturnStrip = function (path) {
     }
 
     return strip;
-};
-
-jsMaps.Here.prototype.moveMap = function (mapObject,xy,object,objectType) {
-    var map = mapObject.object.map;
-    var viewPort = map.getViewPort();
-
-    var mapMoveSpeedX = 1;
-    var mapMoveSpeedY = 1;
-    var mapMoveMaxSpeed = 20;
-
-    // move left
-    if (xy["x"] < viewPort.width / 10) {
-        mapMoveSpeedX = (1 - (xy["x"] / (viewPort.width / 10))) * mapMoveMaxSpeed;
-
-        // move left up
-        if (xy["y"] < viewPort.height / 10) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(mapMoveSpeedX, mapMoveSpeedY);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
-            }, 10);
-        }
-        // move left down
-        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
-            }, 10);
-        }
-        // move left
-        else {
-            window.clearInterval(this.mapmoveInterval);
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(mapMoveSpeedX, 0);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]});
-            }, 10);
-        }
-    }
-    // move right
-    else if (xy["x"] > (viewPort.width - viewPort.width / 10)) {
-        mapMoveSpeedX = (1 - (viewPort.width - xy["x"]) / (viewPort.width / 10)) * mapMoveMaxSpeed;
-        // move right up
-        if (xy["y"] < viewPort.height / 10) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
-            }, 10);
-        }
-        // move right down
-        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
-            }, 10);
-        }
-        // move right
-        else {
-            window.clearInterval(this.mapmoveInterval);
-
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(-mapMoveSpeedX, 0);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]});
-            }, 10);
-        }
-    }
-    else {
-        // move up
-        if (xy["y"] < viewPort.height / 10) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(0, mapMoveSpeedY);
-
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"],y:  xy["y"]-mapMoveSpeedY});
-            }, 10);
-        }
-        // move down
-        else if (xy["y"] > (viewPort.height - viewPort.height / 10)) {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
-            this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(0, -mapMoveSpeedY);
-                
-                jsMaps.Here.prototype.vectorPosition(mapObject,object,{x: xy["x"],y:  xy["y"]+mapMoveSpeedY});
-            }, 10);
-        }
-        // stop moving
-        else {
-            window.clearInterval(this.mapmoveInterval);
-            mapMoveSpeedX = 1;
-            mapMoveSpeedY = 1;
-        }
-    }
 };

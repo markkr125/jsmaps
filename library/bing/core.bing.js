@@ -58,6 +58,10 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat:center.latitude, lng: center.longitude};
     };
 
+    hooking.prototype.getElement = function () {
+        return this.object.getRootElement();
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         this.object.setOptions({disablePanning: !flag});
     };
@@ -72,9 +76,10 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
         return {lat:pos.latitude,lng:pos.longitude};
     };
 
-    hooking.prototype.setCenter = function (lat, lng) {
+    hooking.prototype.setCenter = function (lat, lng,transition) {
         var mapOptions = this.object.getOptions();
         mapOptions.center = new Microsoft.Maps.Location(lat, lng);
+        mapOptions.animate = (transition != 0);
 
         this.object.setView(mapOptions);
     };
@@ -144,7 +149,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.additional_events.mousedown)  eventTranslation = 'mousedown';
         if (event == jsMaps.api.supported_events.mouseout)  eventTranslation = 'mouseout';
         if (event == jsMaps.api.supported_events.mouseover)  eventTranslation = 'mouseover';
-        if (event == jsMaps.api.supported_events.mouseup) eventTranslation = 'mouseup';
+        if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.rightclick) eventTranslation = 'rightclick';
     }
 
@@ -185,7 +190,14 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
         eventHooking.prototype = new jsMaps.Event(e,event,content);
 
         eventHooking.prototype.getCursorPosition = function () {
-            var latLng = e.target.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
+            var mapObject = (typeof content.mapObject != 'undefined') ? content.mapObject: e.target;
+            if (typeof content.map != 'undefined') mapObject = content.map;
+
+            if (typeof  mapObject.tryPixelToLocation == 'undefined' && typeof content.__className !='undefined' && content.__className == 'MapStructure') {
+                mapObject = content.object;
+            }
+
+            var latLng = mapObject.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
 
             return  {lat: latLng.latitude, lng: latLng.longitude};
         };
@@ -226,25 +238,6 @@ jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
 
     var dispatchOn = element.object;
     Microsoft.Maps.Events.invoke(dispatchOn,eventTranslation);
-};
-
-
-/**
- *
- * @param map
- * @param eventObject
- * @returns {*}
- */
-jsMaps.Bing.prototype.removeEvent = function (map,eventObject) {
-    if (eventObject.eventObjCustom != 'undefined') {
-        jsMaps.removeEventListener(eventObject.eventObjCustom, eventObject.eventName, function () {});
-        return;
-    }
-
-    var obj = map.object;
-    if (typeof obj.map != 'undefined') obj = obj.map;
-
-    obj.removeEventListener(eventObject.eventName, function () {});
 };
 
 /**
@@ -323,8 +316,10 @@ jsMaps.Bing.prototype.marker = function (map,parameters) {
     var html;
     if (parameters.html != null && typeof parameters.html == 'object') {
         options.htmlContent = '<div>'+parameters.html.innerHTML+'</div>';
+        options.anchor = new Microsoft.Maps.Point(0,0);
     } else if (parameters.html != null && typeof parameters.html == 'string') {
         options.htmlContent = '<div>'+parameters.html+'</div>';
+        options.anchor = new Microsoft.Maps.Point(0,0);
     }
 
     map = map.object;
@@ -380,7 +375,7 @@ jsMaps.Bing.prototype.marker = function (map,parameters) {
     };
 
     hooking.prototype.remove = function () {
-        this.map.entities.remove(this.object)
+        this.map.entities.remove(this.object);
     };
 
     return new hooking();
@@ -486,76 +481,6 @@ jsMaps.Bing.toBingPath =  function (path,isPolyGon) {
     return newPath;
 };
 
-jsMaps.Bing.EditableLines = function (polyObject,isPolygon,Locations) {
-    var EditableHandleLayer = new Microsoft.Maps.EntityCollection({ visible: false });
-
-    var points = (typeof Locations != 'undefined' && Locations.length > 0) ? Locations : polyObject.getLocations();
-    var pointIndex = null;
-    var polylineMask = null;
-
-    // Start Dragging
-    function StartDragHandler(e) {
-        var handleLocation = e.entity.getLocation();
-
-        // Determine point index
-        for (i = 0; i <= (points.length - 1); i++) {
-            if (handleLocation == points[i]) {
-                pointIndex = i;
-                break;
-            }
-        }
-    }
-
-    // Dragging
-    function DragHandler(e) {
-        var currentPoint = e.entity.getLocation();
-        var replacePoint = e.entity.replacePoint;
-
-        for (var i in points) {
-            if (points.hasOwnProperty(i) == false) continue;
-
-            var pt = points[i];
-
-            if (replacePoint.latitude == pt.latitude && replacePoint.longitude == pt.longitude) {
-                points[i] = currentPoint;
-                e.entity.replacePoint = currentPoint;
-            }
-        }
-
-        //points[pointIndex] = e.entity.getLocation();
-        polylineMask.setOptions({visible: true});
-        polylineMask.setLocations(points);
-    }
-
-    // End Dragging
-    function EndDragHandler(e) {
-        polylineMask.setOptions({visible:false});
-        polyObject.setLocations(points);
-    }
-
-    var polylineMaskStrokeColor = new Microsoft.Maps.Color(200, 100, 100, 100);
-    polylineMask = new Microsoft.Maps.Polyline(points, {visible: false, strokeColor: polylineMaskStrokeColor, strokeThickness: 2, strokeDashArray: '2 2' });
-
-    EditableHandleLayer.push(polylineMask);
-
-    var lenOffset = 1;
-    if (isPolygon) lenOffset = 2;
-
-    for (i = 0; i <= (points.length - lenOffset); i++) {
-        var dragHandle = new Microsoft.Maps.Pushpin(points[i], { draggable:true});
-
-        dragHandle.replacePoint = points[i];
-
-        Microsoft.Maps.Events.addHandler(dragHandle, 'dragstart', StartDragHandler);
-        Microsoft.Maps.Events.addHandler(dragHandle, 'drag', DragHandler);
-        Microsoft.Maps.Events.addHandler(dragHandle, 'dragend', EndDragHandler);
-
-        EditableHandleLayer.push(dragHandle);
-    }
-
-    return EditableHandleLayer;
-};
-
 /**
  * Create PolyLine
  *
@@ -577,20 +502,16 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
     // Add the polyline to the map
     map.object.entities.push(PolyLine);
 
-    var EditHandleLayer = jsMaps.Bing.EditableLines(PolyLine);
-    EditHandleLayer.setOptions({ visible: parameters.editable });
-
-    map.object.entities.push(EditHandleLayer);
-
     var hooking = function () {};
     hooking.prototype = new jsMaps.PolyLineStructure();
 
     hooking.prototype.object = PolyLine;
-    hooking.prototype.EditHandleLayer = EditHandleLayer;
     hooking.prototype.mapObject = map.object;
+    hooking.prototype.draggable = parameters.draggable;
+    hooking.prototype.editable = parameters.editable;
 
     hooking.prototype.getEditable = function () {
-        return this.EditHandleLayer.getVisible();
+        return this.editable;
     };
 
     hooking.prototype.getPath = function () {
@@ -613,24 +534,30 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
     };
 
     hooking.prototype.setDraggable = function (draggable) {
-        // Not supported
+        this.draggable = draggable;
     };
 
     hooking.prototype.setEditable = function (editable) {
-        this.EditHandleLayer.setOptions({ visible: editable });
+        this.editable = editable;
+
+        if (editable == false) {
+            jsMaps.removeVectorMarker(this);
+        } else {
+            parameters.paths = this.getPath();
+            new jsMaps.editableVector(this,map,parameters,'polyline');
+        }
     };
 
-    hooking.prototype.setPath = function (pathArray) {
+
+    hooking.prototype.setPath = function (pathArray,isReset) {
         this.object.setLocations(jsMaps.Bing.toBingPath(pathArray));
 
-        var isEditable = this.getEditable();
+        if (typeof isReset == 'undefined') {
+            parameters.paths = this.getPath();
+            jsMaps.removeVectorMarker(this);
 
-
-        this.mapObject.entities.remove(this.EditHandleLayer);
-        this.EditHandleLayer = jsMaps.Bing.EditableLines(this.object);
-        this.EditHandleLayer.setOptions({ visible: isEditable });
-
-        this.mapObject.entities.push(this.EditHandleLayer);
+            new jsMaps.editableVector(this,map,parameters,'polyline');
+        }
     };
 
     hooking.prototype.setPaths = function (pathsArray) {
@@ -643,58 +570,38 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
      */
     hooking.prototype.setMap = function (map) {
         this.mapObject.entities.remove(this.object);
-        this.mapObject.entities.remove(this.EditHandleLayer);
 
         map.entities.push(this.object);
-        map.entities.push(this.EditHandleLayer);
 
+        parameters.paths = this.getPath();
+
+        new jsMaps.editableVector(this,map,parameters,'polyline');
         this.mapObject = map;
     };
 
     hooking.prototype.setVisible = function (visible) {
+        if (visible) {
+            parameters.paths = this.getPath();
+            new jsMaps.editableVector(this,map,parameters,'polyline');
+        } else {
+            jsMaps.removeVectorMarker(this);
+        }
+
         this.object.setOptions({visible:visible});
     };
 
     hooking.prototype.removeLine = function () {
         this.mapObject.entities.remove(this.object);
-        this.mapObject.entities.remove(this.EditHandleLayer);
+        jsMaps.removeVectorMarker(this);
     };
 
-    return new hooking();
-};
+    var object = new hooking();
 
-jsMaps.Bing.EditablePolygon = function (Polygon) {
-    var currLocations = Polygon.getLocations();
-    var Locations = [];
-    var ln = currLocations.length;
+    parameters.paths = parameters.path;
+    new jsMaps.editableVector(object,map,parameters,'polyline');
+    new jsMaps.draggableVector(object,map,parameters,'polyline');
 
-    for (var n in currLocations) {
-        if (currLocations.hasOwnProperty(n) == false) continue;
-
-        var testPath = [currLocations[n],currLocations[parseInt(n)+1]];
-        var abort = 0;
-
-        for (var p in testPath) {
-            if (testPath.hasOwnProperty(p) == false) continue;
-
-            if (typeof testPath[p] == 'undefined') {
-                abort = 1;
-            } else {
-                testPath[p] = {lat: testPath[p].latitude, lng: testPath[p].longitude};
-            }
-        }
-
-        if ( abort != 1) {
-            Locations.push(currLocations[n]);
-
-            var viewRect = Microsoft.Maps.LocationRect.fromLocations([new Microsoft.Maps.Location(testPath[0].lat, testPath[0].lng), new Microsoft.Maps.Location(testPath[1].lat, testPath[1].lng)]);
-            Locations.push(viewRect.center);
-        }else {
-            Locations.push(currLocations[n]);
-        }
-    }
-
-    return Locations;
+    return object;
 };
 
 /**
@@ -716,23 +623,18 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
     var Polygon = new Microsoft.Maps.Polygon(jsMaps.Bing.toBingPath(parameters.paths,true),options);
     Polygon.clickable = parameters.clickable;
 
-    // Add the polyline to the map
     map.object.entities.push(Polygon);
-
-    var EditHandleLayer = jsMaps.Bing.EditableLines(Polygon,true,jsMaps.Bing.EditablePolygon(Polygon));
-    EditHandleLayer.setOptions({ visible: parameters.editable });
-
-    map.object.entities.push(EditHandleLayer);
 
     var hooking = function () {};
     hooking.prototype = new jsMaps.PolygonStructure();
 
     hooking.prototype.object = Polygon;
-    hooking.prototype.EditHandleLayer = EditHandleLayer;
     hooking.prototype.mapObject = map.object;
+    hooking.prototype.draggable = parameters.draggable;
+    hooking.prototype.editable = parameters.editable;
 
     hooking.prototype.getEditable = function () {
-        return this.EditHandleLayer.getVisible();
+        return this.editable;
     };
 
     hooking.prototype.getPath = function () {
@@ -751,23 +653,29 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
     };
 
     hooking.prototype.setDraggable = function (draggable) {
-        // not supported
+        this.draggable = draggable;
     };
 
     hooking.prototype.setEditable = function (editable) {
-        this.EditHandleLayer.setOptions({ visible: editable });
+        this.editable = editable;
+
+        if (editable == false) {
+            jsMaps.removeVectorMarker(this);
+        } else {
+            parameters.paths = this.getPath();
+            new jsMaps.editableVector(this,map,parameters,'polygon');
+        }
     };
 
-    hooking.prototype.setPath = function (pathArray) {
+    hooking.prototype.setPath = function (pathArray,isReset) {
         this.object.setLocations(jsMaps.Bing.toBingPath(pathArray,true));
 
-        var isEditable = this.getEditable();
+        if (typeof isReset == 'undefined') {
+            parameters.paths = this.getPath();
+            jsMaps.removeVectorMarker(this);
 
-        this.mapObject.entities.remove(this.EditHandleLayer);
-        this.EditHandleLayer =  jsMaps.Bing.EditableLines(this.object,true,jsMaps.Bing.EditablePolygon(this.object));
-        this.EditHandleLayer.setOptions({ visible: isEditable });
-
-        this.mapObject.entities.push(this.EditHandleLayer);
+            new jsMaps.editableVector(this,map,parameters,'polygon');
+        }
     };
 
     /**
@@ -776,24 +684,37 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
      */
     hooking.prototype.setMap = function (map) {
         this.mapObject.entities.remove(this.object);
-        this.mapObject.entities.remove(this.EditHandleLayer);
 
         map.entities.push(this.object);
-        map.entities.push(this.EditHandleLayer);
 
+        parameters.paths = this.getPath();
+
+        new jsMaps.editableVector(this,map,parameters,'polygon');
         this.mapObject = map;
     };
 
     hooking.prototype.setVisible = function (visible) {
+        if (visible) {
+            parameters.paths = this.getPath();
+            new jsMaps.editableVector(this,map,parameters,'polygon');
+        } else {
+            jsMaps.removeVectorMarker(this);
+        }
+
         this.object.setOptions({visible:visible});
     };
 
     hooking.prototype.removePolyGon = function () {
         this.mapObject.entities.remove(this.object);
-        this.mapObject.entities.remove(this.EditHandleLayer);
+        jsMaps.removeVectorMarker(this);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    new jsMaps.editableVector(object,map,parameters,'polygon');
+    new jsMaps.draggableVector(object,map,parameters);
+
+    return object;
 };
 
 jsMaps.Bing.drawCircle = function (latin, lonin, radius) {

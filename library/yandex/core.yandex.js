@@ -54,6 +54,14 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return {lat: mapCenter[0], lng: mapCenter[1]};
     };
 
+    hooking.prototype.getElement = function () {
+        if (this.object == null) {
+            return mapDomDocument;
+        }
+
+        return this.object.container.getElement()
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         ymaps.ready(function () {
             if (flag) {
@@ -413,7 +421,7 @@ jsMaps.Yandex.prototype.marker = function (map,parameters) {
             document.body.removeChild(obj);
         }
 
-        if (typeof  options.iconLayout != 'undefined') {
+        if (typeof  options.iconLayout != 'undefined' && coordinates.length > 0) {
             options.iconShape = {
                 type: 'Rectangle',
                 coordinates: coordinates
