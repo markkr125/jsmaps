@@ -2,13 +2,30 @@
 layout: default
 ---
 <div class="">
-    <div class="jumbotron">
-        <h1>JsMaps <small>- Interactive Javascript Maps</small></h1>
-        <h2>What does it do?</h2>
-        <p>{{ site.description }} <a class="btn btn-link btn-info btn-sm" href="https://github.com/{{ site.github_username }}" target="_blank"><i class="fa fa-github"></i> View supported external APIs on GitHub <i class="fa fa-external-link"></i></a></p>
-        <p>
-            <a class="btn btn-success" href="https://github.com/markkr125/jsmaps/archive/master.zip" role="button">Download Latest Version (Alpha)</a>
-        </p>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 row">
+                <div class="jumbotron jumbotron-mini">
+                    <h2 class="text-primary"><i class="fa fa-map-o"></i> JsMaps
+                        <small>- Interactive Javascript Maps</small>
+                    </h2>
+                    <p>{{ site.description }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="installation">
+                    <h2><i class="fa fa-map-signs"></i> Installation</h2>
+
+                    <p>Several installation options are available:</p>
+                    <ul>
+                        <li><a href="https://github.com/markkr125/jsmaps/releases">Download the latest release</a>.</li>
+                        <li>Clone the repo: <code>git clone https://github.com/markkr125/jsmaps.git</code>.</li>
+                        <li>Install with <a href="http://bower.io">Bower</a>: <code>bower install jsmaps</code>.</li>
+                        <li>Install with <a href="https://www.npmjs.com">npm</a>: <code>npm install jsmaps</code>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h1>Recent Posts <small><a href="{{ "/feed.xml" | prepend: site.baseurl }}" title="Subscribe Via RSS"><i class="fa fa-rss"></i></a></small></h1>

@@ -38,6 +38,7 @@ var ExampleLoader = {
         var files = {
             'native': ['<link type="text/css" rel="stylesheet" href="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native.css" />',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/native/core.native-ui.js" type="text/javascript"></script>',
@@ -49,6 +50,7 @@ var ExampleLoader = {
             'google': [
                 '<script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/google/core.google.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/google/core.google-geocoder.js" type="text/javascript"></script>',
@@ -57,6 +59,7 @@ var ExampleLoader = {
             'yandex': [
                 '<script src="http://api-maps.yandex.ru/2.1/?lang=en_US" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/yandex/core.yandex.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/yandex/core.yandex-geocoder.js" type="text/javascript"></script>',
@@ -64,6 +67,7 @@ var ExampleLoader = {
             ],
             'bing': [
                 '<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing.js" type="text/javascript"></script>',
@@ -78,10 +82,12 @@ var ExampleLoader = {
                 '<script type="text/javascript" charset="UTF-8" src="https://js.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>',
                 '<script src="http://js.api.here.com/v3/3.0/mapsjs-pano.js" type="text/javascript" charset="utf-8"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-geocoder.js" type="text/javascript"></script>',
-                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-staticmap.js" type="text/javascript"></script>'
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-staticmap.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/here/core.here-vector.js" type="text/javascript"></script>'
             ]
         };
 

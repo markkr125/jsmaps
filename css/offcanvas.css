@@ -318,6 +318,22 @@ iframe#example-frame {
     text-transform: capitalize;
 }
 
+.container .jumbotron.jumbotron-mini, .container-fluid .jumbotron.jumbotron-mini {
+    padding:10px;
+}
+
+.jumbotron.jumbotron-mini p{
+    font-size: 14px;
+}
+.installation {
+    padding-left: 15px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+.installation ul{
+    margin-left: 15px;
+}
+
 /*
  * Off Canvas
  * --------------------------------------------------
