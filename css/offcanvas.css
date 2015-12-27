@@ -322,6 +322,10 @@ iframe#example-frame {
     padding:10px;
 }
 
+.container .jumbotron.jumbotron-mini .text-primary, .container-fluid .jumbotron.jumbotron-mini .text-primary{
+    margin-bottom: 20px;
+}
+
 .jumbotron.jumbotron-mini p{
     font-size: 14px;
 }
