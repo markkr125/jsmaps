@@ -183,6 +183,27 @@ jsMaps.Native.Event.stopEventPropagation = function(evt) {
     }
 };
 
+
+try {
+    new CustomEvent("test");
+} catch(e) {
+    var CustomEvent = function(event, params) {
+        var evt;
+        params = params || {
+            bubbles: false,
+            cancelable: false,
+            detail: undefined
+        };
+
+        evt = document.createEvent("CustomEvent");
+        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return evt;
+    };
+
+    CustomEvent.prototype = window.Event.prototype;
+    window.CustomEvent = CustomEvent; // expose definition to window
+}
+
 /**
  *
  * @param element
@@ -200,14 +221,8 @@ jsMaps.Native.Event.trigger = function (element,eventName) {
     if (eventName == jsMaps.api.supported_events.mouseover) eventName = 'mouseenter';
     if (eventName == jsMaps.api.supported_events.rightclick) eventName = 'contextmenu';
     if (eventName == jsMaps.api.supported_events.tilt_changed) eventName = 'orientationchange';
-    var eventObj;
 
-    try {
-        eventObj = new CustomEvent(eventName, {detail: {some: 'data'}});
-    } catch(e) {
-        eventObj = document.createEvent('CustomEvent');
-        eventObj.initCustomEvent(eventName, true, true, {some: 'data'});
-    }
+    var eventObj = new CustomEvent(eventName, {detail: {some: 'data'}});
 
     element.dispatchEvent(eventObj);
 };

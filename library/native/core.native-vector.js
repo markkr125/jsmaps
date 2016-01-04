@@ -539,7 +539,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         for (var i in coordinates) {
             if (coordinates.hasOwnProperty(i) == false) continue;
             if (coordinates[i] == null) {
-                console.log(coordinates);
+              //  console.log(coordinates);
             }
             var lng = coordinates[i].lng;
 
@@ -625,6 +625,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         if (this._vectorOptions.draggable == false) return;
 
         this._mouseclickdetectstart(evt);
+
         if (this.leftclick == false) return;
 
         this.moving = true;
@@ -640,7 +641,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         jsMaps.Native.Event.stopPropagation(evt);
         jsMaps.Native.Event.preventDefault(evt);
 
-        var w = (jsMaps.Native.Browser.ielt9) ? this.theMap.mapParent: window;
+        var w = (jsMaps.Native.Browser.ie) ? this.theMap.mapParent: window;
 
         jsMaps.Native.Event.attach(w, "mousemove", this._mousemove, this, false);
         jsMaps.Native.Event.attach(w, "mouseup", this._mouseup, this, false);
