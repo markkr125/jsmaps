@@ -1,6 +1,6 @@
 {
   "name": "jsmaps",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Full featured interactive slippy map, and also an abstraction layer for popular javascript mapping apis. Supported Google Maps, Bing Maps, Yandex Maps and Here maps. ",
   "repository": {
     "type": "git",
