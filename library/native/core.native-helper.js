@@ -200,15 +200,16 @@ jsMaps.Native.Event.trigger = function (element,eventName) {
     if (eventName == jsMaps.api.supported_events.mouseover) eventName = 'mouseenter';
     if (eventName == jsMaps.api.supported_events.rightclick) eventName = 'contextmenu';
     if (eventName == jsMaps.api.supported_events.tilt_changed) eventName = 'orientationchange';
-    var event;
-    if (window.CustomEvent) {
-        event = new CustomEvent(eventName, {detail: {some: 'data'}});
-    } else {
-        event = document.createEvent('CustomEvent');
-        event.initCustomEvent(eventName, true, true, {some: 'data'});
+    var eventObj;
+
+    try {
+        eventObj = new CustomEvent(eventName, {detail: {some: 'data'}});
+    } catch(e) {
+        eventObj = document.createEvent('CustomEvent');
+        eventObj.initCustomEvent(eventName, true, true, {some: 'data'});
     }
 
-    element.dispatchEvent(event);
+    element.dispatchEvent(eventObj);
 };
 
 jsMaps.Native.Event.remove = function (element,eventTrigger) {
