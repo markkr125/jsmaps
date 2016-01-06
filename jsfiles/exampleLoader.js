@@ -67,8 +67,8 @@ var ExampleLoader = {
             ],
             'bing': [
                 '<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>',
-                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract.js" type="text/javascript"></script>',
+                '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.abstract-helper.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/core.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing.js" type="text/javascript"></script>',
                 '<script src="https://cdn.rawgit.com/markkr125/jsmaps/'+LIBRARY_VERSION+'/library/bing/core.bing-geocoder.js" type="text/javascript"></script>',
@@ -137,10 +137,13 @@ var ExampleLoader = {
         writeHtml = writeHtml.replace('here-app-id','ycU7pzqrEYaipnlczp6c');
         writeHtml = writeHtml.replace('here-app-code','PC2xll3XVkKXM0zX324KMQ');
 
-        var doc = document.getElementById('example-frame').contentWindow.document;
-        doc.open();
-        doc.write(writeHtml);
-        doc.close();
+        //var doc = document.getElementById('example-frame').contentWindow.document;
+        //doc.open();
+        //doc.write(writeHtml);
+        //doc.close();
+        var iFrame = document.getElementById('example-frame');
+        iFrame.contentWindow.contents = writeHtml;
+        iFrame.src = 'javascript:window["contents"]';
 
         var $fullHtml = $('#fullHtml');
 

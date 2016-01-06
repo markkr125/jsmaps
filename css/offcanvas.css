@@ -27,8 +27,8 @@ hr {
     border:0;
     background:transparent;
 }
-
-iframe#example-frame {
+#map {height: 100%; margin: 0; padding: 0;}
+#example-frame {
     width: 100%;
     height: 450px;
     border: 0;
