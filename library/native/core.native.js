@@ -432,14 +432,14 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
         // using this normalize some things are working better, others not so good.
         // delete it will solve some problems but bring other problems
-        var now = new Date();
+        var now = new Date(evt.timeStamp);
         var timeDelta = now - this.lastMoveTime;
         if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
             if (this.movestarted) {
                 if (this.moveAnimationBlocked == false) {
                     var speedX = (this.lastMoveX - this.moveX) / timeDelta;
                     var speedY = (this.lastMoveY - this.moveY) / timeDelta;
-                    var maxSpeed = 5;
+                    var maxSpeed = 200;
                     if (speedX > maxSpeed)speedX = maxSpeed;
                     if (speedY > maxSpeed)speedY = maxSpeed;
                     if (speedX < -maxSpeed)speedX = -maxSpeed;
@@ -564,15 +564,28 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }
         var start = this.zoom();
         var end = (direction == 1) ? Math.ceil(this.zoom() + 0.9): Math.floor(this.zoom() - 0.9);
+        var q;
 
         if (direction == -1) {
-            for (var q in this.layers) {
+            for (q in this.layers) {
                 if (this.layers.hasOwnProperty(q) == false) continue;
 
                 if (q > start &&typeof this.layers[q]!='undefined') {
                     this.map.removeChild(this.layers[q]['layerDiv']);
                     this.layers[q] = false;
                     delete this.layers[q];
+                }
+            }
+        } else {
+            if (!jsMaps.Native.Browser.any3d) {
+                for (q in this.layers) {
+                    if (this.layers.hasOwnProperty(q) == false) continue;
+
+                    if (q < start && typeof this.layers[q] != 'undefined') {
+                        this.map.removeChild(this.layers[q]['layerDiv']);
+                        this.layers[q] = false;
+                        delete this.layers[q];
+                    }
                 }
             }
         }
@@ -607,30 +620,44 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         return setTimeout(tempFunc, i*15);
     };
 
-    this.digizoomblocked = false;
-    this.digizoomblockedTimeout = null;
-    this.wheelZoomTimeout = null;
-
     /**
      * Map continues moving after mouse up
      *
      * @param speedX
      * @param speedY
+     * @param faktor
      */
-    this.animateMove = function (speedX, speedY) {
+    this.animateMove = function (speedX, speedY, faktor) {
+        if (jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.ie3d) return;
+
+        if (typeof faktor == 'undefined') faktor=Math.pow(2,this.zoom());
         clearTimeout(this.animateMoveTimeout);
-        if (Math.abs(speedX) <= 0.00001 && Math.abs(speedY) <= 0.00001) {
-            //this.renderOverlays();
+
+        if (Math.abs(speedX) < this.wheelSpeedConfig["animateMinSpeed"]/faktor && Math.abs(speedY) < this.wheelSpeedConfig["animateMinSpeed"]/faktor){
+            this.moving=false;
+            this.setCenter2(this.position.center, this.position.zoom);
             return;
         }
-        this.moveX = -speedX + this.moveX;
-        this.moveY = -speedY + this.moveY;
 
-        var that = this;
-        var tempFunction = function () {
-            that.animateMove(speedX * that.wheelSpeedConfig["moveAnimationSlowdown"], speedY * that.wheelSpeedConfig["moveAnimationSlowdown"]);
+        var framesPerSecond=50;
+
+        this.moveX += -speedX;
+        this.moveY += -speedY;
+
+        that = this;
+
+        var speed=Math.sqrt(Math.pow(speedX,2) + Math.pow(speedY,2));
+        var fx=speedX/speed;
+        var fy=speedY/speed;
+
+        var tempFunction = function() {
+            var newSpeedX=speedX - fx*that.wheelSpeedConfig["moveAnimationSlowdown"]/faktor;
+            var newSpeedY=speedY - fy*that.wheelSpeedConfig["moveAnimationSlowdown"]/faktor;
+
+            that.animateMove(newSpeedX,newSpeedY,faktor);
         };
-        this.animateMoveTimeout = window.setTimeout(tempFunction, 20);
+
+        this.animateMoveTimeout = window.setTimeout(tempFunction, 1/framesPerSecond * 1000);
         this.setCenter2(this.position.center, this.position.zoom);
     };
 
@@ -697,8 +724,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (!zoomGap) {
             tempFunction = function () { that.autoZoomIn(x, y, newz); };
             this.autoZoomInTimeout = window.setTimeout(tempFunction, 40);
-        } else {
-            this.digizoomblocked = false;
         }
 
     };
@@ -1319,7 +1344,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             this.doTheOverlays = !(duration > 10 && !this.finalDraw);
         } else {
             if (jsMaps.Native.Browser.ielt9) {
-                this.overlayDiv.style.display = "none";
+              this.overlayDiv.style.display = "none";
             } else {
                 this.hideOverlays();
             }
@@ -1551,9 +1576,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         Img.setAttribute('data-src','');
                     }
                 }
-                
+
                 if (!jsMaps.Native.Browser.any3d && preLoad == false) {
                     if( this.layers[intZoom]["images"][id]){
+
                         var imgArray = this.layers[intZoom]["images"][id]["array"];
                         for ( var iii = 0; iii < imgArray.length; iii++) {
 
@@ -1565,8 +1591,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
                             var left = Math.floor((-ddX) * tileW + i * tileW);
                             var top = Math.floor(-ddY * tileH + j * tileH);
-                            var right = Math
-                                .floor((-ddX) * tileW + (i + 1) * tileW);
+                            var right = Math.floor((-ddX) * tileW + (i + 1) * tileW);
+
                             var bottom = Math.floor(-ddY * tileH + (j + 1) * tileH);
 
                             imgArray[iii].style.left = left + "px";
@@ -1701,6 +1727,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (this.intZoom != zoomlevel) {
             if (this.layers[zoomlevel]) {
                 this.layers[zoomlevel]["layerDiv"].style.opacity = 1;
+                this.layers[zoomlevel]["layerDiv"].style.filter = "alpha(opacity=100)";
                 this.fadeOut(this.layers[zoomlevel]["layerDiv"], 1);
             }
         }
@@ -1824,7 +1851,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             if (this.loadingZoomLevel == zoomLevel) {
                 this.hideLayer(this.visibleZoom);
 
-                if (jsMaps.Native.Browser.ielt9) {
+                if (!jsMaps.Native.Browser.any3d) {
                     this.hideLayer(this.visibleZoom + 1);  //no idea why
                 }
 
@@ -2033,10 +2060,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.wheelSpeedConfig["zoomAnimationSlowdown"] = 0.05;
     this.wheelSpeedConfig["animationFPS"] = 100;
     this.wheelSpeedConfig["moveAnimateDesktop"] = true;
-    this.wheelSpeedConfig["moveAnimationSlowdown"] = 0.9;
+    this.wheelSpeedConfig["moveAnimationSlowdown"] = 0.4;
     this.wheelSpeedConfig["rectShiftAnimate"] = false;
     this.wheelSpeedConfig["rectShiftAnimationTime"] = 500;
-    this.wheelSpeedConfig["animateMinSpeed"] = 0.001;
+    this.wheelSpeedConfig["animateMinSpeed"] = 0.4;
 
     //variables for performance check
     this.wheelEventCounter = 0;

@@ -243,8 +243,6 @@ jsMaps.Native.Utils = {
         return false;
     },
     /**
-     * http://www.useragentman.com/IETransformsTranslator/
-     * http://www.boogdesign.com/b2evo/index.php/element-rotation-ie-matrix-filter?blog=2
      * @param el
      * @param offset
      * @param scale
@@ -253,8 +251,7 @@ jsMaps.Native.Utils = {
         var pos = offset || {'x':0,'y':0};
 
         el.style[jsMaps.Native.Utils.BACKFACE_VISIBILITY] = 'hidden';
-        el.style[jsMaps.Native.Utils.TRANSFORM] =
-                (jsMaps.Native.Browser.ie3d ? 'translate(' + pos.x + 'px,' + pos.y + 'px' + ')' + (scale ? ' scale(' + scale + ')' : '') : 'translate3d(' + parseFloat(pos.x).toFixed(0) + 'px,' + parseFloat(pos.y).toFixed(0) + 'px' + ',0)') + (scale ? ' scale3d(' + scale + ',' + scale + ',1)' : '');
+        el.style[jsMaps.Native.Utils.TRANSFORM] = 'translate3d(' + parseFloat(pos.x).toFixed(0) + 'px,' + parseFloat(pos.y).toFixed(0) + 'px' + ',0)' + (scale ? ' scale3d(' + scale + ',' + scale + ',1)' : '');
     },
 
     setTransformOrigin: function (el, offset) {
@@ -267,147 +264,6 @@ jsMaps.Native.Utils.BACKFACE_VISIBILITY = jsMaps.Native.Utils.testProp(['backfac
 jsMaps.Native.Utils.TRANSFORM = jsMaps.Native.Utils.testProp(['transform', 'webkitTransform', 'oTransform', 'mozTransform', 'msTransform']);
 jsMaps.Native.Utils.TRANSFORM_ORIGIN = jsMaps.Native.Utils.testProp(['transformOrigin', 'webkitTransformOrigin', 'oTransformOrigin', 'mozTransformOrigin', 'msTransformOrigin']);
 
-/*
-* This is a horrible pile of code, but needed for damn ie8
-*/
-jsMaps.Native.IeTransform = function () {
-    var ORIGIN_PATTERN = /\s*(-?[0-9.]+)(%?)\s+(-?[0-9.]+)(%?)\s*/;
-    var TRANSFORM_PATTERNS = [
-        /(matrix)\(\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*\)/,
-        /(translate)\(\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*\)/,
-        /(rotate|skew[XY])\(\s*(-?[0-9.]+)(deg|g?rad|turn)\s*\)/,
-        /(scale)\(\s*(-?[0-9.]+)(%?)\s*(?:,\s*(-?[0-9.]+)(%?)\s*)\)/
-    ];
-
-    var TRANSFORM_FUNCTIONS = {
-        matrix: function (v0, v1, v2, v3, dx, dy) {
-            return [ v0, v1, v2, v3, dx, dy ];
-        },
-        translate: function (dx, dy) {
-            return [ 1, 0, 0, 1, dx, dy ];
-        },
-        rotate: function (value, unit) {
-            var angle = parseAngle(value, unit);
-            var cos = Math.cos(angle);
-            var sin = Math.sin(angle);
-            return [ cos, -sin, sin, cos, 0, 0 ];
-        },
-        skewX: function (value, unit) {
-            return [ 1, 0, Math.tan(parseAngle(value, unit)), 1, 0, 0 ];
-        },
-        skewY: function (value, unit) {
-            return [ 1, Math.tan(parseAngle(value, unit)), 0, 1, 0, 0 ];
-        },
-        scale: function (x, unitx, y, unity) {
-            var fx = parseFactor(x, unitx);
-            var fy = sy === undefined ? fx : parseFactor(y, unity);
-            return [ fx, 0, 0, fy, 0, 0 ];
-        }
-    };
-
-    function parseAngle(value, unit) {
-        return {
-                'deg': Math.PI / 180,
-                'grad': Math.PI / 200,
-                'turn': Math.PI * 2,
-                'rad': 1
-            }[unit] * value;
-    }
-
-    function parseFactor(value, unit) {
-        return (unit === '%') ? value / 100 : value * 1;
-    }
-
-    function mfilter(M) {
-        return ( 'progid:DXImageTransform.Microsoft.Matrix('
-        + 'M11=' + M[0] + ','
-        + 'M12=' + M[2] + ','
-        + 'M21=' + M[1] + ','
-        + 'M22=' + M[3] + ',SizingMethod=\'auto expand\')' );
-    }
-
-    /* simplified matrix multiplication
-     * for 3x3 matrices of the form
-     * / v0 v1 0 \
-     * | v2 v3 0 |
-     * \ dx dy 1 /
-     * each matrix is supplied as a 6-vector
-     * containing the values v0 to v3, dx and dy
-     */
-    function mmult(M1, M2) {
-        return [ M1[0]*M2[0] + M1[1]*M2[2], M1[0]*M2[1] + M1[1]*M2[3],
-            M1[2]*M2[0] + M1[3]*M2[2], M1[2]*M2[1] + M1[3]*M2[3],
-            M1[4]*1     + M2[4]*1,     M1[5]*1     + M2[5]*1 ];
-    }
-
-    function adjustStylePx(element, property, delta) {
-        element.style[property] = (delta|parseInt(element.currentStyle[property], 10)|0) + 'px';
-    }
-
-    function adjustElementPosition(element, matrix, origin) {
-        var x = element.clientWidth * origin.x;
-        var y = element.clientHeight * origin.y;
-        var left = -x;
-        var right = element.clientWidth - x;
-        var top = -y;
-        var bottom = element.clientHeight - y;
-
-        var f = [
-            matrix[0] * left,
-            matrix[0] * right,
-            matrix[2] * top,
-            matrix[2] * bottom,
-            matrix[1] * left,
-            matrix[1] * right,
-            matrix[3] * top,
-            matrix[3] * bottom
-        ];
-
-        var minx = Math.min(f[0], f[1]) + Math.min(f[2], f[3]);
-        var miny = Math.min(f[4], f[5]) + Math.min(f[6], f[7]);
-        var maxx = Math.max(f[0], f[1]) + Math.max(f[2], f[3]);
-        var maxy = Math.max(f[4], f[5]) + Math.max(f[6], f[7]);
-
-        if (element.currentStyle.position !== 'absolute') {
-            element.style.position = 'relative';
-        }
-
-        /* divide by two because IEs transform origin is always .5 .5 */
-        adjustStylePx(element, 'marginLeft', (minx - left)/2);
-        adjustStylePx(element, 'marginTop', (miny - top)/2);
-        adjustStylePx(element, 'marginRight', (right - maxx)/2);
-        adjustStylePx(element, 'marginBottom', (bottom - maxy)/2);
-
-        adjustStylePx(element, 'left', matrix[4]);
-        adjustStylePx(element, 'top', matrix[5]);
-    }
-
-    this.applyTransform = function (rule, transform, transformOrigin) {
-        var i, match, offset, elements;
-        var matrix = [ 1, 0, 0, 1, 0, 0 ];
-        var origin = { x: 0.5, y: 0.5 };
-
-        for (i=0; i<TRANSFORM_PATTERNS.length; i++) {
-            offset = 0;
-            while ((match = TRANSFORM_PATTERNS[ i ].exec(transform.substr(offset)))) {
-                offset += match.shift().length;
-                matrix = mmult( matrix, TRANSFORM_FUNCTIONS[ match.shift() ].apply(null, match) );
-            }
-        }
-        if ((match = ORIGIN_PATTERN.exec(transformOrigin))) {
-            origin.x = parseFactor(match[1], match[2]);
-            origin.y = parseFactor(match[3], match[4]);
-        }
-
-        elements = document.querySelectorAll(rule.selectorText);
-        for (i=0; i < elements.length; i++) {
-            adjustElementPosition(elements[i], matrix, origin);
-        }
-
-        rule.style.filter = mfilter(matrix);
-
-    };
-};
 
 /**
  * An area defined by 2 Points
