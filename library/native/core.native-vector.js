@@ -860,7 +860,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 }
             }, this, false);
 
-            var w = (jsMaps.Native.Browser.ielt9) ? this.theMap.mapParent : window;
+            var w = (jsMaps.Native.Browser.ie) ? this.theMap.mapParent : window;
 
             jsMaps.Native.Event.attach(w, "mouseup", function () {
                 if (!this._vectorOptions.draggable) {
@@ -869,6 +869,12 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                     jsMaps.Native.setCursor(this.vectorPath,"pointer");
                 }
             }, this, false);
+        }
+    };
+
+    this.hide=function(){
+        if (jsMaps.Native.Browser.ielt9) {
+            this.vectorPath.style.display = "none";
         }
     };
 

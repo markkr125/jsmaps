@@ -28,6 +28,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     map.style.overflowX="hidden";
     map.style.overflowY="hidden";
     map.style.backgroundColor="#f5f5f5";
+    map.style.position="relative";
+    map.style.display="inline-block";
     if (map.className == "")  {
         map.className = "jsMaps-Native";
     } else {
@@ -75,9 +77,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.hideOverlays = function () {
         for (var obj in this.overlays) {
             if (this.overlays.hasOwnProperty(obj) == false) continue;
-
             try {
-                this.overlays[obj].clear(that);
+                if (typeof this.overlays[obj].hide !='undefined') {
+                    this.overlays[obj].hide(that);
+                }
             } catch (e) {
             }
         }
@@ -1331,10 +1334,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.oldIntZoom = intZoom;
 
         if (this.doTheOverlays || this.finalDraw || this.layerOldZoom == this.zoom()) {
-            if (jsMaps.Native.Browser.ielt9) {
-                this.overlayDiv.style.display = "";
-            }
-
             var startTime = new Date();
             this.lastDX = this.moveX;
             this.lastDY = this.moveY;
@@ -1343,11 +1342,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             var duration = (new Date() - startTime);
             this.doTheOverlays = !(duration > 10 && !this.finalDraw);
         } else {
-            if (jsMaps.Native.Browser.ielt9) {
-              this.overlayDiv.style.display = "none";
-            } else {
-                this.hideOverlays();
-            }
+            this.hideOverlays();
         }
 
         that = this;
@@ -1579,16 +1574,14 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
                 if (!jsMaps.Native.Browser.any3d && preLoad == false) {
                     if( this.layers[intZoom]["images"][id]){
+                        var tileW = Math.round(this.tileW * sc);
+                        var tileH = Math.round(this.tileH * sc);
+
+                        var ddX = (tile[0] - intX) + Math.floor(dxDelta);
+                        var ddY = (tile[1] - intY) + Math.floor(dyDelta);
 
                         var imgArray = this.layers[intZoom]["images"][id]["array"];
                         for ( var iii = 0; iii < imgArray.length; iii++) {
-
-                            var ddX = (tile[0] - intX) + Math.floor(dxDelta);
-                            var ddY = (tile[1] - intY) + Math.floor(dyDelta);
-
-                            var tileW = Math.round(this.tileW * sc);
-                            var tileH = Math.round(this.tileH * sc);
-
                             var left = Math.floor((-ddX) * tileW + i * tileW);
                             var top = Math.floor(-ddY * tileH + j * tileH);
                             var right = Math.floor((-ddX) * tileW + (i + 1) * tileW);
@@ -1597,6 +1590,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
                             imgArray[iii].style.left = left + "px";
                             imgArray[iii].style.top = top + "px";
+
                             imgArray[iii].style.height = (right - left) + "px";
                             imgArray[iii].style.width = (bottom - top) + "px";
                         }

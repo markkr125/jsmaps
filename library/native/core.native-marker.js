@@ -204,6 +204,13 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         return this.MarkerOptions.visible;
     };
 
+    this.hide=function(){
+        if (jsMaps.Native.Browser.ielt9) {
+            this.marker.style.display="none";
+            this.shadow.style.display="none";
+        }
+    };
+
     /**
      * Remove the marker from the map. Marker still exists, will still be rendered.
      */
