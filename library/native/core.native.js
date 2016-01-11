@@ -2345,11 +2345,19 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
                 elem[eventTranslation] = 0;
             }
 
-            if (eventTranslation == 'mouseenter' || eventTranslation == 'mouseout') {
+            if (eventTranslation == 'mouseenter'
+                || eventTranslation == 'mouseout'
+                || eventTranslation == 'mousemove'
+                || eventTranslation == 'mouseup'
+                || eventTranslation == 'mousedown'
+            ) {
                 var trigger;
 
                 if (eventTranslation == 'mouseenter') trigger = 'onmouseover';
                 if (eventTranslation == 'mouseout') trigger = 'onmouseout';
+                if (eventTranslation == 'mousemove') trigger = 'onmousemove';
+                if (eventTranslation == 'mouseup') trigger = 'onmouseup';
+                if (eventTranslation == 'mousedown') trigger = 'onmousedown';
 
                 elem.attachEvent(trigger, function (e) {
                     useFn(e);
