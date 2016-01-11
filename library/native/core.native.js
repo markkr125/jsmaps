@@ -1932,15 +1932,12 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.width = this.mapsize.width;
         this.height = this.mapsize.height;
 
-        var relativeTop = this.mapsize.deltaTop;
-        var relativeLeft = this.mapsize.deltaLeft;
-
-        this.clone.style.top = relativeTop + "px";
-        this.clone.style.left = relativeLeft + "px";
+        this.clone.style.top = "0px";
+        this.clone.style.left = "0px";
         this.clone.style.width = this.mapsize.width + "px";
         this.clone.style.height = this.mapsize.height + "px";
 
-        this.clone.style.position = "absolute";
+        this.clone.style.position = "relative";
         this.clone.style.overflow = "hidden";
 
         this.map.style.left = this.mapsize.width / 2 + "px";
@@ -2347,11 +2344,23 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
             if (!elem[eventTranslation]) {
                 elem[eventTranslation] = 0;
             }
-            elem.attachEvent("onpropertychange", function (e) {
-                if (e.propertyName == eventTranslation) {
+
+            if (eventTranslation == 'mouseenter' || eventTranslation == 'mouseout') {
+                var trigger;
+
+                if (eventTranslation == 'mouseenter') trigger = 'onmouseover';
+                if (eventTranslation == 'mouseout') trigger = 'onmouseout';
+
+                elem.attachEvent(trigger, function (e) {
                     useFn(e);
-                }
-            });
+                });
+            } else {
+                elem.attachEvent("onpropertychange", function (e) {
+                    if (e.propertyName == eventTranslation) {
+                        useFn(e);
+                    }
+                });
+            }
         } else {
             var eventTarget = document.createEvent('Event');
             eventTarget.initEvent(eventTranslation, true, true);
