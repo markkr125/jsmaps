@@ -163,6 +163,21 @@
     _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
 }
 
+.jsMaps-Native .map-image{
+    max-width: initial;
+}
+
 .jsMaps-Native .vector-container {
     position: absolute;
+}
+
+/*
+make sure css frameworks don't mess up th ui
+*/
+.jsMaps-Native .zoom-ui *,
+.jsMaps-Native .metric-scale,
+.jsMaps-Native .tiles-ui *,
+.jsMaps-Native .tiles-ui,
+.jsMaps-Native .map-copyright{
+    box-sizing: content-box;
 }

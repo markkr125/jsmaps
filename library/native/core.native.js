@@ -1509,6 +1509,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     var img = document.createElement("img");
                     img.style.visibility = "hidden";
                     img.style.position = "absolute";
+                    img.className = 'map-image';
 
                     img.style.left = i * this.tileW + "px";
                     img.style.top = j * this.tileH + "px";
@@ -1540,6 +1541,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         var ovId = id + "_" + ov;
                         jsMaps.Native.Event.attach(ovImg, "load", this.imgLoaded, this, false);
 
+                        ovImg.className = 'map-image';
                         ovImg.setAttribute("src", imgSrc);
                         ovImg.setAttribute("overlay", ov);
 
