@@ -1934,7 +1934,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
         this.clone.style.top = "0px";
         this.clone.style.left = "0px";
-        this.clone.style.width = this.mapsize.width + "px";
+        this.clone.style.width = '100%';
         this.clone.style.height = this.mapsize.height + "px";
 
         this.clone.style.position = "relative";

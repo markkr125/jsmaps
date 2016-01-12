@@ -142,15 +142,22 @@ jsMaps.editableVector = function (vector,map,parameters,shape) {
     for (var n in newPaths) {
         if (newPaths.hasOwnProperty(n) == false) continue;
 
-        var testPath = [newPaths[n],newPaths[parseInt(n)+1]];
+        var testPath = [];
+        testPath.push(newPaths[n]);
+        testPath.push(newPaths[parseInt(n)+1]);
+
         var abort = 0;
 
         for (var p in testPath) {
             if (testPath.hasOwnProperty(p) == false) continue;
 
-            if (typeof testPath[p] == 'undefined') {
+            if (p != 'indexOf' && typeof testPath[p] == 'undefined') {
                 abort = 1;
             }
+        }
+
+        if (typeof testPath[1] == 'undefined') {
+            abort = 1;
         }
 
         newPaths[n].center = 0;
