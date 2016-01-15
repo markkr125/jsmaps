@@ -266,7 +266,7 @@ jsMaps.Native.Utils = {
                     el.style.left = pos.x + "px";
                     el.style.top = pos.y + "px";
                 } else {
-                    el.style[jsMaps.Native.Utils.TRANSFORM] = 'matrix(' + scaleX + ', 0, 0, ' + scaleY + ', ' + pos.x + ', ' + pos.y + ')';
+                    el.style[jsMaps.Native.Utils.TRANSFORM] = 'matrix(' + scaleX + ', 0, 0, ' + scaleY + ', ' + parseFloat(pos.x).toFixed(0) + ', ' + parseFloat(pos.y).toFixed(0) + ')';
                     el.style.filter = "blur(0px)";
                     el.style['-webkit-filter'] = "blur(0px)";
                     el.style['-moz-filter'] = "blur(0px)";
@@ -302,7 +302,7 @@ jsMaps.Native.Utils = {
 jsMaps.Native.Utils.BACKFACE_VISIBILITY = jsMaps.Native.Utils.testProp(['backfaceVisibility', 'webkitBackfaceVisibility', 'oBackfaceVisibility', 'mozBackfaceVisibility', 'msBackfaceVisibility']);
 jsMaps.Native.Utils.TRANSFORM = jsMaps.Native.Utils.testProp(['transform', 'webkitTransform', 'oTransform', 'mozTransform', 'msTransform']);
 jsMaps.Native.Utils.TRANSFORM_ORIGIN = jsMaps.Native.Utils.testProp(['transformOrigin', 'webkitTransformOrigin', 'oTransformOrigin', 'mozTransformOrigin', 'msTransformOrigin']);
-
+jsMaps.Native.Utils.TRANSITION = jsMaps.Native.Utils.testProp(['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
 
 /**
  * An area defined by 2 Points

@@ -241,7 +241,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             var x = (X1 + X2) / 2;
             var y = (Y1 + Y2) / 2;
 
-            factor = Math.pow(2, zz);
+            var factor = Math.pow(2, zz);
             var zoomCenterDeltaX = x / factor - this.width / 2;
             var zoomCenterDeltaY = y / factor - this.height / 2;
             var f = Math.pow(2, zoomDelta - 1);
@@ -1562,39 +1562,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     }
                 }
 
-                if (jsMaps.Native.Browser.ielt9 && preLoad == false) {
-
-                    if( this.layers[intZoom]["images"][id]){
-                        //var tileW = Math.round(this.tileW * sc);
-                        //var tileH = Math.round(this.tileH * sc);
-                        //
-                        //var ddX = (tile[0] - intX) + Math.floor(dxDelta);
-                        //var ddY = (tile[1] - intY) + Math.floor(dyDelta);
-                        //var left = Math.floor((-ddX) * tileW + i * tileW);
-                        //var top = Math.floor(-ddY * tileH + j * tileH);
-                        //var right = Math.floor((-ddX) * tileW + (i + 1) * tileW);
-                        //
-                        //var bottom = Math.floor(-ddY * tileH + (j + 1) * tileH);
-                        //var sca = Math.pow(2, zoom - intZoom);
-                        //
-                        //var imgArray = this.layers[intZoom]["images"][id]["array"];
-                        //
-                        //
-                        //this.layers[intZoom]['layerDiv'].style.zoom  = sca;
-
-                        //for ( var iii = 0; iii < imgArray.length; iii++) {
-                        //    imgArray[iii].style.left = left + "px";
-                        //    imgArray[iii].style.top = top + "px";
-                        //    imgArray[iii].style.outline =  "none";
-
-                            //imgArray[iii].style.height = (right - left) + "px";
-                            //imgArray[iii].style.width = (bottom - top) + "px";
-
-                            //imgArray[iii].style.zoom  = sca;
-                     //   }
-                    }
-                }
-
                 // set all images that should be visible at the current view to visible (only in the layer);
                 if(this.layers[intZoom]["images"][id]){
                     this.layers[intZoom]["images"][id]["visibility"] = true;
@@ -1655,14 +1622,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         var dxLeft = -(dxDelta * this.tileW);
         var dxTop = -(dyDelta * this.tileH);
 
-        //if (!jsMaps.Native.Browser.ielt9) {
-            jsMaps.Native.Utils.setTransform(layerDiv,{x:dxLeft,y:dxTop},sc);
-            jsMaps.Native.Utils.setTransformOrigin(layerDiv,{x:(-1 * dxLeft) ,y:(-1 * dxTop)});
-      //  } else {
-          //  layerDiv.style.left = (dxLeft)+"px";
-         //   layerDiv.style.top = (dxTop)+"px";
-
-       // }
+        jsMaps.Native.Utils.setTransform(layerDiv,{x:dxLeft,y:dxTop},sc);
+        jsMaps.Native.Utils.setTransformOrigin(layerDiv,{x:(-1 * dxLeft) ,y:(-1 * dxTop)});
 
         // Set the visibleZoom to visible
         layerDiv.style.visibility = "";
@@ -1692,6 +1653,13 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     this.fadeOut = function (div, alpha) {
         if (jsMaps.Native.Browser.ielt9) return;
+
+        if (alpha > 0 && jsMaps.Native.Browser.any3d && jsMaps.Native.Utils.TRANSITION != false) {
+            div.style.opacity = 0;
+            div.style[jsMaps.Native.Utils.TRANSITION] = 'opacity 500ms ease-out';
+
+            return;
+        }
 
         if (this.fadeOutTimeout) {
             clearTimeout(this.fadeOutTimeout);
@@ -1723,7 +1691,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (this.intZoom != zoomlevel) {
             if (this.layers[zoomlevel]) {
                 this.layers[zoomlevel]["layerDiv"].style.opacity = 1;
-                this.layers[zoomlevel]["layerDiv"].style.filter = "alpha(opacity=100)";
+
                 this.fadeOut(this.layers[zoomlevel]["layerDiv"], 1);
             }
         }
