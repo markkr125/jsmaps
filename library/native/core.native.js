@@ -579,18 +579,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     delete this.layers[q];
                 }
             }
-        } else {
-            if (!jsMaps.Native.Browser.any3d) {
-                for (q in this.layers) {
-                    if (this.layers.hasOwnProperty(q) == false) continue;
-
-                    if (q < start && typeof this.layers[q] != 'undefined') {
-                        this.map.removeChild(this.layers[q]['layerDiv']);
-                        this.layers[q] = false;
-                        delete this.layers[q];
-                    }
-                }
-            }
         }
 
         var delta = Math.abs(start - end);
@@ -1574,28 +1562,36 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     }
                 }
 
-                if (!jsMaps.Native.Browser.any3d && preLoad == false) {
+                if (jsMaps.Native.Browser.ielt9 && preLoad == false) {
+
                     if( this.layers[intZoom]["images"][id]){
-                        var tileW = Math.round(this.tileW * sc);
-                        var tileH = Math.round(this.tileH * sc);
+                        //var tileW = Math.round(this.tileW * sc);
+                        //var tileH = Math.round(this.tileH * sc);
+                        //
+                        //var ddX = (tile[0] - intX) + Math.floor(dxDelta);
+                        //var ddY = (tile[1] - intY) + Math.floor(dyDelta);
+                        //var left = Math.floor((-ddX) * tileW + i * tileW);
+                        //var top = Math.floor(-ddY * tileH + j * tileH);
+                        //var right = Math.floor((-ddX) * tileW + (i + 1) * tileW);
+                        //
+                        //var bottom = Math.floor(-ddY * tileH + (j + 1) * tileH);
+                        //var sca = Math.pow(2, zoom - intZoom);
+                        //
+                        //var imgArray = this.layers[intZoom]["images"][id]["array"];
+                        //
+                        //
+                        //this.layers[intZoom]['layerDiv'].style.zoom  = sca;
 
-                        var ddX = (tile[0] - intX) + Math.floor(dxDelta);
-                        var ddY = (tile[1] - intY) + Math.floor(dyDelta);
+                        //for ( var iii = 0; iii < imgArray.length; iii++) {
+                        //    imgArray[iii].style.left = left + "px";
+                        //    imgArray[iii].style.top = top + "px";
+                        //    imgArray[iii].style.outline =  "none";
 
-                        var imgArray = this.layers[intZoom]["images"][id]["array"];
-                        for ( var iii = 0; iii < imgArray.length; iii++) {
-                            var left = Math.floor((-ddX) * tileW + i * tileW);
-                            var top = Math.floor(-ddY * tileH + j * tileH);
-                            var right = Math.floor((-ddX) * tileW + (i + 1) * tileW);
+                            //imgArray[iii].style.height = (right - left) + "px";
+                            //imgArray[iii].style.width = (bottom - top) + "px";
 
-                            var bottom = Math.floor(-ddY * tileH + (j + 1) * tileH);
-
-                            imgArray[iii].style.left = left + "px";
-                            imgArray[iii].style.top = top + "px";
-
-                            imgArray[iii].style.height = (right - left) + "px";
-                            imgArray[iii].style.width = (bottom - top) + "px";
-                        }
+                            //imgArray[iii].style.zoom  = sca;
+                     //   }
                     }
                 }
 
@@ -1653,18 +1649,20 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }
 
         // Move and zoom the layer
-        // The 3D CSS is used to increase speed. 3D CSS is using hardware accelerated methods to zoom and move the layer.
-        // every layer is moved independently - maybe not the best approach, but maybe the only working solution
         var sc = Math.pow(2, zoom - intZoom);
         this.scale = sc;
 
         var dxLeft = -(dxDelta * this.tileW);
         var dxTop = -(dyDelta * this.tileH);
 
-        if (jsMaps.Native.Browser.any3d) {
+        //if (!jsMaps.Native.Browser.ielt9) {
             jsMaps.Native.Utils.setTransform(layerDiv,{x:dxLeft,y:dxTop},sc);
             jsMaps.Native.Utils.setTransformOrigin(layerDiv,{x:(-1 * dxLeft) ,y:(-1 * dxTop)});
-        }
+      //  } else {
+          //  layerDiv.style.left = (dxLeft)+"px";
+         //   layerDiv.style.top = (dxTop)+"px";
+
+       // }
 
         // Set the visibleZoom to visible
         layerDiv.style.visibility = "";
@@ -1693,12 +1691,14 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.fadeOutTimeout = null;
 
     this.fadeOut = function (div, alpha) {
+        if (jsMaps.Native.Browser.ielt9) return;
+
         if (this.fadeOutTimeout) {
             clearTimeout(this.fadeOutTimeout);
         }
         if (alpha > 0) {
             div.style.opacity = alpha;
-            div.style.filter = "alpha( opacity=" + (alpha * 100) + " )";
+
             var that = this;
             var tempFunction = function () {
                 that.fadeOut(div, alpha - 0.2);
@@ -1847,7 +1847,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             if (this.loadingZoomLevel == zoomLevel) {
                 this.hideLayer(this.visibleZoom);
 
-                if (!jsMaps.Native.Browser.any3d) {
+                if (jsMaps.Native.Browser.ielt9) {
                     this.hideLayer(this.visibleZoom + 1);  //no idea why
                 }
 
@@ -1985,6 +1985,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (missing == 0) {
             this.loadInfoDiv.style.display = "none";
             jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.tilesloaded);
+
+            if (jsMaps.Native.Browser.ielt9) {
+                this.clone.style.visibility = "";
+            }
         } else {
             this.loadInfoDiv.style.display = "";
             while (this.loadInfoDiv.firstChild) {

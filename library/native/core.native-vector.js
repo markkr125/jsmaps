@@ -567,20 +567,19 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     };
 
     this.adjustOnMovement = function (all) {
-        this.vectorEl.style.display = "";
-
         var dxLeft = this.vectorEl.bottomleft.x;
         var dxTop = this.vectorEl.topright.y;
 
         switch (this._backend) {
             case jsMaps.Native.Vector.svg:
+                this.vectorEl.style.display = "";
                 if (this._vectorNumber > 0 && typeof all == 'undefined') return;
 
                 this.vectorEl.style.width = (this.vectorEl.topright.x - this.vectorEl.bottomleft.x) + "px";
                 this.vectorEl.style.height = (-this.vectorEl.topright.y + this.vectorEl.bottomleft.y)+ "px";
 
                 if (jsMaps.Native.Browser.any3d) {
-                    jsMaps.Native.Utils.setTransform(this.vectorEl, {x: dxLeft, y: dxTop});
+                    jsMaps.Native.Utils.setTransform(this.vectorEl, {x: dxLeft, y: dxTop},1);
                     jsMaps.Native.Utils.setTransformOrigin(this.vectorEl, {x: (-1 * dxLeft), y: (-1 * dxTop)});
                 } else {
                     this.vectorEl.style.top = dxTop + "px";
@@ -588,14 +587,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 }
                 break;
             case jsMaps.Native.Vector.vml:
-                if (this.theMap.wheeling || this.theMap.zoomActive) {
-                    this.vectorPath.style.display = "none";
-                } else {
-                    if (this._vectorNumber == 0) {
-                        this.vectorEl.style.top = dxTop + "px";
-                        this.vectorEl.style.left = dxLeft + "px";
-                    }
-                }
+                this.vectorPath.style.display = "none";
                 break;
         }
     };

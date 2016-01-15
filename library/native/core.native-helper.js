@@ -23,8 +23,6 @@ jsMaps.Native.Tiles = function () {
         });
     };
 
-
-
     this.deleteLayer = function (index) {
         if (typeof this.Layers[index] != 'undefined') delete this.Layers[index];
     }
@@ -250,13 +248,54 @@ jsMaps.Native.Utils = {
     setTransform: function (el, offset, scale) {
         var pos = offset || {'x':0,'y':0};
 
-        el.style[jsMaps.Native.Utils.BACKFACE_VISIBILITY] = 'hidden';
-        el.style[jsMaps.Native.Utils.TRANSFORM] = 'translate3d(' + parseFloat(pos.x).toFixed(0) + 'px,' + parseFloat(pos.y).toFixed(0) + 'px' + ',0)' + (scale ? ' scale3d(' + scale + ',' + scale + ',1)' : '');
+        if (jsMaps.Native.Utils.TRANSFORM != false) {
+            el.style[jsMaps.Native.Utils.BACKFACE_VISIBILITY] = 'hidden';
+
+            if (!jsMaps.Native.Browser.any3d) {
+                var scaleX = 1;
+                var scaleY = 1;
+
+                if (scale) {
+                    scaleX = scale;
+                    scaleY = scale;
+                }
+
+                // targeting only ie9 here, for some reason could not get rid of the blur effect caused by the matrix transform
+                if (jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.ielt9) {
+                    el.style[jsMaps.Native.Utils.TRANSFORM] = 'matrix(' + scaleX + ', 0, 0, ' + scaleY + ', 0, 0)';
+                    el.style.left = pos.x + "px";
+                    el.style.top = pos.y + "px";
+                } else {
+                    el.style[jsMaps.Native.Utils.TRANSFORM] = 'matrix(' + scaleX + ', 0, 0, ' + scaleY + ', ' + pos.x + ', ' + pos.y + ')';
+                    el.style.filter = "blur(0px)";
+                    el.style['-webkit-filter'] = "blur(0px)";
+                    el.style['-moz-filter'] = "blur(0px)";
+                    el.style['-ms-filter'] = "none";
+                    el.style['filter'] = "none";
+                }
+            } else {
+                el.style[jsMaps.Native.Utils.TRANSFORM] = 'translate3d(' + parseFloat(pos.x).toFixed(0) + 'px,' + parseFloat(pos.y).toFixed(0) + 'px' + ',0)' + (scale ? ' scale3d(' + scale + ',' + scale + ',1)' : '');
+            }
+        } else {
+            el.style.left = (pos.x)+"px";
+            el.style.top = (pos.y)+"px";
+
+            var scaleParam = 1;
+            if (scale) scaleParam = scale;
+
+            if (scaleParam !==1) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = '';
+            }
+        }
     },
 
     setTransformOrigin: function (el, offset) {
-        var pos = offset || {'x': 0, 'y': 0};
-        el.style[jsMaps.Native.Utils.TRANSFORM_ORIGIN] = pos.x + "px " + pos.y + "px";
+        if (jsMaps.Native.Utils.TRANSFORM_ORIGIN != false) {
+            var pos = offset || {'x': 0, 'y': 0};
+            el.style[jsMaps.Native.Utils.TRANSFORM_ORIGIN] = pos.x + "px " + pos.y + "px";
+        }
     }
 };
 
