@@ -1505,7 +1505,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     img.style.height = this.tileH + "px";
 
                     // add img before SVG, SVG will be visible
-
                     if (layerDiv.childNodes.length > 0) {
                         layerDiv.insertBefore(img, layerDiv.childNodes.item(0));
                     } else {
@@ -2798,7 +2797,6 @@ jsMaps.Native.prototype.circle = function (map,parameters) {
 
     hooking.prototype.setCenter = function (lat, lng) {
         this.object._vectorOptions.center = {lat: lat, lng: lng};
-        this.object._vectorPoints = this.object.drawCircle(lat,lng,this.object._vectorOptions.radius);
         this.object.render(true);
     };
 
@@ -2829,10 +2827,7 @@ jsMaps.Native.prototype.circle = function (map,parameters) {
     };
 
     hooking.prototype.setRadius = function (radius) {
-        var center = this.getCenter();
-
         this.object._vectorOptions.radius = radius;
-        this.object._vectorPoints = this.object.drawCircle(center.lat,center.lng,this.object._vectorOptions.radius);
         this.object.render(true);
     };
 

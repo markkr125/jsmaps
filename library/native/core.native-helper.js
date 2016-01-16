@@ -113,6 +113,16 @@ jsMaps.Native.Event.preventDefault = function (evt) {
     }
 };
 
+jsMaps.Native.metersPerPixel = function(latitude, zoomLevel) {
+    var earthCircumference = 40075017;
+    var latitudeRadians = latitude * (Math.PI/180);
+    return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoomLevel + 8);
+};
+
+jsMaps.Native.pixelValue = function(latitude, meters, zoomLevel) {
+    return meters / jsMaps.Native.metersPerPixel(latitude, zoomLevel);
+};
+
 /**
  * Attach an event listener to an object.
  *

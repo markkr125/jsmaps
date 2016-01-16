@@ -19,7 +19,11 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     this._backend = jsMaps.Native.Vector.svg;
     if (jsMaps.Native.Browser.ielt9) this._backend = jsMaps.Native.Vector.vml;
 
-    this.drawCircle = function (latin, lonin, radius) {
+    this._getCircleCoordinate = function () {
+        var latin = this._vectorOptions.center.lat,
+            lonin = this._vectorOptions.center.lng,
+            radius = this._vectorOptions.radius;
+
         var locs = [];
         var lat1 = latin * Math.PI / 180.0;
         var lon1 = lonin * Math.PI / 180.0;
@@ -43,14 +47,12 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         return locs;
     };
 
-
-    if (vectorType == jsMaps.Native.Vector.elements.circle && typeof vectorOptions.center!='undefined'  && typeof vectorOptions.radius != 'undefined') {
-        this._vectorPoints   = this.drawCircle(vectorOptions.center.lat,vectorOptions.center.lng,vectorOptions.radius);
-        vectorType = jsMaps.Native.Vector.elements.polygon;
-
-    } else {
-        this._vectorPoints   = vectorPoints;
+    if (vectorType == jsMaps.Native.Vector.elements.circle) {
+        vectorPoints = [];
+        vectorPoints.push(vectorOptions.center);
     }
+
+    this._vectorPoints   = vectorPoints;
 
     this._vectorType     = vectorType;
     this._vectorOptions  = vectorOptions;
@@ -138,7 +140,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 this.vectorPath = document.createElementNS("http://www.w3.org/2000/svg","path");
                 this.root.appendChild(this.vectorPath);
 
-                if (this._vectorType == jsMaps.Native.Vector.elements.polygon) {
+                if (this._vectorType == jsMaps.Native.Vector.elements.polygon || this._vectorType == jsMaps.Native.Vector.elements.circle) {
                     this.vectorPath.setAttribute("fill", fill);
                 } else {
                     this.vectorPath.setAttribute("fill", "none");
@@ -529,7 +531,11 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     };
 
     this.pointsBounds = function (coordinates) {
-        if (!coordinates) coordinates = this._vectorPoints;
+        if  (this._vectorType == jsMaps.Native.Vector.elements.circle) {
+            coordinates = this._getCircleCoordinate();
+        } else {
+            if (!coordinates) coordinates = this._vectorPoints;
+        }
 
         var boundsSouth = 90;
         var boundsNorth = -90;
@@ -538,9 +544,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
         for (var i in coordinates) {
             if (coordinates.hasOwnProperty(i) == false) continue;
-            if (coordinates[i] == null) {
-              //  console.log(coordinates);
-            }
+
             var lng = coordinates[i].lng;
 
             var lat = coordinates[i].lat;
@@ -688,11 +692,16 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
             this.clickx =  this.theMap.pageX(evt);
             this.clicky =  this.theMap.pageY(evt);
 
-            for (var i in this._vectorPoints) {
-                if (this._vectorPoints.hasOwnProperty(i) == false) continue;
+            if (this._vectorType == jsMaps.Native.Vector.elements.circle) {
+                this._vectorOptions.center.lat  += latVariance;
+                this._vectorOptions.center.lng  += longVariance;
+            } else {
+                for (var i in this._vectorPoints) {
+                    if (this._vectorPoints.hasOwnProperty(i) == false) continue;
 
-                this._vectorPoints[i].lat += latVariance;
-                this._vectorPoints[i].lng += longVariance;
+                    this._vectorPoints[i].lat += latVariance;
+                    this._vectorPoints[i].lng += longVariance;
+                }
             }
 
             this.vectorEl.bottomleft = this.theMap.latlngToXY(this.theMap.mapBounds().sw());
@@ -870,6 +879,34 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         }
     };
 
+    this._circlePath = function (_radius,_point) {
+        var r = _radius;
+        var p = _point;
+        var arc = 'a' + r + ',' + r + ' 0 1,0 ';
+
+        // drawing a circle with two half-arcs
+        return 'M' + (p.x - r) + ',' + p.y +
+            arc + (r * 2) + ',0 ' +
+            arc + (-r * 2) + ',0 ';
+    };
+
+    this._drawCircle = function () {
+        var _radius = jsMaps.Native.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
+        var _point = this.theMap.latlngToXY(this._vectorOptions.center);
+
+        switch (this._backend) {
+            case jsMaps.Native.Vector.svg:
+                if (this.vectorPath.style.display== "none") this.vectorPath.style.display = "";
+                this.svgPath  = this._circlePath(_radius,_point);
+                break;
+            case jsMaps.Native.Vector.vml:
+                this.vmlPath = 'AL ' + Math.round(_point.x) + ',' + Math.round(_point.y) + ' ' + Math.round(_radius) + ',' + Math.round(_radius) + ' 0,' + (65535 * 360);
+                break;
+            default:
+                throw "Cannot create vector, unknown backend " + this._backend;
+        }
+    };
+
     this.render = function (overWrite) {
         if ((!this.theMap.finalDraw && overWrite != true && !this.moving) && this.theMap.movingVector == false) {
 
@@ -904,27 +941,30 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         if (jsMaps.Native.overlaps(this.bounds, this.pointsBounds())) {
             this._attachMarkers();
 
-            for (var i in this._vectorPoints) {
-                if (this._vectorPoints.hasOwnProperty(i) == false) continue;
+            if (this._vectorType == jsMaps.Native.Vector.elements.circle) {
+                this._drawCircle();
+            } else {
+                for (var i in this._vectorPoints) {
+                    if (this._vectorPoints.hasOwnProperty(i) == false) continue;
 
-                var latLng = {lat: this._vectorPoints[i].lat, lng: this._vectorPoints[i].lng};
-                var point = this.theMap.latlngToXY(latLng);
+                    var latLng = {lat: this._vectorPoints[i].lat, lng: this._vectorPoints[i].lng};
+                    var point = this.theMap.latlngToXY(latLng);
 
-                this._addPath(point, i);
-            }
-
-            if (this._backend == jsMaps.Native.Vector.vml) {
-                var firstPoint = this.theMap.latlngToXY(this._vectorPoints[0]);
-                firstPoint["x"] = Math.round(firstPoint["x"]);
-                firstPoint["y"] = Math.round(firstPoint["y"]);
-
-                if (firstPoint["x"] != point["x"] && firstPoint["y"] != point["y"] && this._vectorType == jsMaps.Native.Vector.elements.polygon) {
-                    this.vmlPath += " " + firstPoint["x"] + "," + firstPoint["y"] + " ";
+                    this._addPath(point, i);
                 }
 
-                this.vmlPath += " x e";
-            }
+                if (this._backend == jsMaps.Native.Vector.vml) {
+                    var firstPoint = this.theMap.latlngToXY(this._vectorPoints[0]);
+                    firstPoint["x"] = Math.round(firstPoint["x"]);
+                    firstPoint["y"] = Math.round(firstPoint["y"]);
 
+                    if (firstPoint["x"] != point["x"] && firstPoint["y"] != point["y"] && this._vectorType == jsMaps.Native.Vector.elements.polygon) {
+                        this.vmlPath += " " + firstPoint["x"] + "," + firstPoint["y"] + " ";
+                    }
+
+                    this.vmlPath += " x e";
+                }
+            }
             this._finishDraw();
         } else {
             this._removeMarkers();
