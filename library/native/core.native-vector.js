@@ -156,7 +156,13 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 stroke        = (this._vectorOptions.stroke)        ? this._vectorOptions.stroke : '#FF0000';
                 fill          = (this._vectorOptions.fill)          ? this._vectorOptions.fill : '';
 
-                this.vectorPath= document.createElement("v:polyline");
+                if (this._vectorType == jsMaps.Native.Vector.elements.circle) {
+                    this.vectorPath= document.createElement("v:oval");
+                    this.vectorPath.style.position = 'absolute';
+                } else {
+                    this.vectorPath= document.createElement("v:polyline");
+                }
+
                 this.fillEl = document.createElement("v:fill");
 
                 if (this._vectorType == jsMaps.Native.Vector.elements.polyLine || fill == ''){
@@ -212,7 +218,10 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
         if (this._backend == jsMaps.Native.Vector.vml) {
             this.vectorPath.style.display = "";
-            this.root.points.value="";
+
+            if (this._vectorType != jsMaps.Native.Vector.elements.circle) {
+                this.root.points.value="";
+            }
         }
     };
 
@@ -270,8 +279,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                     this.vectorPath.setAttribute("filled",false);
                 }
 
-                this.root.points.value=this.vmlPath;
-
+                if (this._vectorType != jsMaps.Native.Vector.elements.circle) {
+                    this.root.points.value = this.vmlPath;
+                }
                 break;
             default:
                 throw "Cannot clear vector, unknown backend " + this._backend;
@@ -900,7 +910,10 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 this.svgPath  = this._circlePath(_radius,_point);
                 break;
             case jsMaps.Native.Vector.vml:
-                this.vmlPath = 'AL ' + Math.round(_point.x) + ',' + Math.round(_point.y) + ' ' + Math.round(_radius) + ',' + Math.round(_radius) + ' 0,' + (65535 * 360);
+                this.vectorPath.style.width = (_radius*2)+'px';
+                this.vectorPath.style.height = (_radius*2)+'px';
+                this.vectorPath.style.top = (_point.y-_radius)+'px';
+                this.vectorPath.style.left = (_point.x-_radius)+'px';
                 break;
             default:
                 throw "Cannot create vector, unknown backend " + this._backend;
