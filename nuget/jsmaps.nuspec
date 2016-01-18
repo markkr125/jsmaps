@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>jsmaps</id>
+    <version>$version$</version>
+    <title>jsmaps</title>
+    <authors>mark125@outlook.com</authors>
+    <owners>mark125@outlook.com</owners>
+    <licenseUrl>https://github.com/markkr125/jsmaps/blob/master/LICENSE</licenseUrl>
+    <projectUrl>http://jsmaps.net/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Full featured interactive slippy map, and also an abstraction layer for popular javascript mapping apis. Supported Google Maps, Bing Maps, Yandex Maps and Here maps.</description>
+    <releaseNotes>https://github.com/markkr125/jsmaps/blob/master/CHANGELOG.md</releaseNotes>
+    <tags>jsmaps maps map slippy javascript</tags>
+  </metadata>
+  <files>
+	  <file src="src="library\*" target="content\Scripts" />
+  </files>
+</package>
