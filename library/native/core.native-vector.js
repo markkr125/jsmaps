@@ -209,8 +209,13 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
             }
 
             if (this._backend == jsMaps.Native.Vector.vml) {
-                this.vectorPath.style.width = this.theMap.mapsize.width + "px";
-                this.vectorPath.style.height = this.theMap.mapsize.height + "px";
+                if (this._vectorType == jsMaps.Native.Vector.elements.circle) {
+                    this.vectorPath.style.width = "0px";
+                    this.vectorPath.style.height = "0px";
+                } else {
+                    this.vectorPath.style.width = this.theMap.mapsize.width + "px";
+                    this.vectorPath.style.height = this.theMap.mapsize.height + "px";
+                }
             }
         }
 
