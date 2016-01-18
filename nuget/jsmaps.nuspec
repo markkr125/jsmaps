@@ -14,6 +14,11 @@
     <tags>jsmaps maps map slippy javascript</tags>
   </metadata>
   <files>
-  <file src="library\*" target="content\Scripts" />
+    <file src="library\*" target="jsmaps\library" />
+    <file src="library\bing\*" target="jsmaps\library\bing" />
+    <file src="library\google\*" target="jsmaps\library\google" />
+    <file src="library\here\*" target="jsmaps\library\here" />
+    <file src="library\native\*" target="jsmaps\library\native" />
+    <file src="library\yandex\*" target="jsmaps\library\yandex" />
   </files>
 </package>
