@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.10 - 2016-01-19
+ * Only to update the package on nuget
+
 ## 0.0.9 - 2016-01-19
 
 Native map changes:
