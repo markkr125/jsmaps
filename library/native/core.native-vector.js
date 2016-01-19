@@ -374,6 +374,22 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         }
     };
 
+    this._circleMarkers = function() {
+        var _radius = jsMaps.Native.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
+        var _point = this.theMap.latlngToXY(this._vectorOptions.center);
+
+        var left = {x:_point.x+_radius,y:_point.y};
+        var right = {x:_point.x,y:_point.y+_radius};
+
+        var paths = [];
+        paths.push(this.theMap.XYTolatlng(_point.x+_radius,_point.y)); // right
+        paths.push(this.theMap.XYTolatlng(_point.x,_point.y+_radius)); // bottom
+        paths.push(this.theMap.XYTolatlng(_point.x-_radius,_point.y)); // left
+        paths.push(this.theMap.XYTolatlng(_point.x,_point.y-_radius)); // top
+
+        return paths;
+    };
+
     this._attachMarkers = function () {
         this._removeMarkers();
 
@@ -388,7 +404,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
             var stWidth = parseFloat(strokeWidth);
             if (stWidth < 9 ) stWidth = 9;
 
-            var newPaths = this._vectorPoints;
+            var newPaths = (this._vectorType == jsMaps.Native.Vector.elements.circle) ? this._circleMarkers() : this._vectorPoints;
             var bounds;
 
             var _list = [];
@@ -408,7 +424,10 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                     pt.pos = io;
 
                     _list.push(newPaths[io]);
-                    _list.push(bounds.getCenter());
+
+                    if (this._vectorType != jsMaps.Native.Vector.elements.circle) {
+                         _list.push(bounds.getCenter());
+                    }
                 } else {
                     _list.push(newPaths[io]);
 
@@ -478,6 +497,15 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 marker.isCenter = p.isCenter;
 
                 marker.addCallbackMoveFunction(function () {
+                    if (this.vectorObject._vectorType == jsMaps.Native.Vector.elements.circle) {
+                        this.vectorObject._vectorOptions.radius = jsMaps.Native.CRSEarth.distance(
+                            this.vectorObject._vectorOptions.center,
+                            this.position);
+
+                        this.vectorObject.render(true);
+                        return;
+                    }
+
                     if (this.isCenter == 0) {
                         this.vectorObject._vectorPoints[this.vectorPosition] = this.position;
                         this.vectorObject.render(true);

@@ -2753,7 +2753,7 @@ jsMaps.Native.prototype.circle = function (map,parameters) {
         fill:  parameters.fillColor,
         fillOpacity: parameters.fillOpacity,
         draggable: parameters.draggable,
-        editable: false, // currently not supported
+        editable: parameters.editable, // currently not supported
         visible: parameters.visible,
         zIndex:  parameters.zIndex,
         center: parameters.center,
