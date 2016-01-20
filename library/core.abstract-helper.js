@@ -231,10 +231,8 @@ jsMaps.editVectorMarker = function (path,vector,map,shape,parameters) {
     innerElement.style.border = '1px solid '+line.color;
     innerElement.style.font = 'normal '+line.size+'px arial';
     innerElement.style.lineHeight = line.size+'px';
-    innerElement.style.borderRadius="15px";
+    innerElement.style.borderRadius="50%";
 
-    innerElement.style.paddingTop = '2px';
-    innerElement.style.paddingLeft = '4px';
     innerElement.style.width = '9px';
     innerElement.style.height = '9px';
     innerElement.setAttribute('onmouseover', 'this.style.backgroundColor="yellow"; this.style.cursor="pointer";');
@@ -242,8 +240,8 @@ jsMaps.editVectorMarker = function (path,vector,map,shape,parameters) {
 
     // add negative margin to inner element
     // to move the anchor to center of the div
-    innerElement.style.marginTop = '-10px';
-    innerElement.style.marginLeft = '-10px';
+    innerElement.style.marginTop = '-5px';
+    innerElement.style.marginLeft = '-5px';
 
     outerElement.appendChild(innerElement);
 

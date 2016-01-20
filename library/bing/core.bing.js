@@ -448,9 +448,9 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
 };
 
 jsMaps.Bing.toBingPath =  function (path,isPolyGon) {
-    if (typeof path == 'undefined' || path == []) return [];
-
     var newPath = [];
+
+    if (typeof path == 'undefined' || path == []) return [];
 
     for (var i in path) {
         if (path.hasOwnProperty(i) == false) continue;
@@ -459,22 +459,19 @@ jsMaps.Bing.toBingPath =  function (path,isPolyGon) {
             var recentArray = [];
             for (var c in path[i]) {
                 if (path[i].hasOwnProperty(c) == false) continue;
-                newPath.push(new Microsoft.Maps.Location(path[i][c].lat, path[i][c].lng));
+                newPath.push(new Microsoft.Maps.Location(path[i][c].lat,path[i][c].lng));
             }
         } else {
-            newPath.push(new Microsoft.Maps.Location(path[i].lat, path[i].lng));
+            newPath.push(new Microsoft.Maps.Location(path[i].lat,path[i].lng));
         }
     }
 
-    if (isPolyGon == true) {
-        var pathLength = newPath.length;
+    if (isPolyGon) {
+        var firstPoint = newPath[0];
+        var point = newPath[newPath.length-1];
 
-        if (pathLength % 2 === 0 || pathLength % 3 === 0) {
-            var last = newPath[pathLength-1];
-
-            if (last.latitude != newPath[0].latitude && last.longitude != newPath[0].longitude ) {
-                newPath.push(newPath[0]);
-            }
+        if (firstPoint.latitude != point.latitude && firstPoint.longitude != point.longitude) {
+            newPath.push(firstPoint);
         }
     }
 
@@ -596,8 +593,7 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
     };
 
     var object = new hooking();
-
-    parameters.paths = parameters.path;
+    parameters.paths = object.getPath();
     new jsMaps.editableVector(object,map,parameters,'polyline');
     new jsMaps.draggableVector(object,map,parameters,'polyline');
 
@@ -710,6 +706,7 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
     };
 
     var object = new hooking();
+    parameters.paths = object.getPath();
 
     new jsMaps.editableVector(object,map,parameters,'polygon');
     new jsMaps.draggableVector(object,map,parameters);
