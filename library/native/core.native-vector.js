@@ -375,11 +375,8 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     };
 
     this._circleMarkers = function() {
-        var _radius = jsMaps.Native.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
+        var _radius = jsMaps.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
         var _point = this.theMap.latlngToXY(this._vectorOptions.center);
-
-        var left = {x:_point.x+_radius,y:_point.y};
-        var right = {x:_point.x,y:_point.y+_radius};
 
         var paths = [];
         paths.push(this.theMap.XYTolatlng(_point.x+_radius,_point.y)); // right
@@ -498,7 +495,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
                 marker.addCallbackMoveFunction(function () {
                     if (this.vectorObject._vectorType == jsMaps.Native.Vector.elements.circle) {
-                        this.vectorObject._vectorOptions.radius = jsMaps.Native.CRSEarth.distance(
+                        this.vectorObject._vectorOptions.radius = jsMaps.CRSEarth.distance(
                             this.vectorObject._vectorOptions.center,
                             this.position);
 
@@ -934,7 +931,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     };
 
     this._drawCircle = function () {
-        var _radius = jsMaps.Native.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
+        var _radius = jsMaps.pixelValue(this._vectorOptions.center.lat,this._vectorOptions.radius,this.theMap.zoom());
         var _point = this.theMap.latlngToXY(this._vectorOptions.center);
 
         switch (this._backend) {

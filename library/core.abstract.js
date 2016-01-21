@@ -719,6 +719,16 @@ jsMaps.loader = function(fn) {
     }
 };
 
+jsMaps.metersPerPixel = function(latitude, zoomLevel) {
+    var earthCircumference = 40075017;
+    var latitudeRadians = latitude * (Math.PI/180);
+    return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoomLevel + 8);
+};
+
+jsMaps.pixelValue = function(latitude, meters, zoomLevel) {
+    return meters / jsMaps.metersPerPixel(latitude, zoomLevel);
+};
+
 jsMaps.merge = function (obj1, obj2) {
     for (var p in obj2) {
         if (obj2.hasOwnProperty(p) == false) continue;
@@ -799,6 +809,30 @@ if (typeof Array.isArray === 'undefined') {
         return Object.prototype.toString.call(obj) === '[object Array]';
     };
 }
+
+/**
+ *  Taken From leaflet js
+ *
+ * @type {{wrapLng: number[], R: number, distance: Function}}
+ */
+jsMaps.CRSEarth = {
+    wrapLng: [-180, 180],
+
+    R: 6378137,
+
+    // distance between two geographical points using spherical law of cosines approximation
+    distance: function (latlng1, latlng2) {
+        var rad = Math.PI / 180,
+            lat1 = latlng1.lat * rad,
+            lat2 = latlng2.lat * rad,
+            a = Math.sin(lat1) * Math.sin(lat2) +
+                Math.cos(lat1) * Math.cos(lat2) * Math.cos((latlng2.lng - latlng1.lng) * rad);
+
+        return this.R * Math.acos(Math.min(a, 1));
+    }
+};
+
+
 
 if (('ActiveXObject' in window) && !document.addEventListener) {
     Function.prototype.bind = (function () {

@@ -766,6 +766,8 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
 
     hooking.prototype.object = circle;
     hooking.prototype.mapObject = map.object;
+    hooking.prototype.draggable = parameters.draggable;
+    hooking.prototype.editable = parameters.editable;
 
     /**
      *
@@ -791,11 +793,11 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
     };
 
     hooking.prototype.getDraggable = function () {
-        return false;
+        return this.draggable;
     };
 
     hooking.prototype.getEditable = function () {
-        return false;
+        return this.editable;
     };
 
     hooking.prototype.getRadius = function () {
@@ -812,7 +814,7 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
     };
 
     hooking.prototype.setDraggable = function (draggable) {
-       // not supported
+        this.draggable = draggable;
     };
 
     hooking.prototype.setEditable = function (editable) {
@@ -840,5 +842,11 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
     hooking.prototype.removeCircle = function () {
         this.mapObject.entities.remove(this.object);
     };
-    return new hooking();
+
+    var object = new hooking();
+
+    new jsMaps.draggableVector(object,map,parameters,'circle');
+    new jsMaps.editableVector(object,map,parameters,'circle');
+
+    return object;
 };

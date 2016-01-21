@@ -30,7 +30,7 @@ jsMaps.Native.ScaleUI = {
     _update: function () {
         var y = this.mapObject.map.parentNode.offsetHeight / 2;
 
-        var maxMeters = jsMaps.Native.CRSEarth.distance(
+        var maxMeters = jsMaps.CRSEarth.distance(
             this.mapObject.XYTolatlng(0, y),
             this.mapObject.XYTolatlng(100, y));
 

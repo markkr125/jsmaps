@@ -10,16 +10,22 @@ jsMaps.vectorPosition = function (map,vector,point) {
     var latVariance = latLng.lat - previousLoc.lat;
     var longVariance = latLng.lng - previousLoc.lng;
 
-    var newPath = [];
-    var path = vector.getPath();
+    if (vector.movingShape == 'circle') {
+        var center = vector.getCenter();
+        vector.setCenter(center.lat + latVariance, center.lng + longVariance);
+    } else {
+        var newPath = [];
+        var path = vector.getPath();
 
-    for (var i in path) {
-        if (path.hasOwnProperty(i) == false) continue;
-        newPath.push({lat:path[i].lat+latVariance, lng: path[i].lng+longVariance});
+        for (var i in path) {
+            if (path.hasOwnProperty(i) == false) continue;
+            newPath.push({lat: path[i].lat + latVariance, lng: path[i].lng + longVariance});
+        }
+
+        vector.setPath(newPath);
     }
-
-    vector.setPath(newPath);
 };
+
 
 /**
  * Make a vector object draggable
@@ -27,9 +33,12 @@ jsMaps.vectorPosition = function (map,vector,point) {
  * @param pol
  * @param mapd
  * @param parameters
+ * @param shape
  */
 jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
     if (typeof shape == 'undefined') shape = 'polygon';
+    pol.movingShape = shape;
+
     jsMaps.api.attach_event(pol,'mousedown',function(e) {
         e.stopPropagation();
 
@@ -73,15 +82,21 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
             this.clickx = x;
             this.clicky = y;
 
-            var newPath = [];
-            var path = this.getPath();
+            if (this.movingShape == 'circle') {
+                var center = this.getCenter();
+                this.setCenter(center.lat+latVariance,center.lng+longVariance);
+            } else {
+                var newPath = [];
+                var path = this.getPath();
 
-            for (var i in path) {
-                if (path.hasOwnProperty(i) == false) continue;
-                newPath.push({lat:path[i].lat+latVariance, lng: path[i].lng+longVariance});
+                for (var i in path) {
+                    if (path.hasOwnProperty(i) == false) continue;
+                    newPath.push({lat:path[i].lat+latVariance, lng: path[i].lng+longVariance});
+                }
+
+                this.setPath(newPath);
             }
 
-            this.setPath(newPath);
             jsMaps.moveMap(mapd,{x: x,y: y},this);
         }.bind(pol));
 
@@ -98,7 +113,10 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
                     this.markers = undefined;
                 }
 
-                parameters.paths = this.getPath();
+                if (this.movingShape != 'circle') {
+                    parameters.paths = this.getPath();
+                }
+
                 new jsMaps.editableVector(this, mapd, parameters, shape);
 
                 jsMaps.api.remove_event(mapd, movement);
@@ -107,15 +125,32 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
                 pol.mouseUp = undefined;
             }.bind(pol), 1);
         }
-
     });
 };
 
+/**
+ *
+ * @param vector
+ * @param {jsMaps.MapStructure} map
+ */
+jsMaps.editableCircle = function (vector,map) {
+    var center = vector.getCenter();
 
+    var _radius = jsMaps.pixelValue(center.lat,vector.getRadius(),map.getZoom());
+    var _point = map.latLngToPoint(center.lat,center.lng);
+
+    var paths = [];
+    paths.push(map.pointToLatLng(_point.x+_radius,_point.y)); // right
+    paths.push(map.pointToLatLng(_point.x,_point.y+_radius)); // bottom
+    paths.push(map.pointToLatLng(_point.x-_radius,_point.y)); // left
+    paths.push(map.pointToLatLng(_point.x,_point.y-_radius)); // top
+
+    return paths;
+};
 
 /**
  * @param vector
- * @param map
+ * @param {jsMaps.MapStructure} map
  * @param parameters
  * @param shape
  * @returns {*}
@@ -124,7 +159,7 @@ jsMaps.editableVector = function (vector,map,parameters,shape) {
     if (typeof shape == 'undefined') shape = 'polygon';
     if (vector.editable == false) return;
 
-    var newPaths =  parameters.paths;
+    var newPaths = (shape == 'circle') ? jsMaps.editableCircle(vector,map) : parameters.paths;
     var pathLength = newPaths.length;
 
     if (shape == 'polygon') {
@@ -181,7 +216,12 @@ jsMaps.editableVector = function (vector,map,parameters,shape) {
         }
     }
 
-    vector.setPath(noCenter,true);
+    if (shape != 'circle') {
+        vector.setPath(noCenter,true);
+    } else {
+        npath = noCenter;
+    }
+
     return jsMaps.editVectorMarker(npath,vector,map,shape,parameters);
 };
 
@@ -302,6 +342,24 @@ jsMaps.editVectorMarker = function (path,vector,map,shape,parameters) {
 
 jsMaps.draggableVectorMarker = function (marker,map) {
     jsMaps.api.attach_event(marker,'drag',function(e) {
+        if (this.shape == 'circle') {
+            var radius = jsMaps.CRSEarth.distance(
+                this.vector.getCenter(),
+                this.getPosition());
+
+            for (var mi in this.vector.markers) {
+                if (this.vector.markers.hasOwnProperty(mi) == false) continue;
+                var circle = this.vector.markers[mi];
+
+                if (this != circle) {
+                    circle.setVisible(false);
+                }
+            }
+
+            this.vector.setRadius(radius);
+            return;
+        }
+
         var old_pos = this.position;
 
         var arrayOfPaths = [];
@@ -366,8 +424,9 @@ jsMaps.draggableVectorMarker = function (marker,map) {
         marker.position = pos;
     });
 
-    jsMaps.api.attach_event(marker,'mouseup',function(e) {
-        if (typeof this.vector.markers!='undefined' && this.vector.markers.length > 0) {
+
+    var mouseUp = function (e) {
+        if (typeof this.vector.markers != 'undefined' && this.vector.markers.length > 0) {
             for (var o in this.vector.markers) {
                 if (this.vector.markers.hasOwnProperty(o) == false) continue;
                 this.vector.markers[o].remove();
@@ -376,9 +435,14 @@ jsMaps.draggableVectorMarker = function (marker,map) {
             this.vector.markers = undefined;
         }
 
-        this.parameters.paths = this.vector.getPath();
-        new jsMaps.editableVector(this.vector,map,this.parameters,this.shape);
-    });
+        if (this.shape != 'circle') {
+            this.parameters.paths = this.vector.getPath();
+        }
+
+        new jsMaps.editableVector(this.vector, map, this.parameters, this.shape);
+    };
+
+    marker.dragEnd = jsMaps.api.attach_event(marker, 'dragend', mouseUp);
 };
 
 /**

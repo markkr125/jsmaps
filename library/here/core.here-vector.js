@@ -276,22 +276,25 @@ jsMaps.Here.prototype.circle = function (map,parameters) {
     hooking.prototype = new jsMaps.CircleStructure();
 
     hooking.prototype.object = circle;
+    hooking.prototype.map = map;
+    hooking.prototype.draggable = parameters.draggable;
+    hooking.prototype.editable = parameters.editable;
 
     hooking.prototype.getBounds = function () {
         return jsMaps.Here.prototype.bounds(this.object);
     };
 
     hooking.prototype.getCenter = function () {
-        var center = this.getCenter();
+        var center = this.object.getCenter();
         return {lat: center.lat,lng: center.lng};
     };
 
     hooking.prototype.getDraggable = function () {
-        return false; // todo: support this
+        return this.draggable;
     };
 
     hooking.prototype.getEditable = function () {
-        return false; // todo: support this
+        return this.editable;
     };
 
     hooking.prototype.getRadius = function () {
@@ -307,7 +310,7 @@ jsMaps.Here.prototype.circle = function (map,parameters) {
     };
 
     hooking.prototype.setDraggable = function (draggable) {
-        // not supported
+        this.draggable = draggable;
     };
 
     hooking.prototype.setEditable = function (editable) {
@@ -338,5 +341,10 @@ jsMaps.Here.prototype.circle = function (map,parameters) {
         mapObjectTmp.removeObject(this.object);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    new jsMaps.draggableVector(object,map,parameters,'circle');
+    new jsMaps.editableVector(object,map,parameters,'circle');
+
+    return object;
 };

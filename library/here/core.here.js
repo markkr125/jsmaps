@@ -221,7 +221,7 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
         obj.addEventListener(eventTranslation, event1, false);
         return {eventObj: content, eventName: event};
     } else {
-        obj.addEventListener(eventTranslation, useFn, false);
+        obj.addEventListener(eventTranslation, useFn, true);
         return {eventObj: content, eventName: event};
     }
 };
