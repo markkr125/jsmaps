@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.11 - ?
+ * native map: circle is editable 
+ * bing map: fixing a bug on editable polygon under old ie
+ * general api: editable marker that are used on vectors look a bit better now
+ * bing and here maps: circles are editable and draggable
+
 ## 0.0.10 - 2016-01-19
  * Only to update the package on nuget
 
