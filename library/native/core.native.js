@@ -321,7 +321,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (evt.preventDefault) {
             evt.preventDefault(); // The W3C DOM way
         } else {
-            window.jsMaps.Native.Event.returnValue = false; // The IE way
+            window.returnValue = false; // The IE way
         }
 
         this.lastMouseX = this.pageX(evt);
