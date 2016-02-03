@@ -220,7 +220,7 @@ jsMaps.Native.ZoomUI = function (themap) {
      * Zoom
      */
     this._zoom = function(evt) {
-        var y = ((evt.type == "touchstart") || (evt.type == "touchmove")) ? this.map.pageY(evt.touches[0]): this.map.pageY(evt) + this.dy;
+        var y = ((evt.type == "touchstart") || (evt.type == "touchmove")) ? this.map.pageY(evt.touches[0]) + this.dy: this.map.pageY(evt) + this.dy;
         this.map.zoomActive  = true;
 
         var zoom = (jsMaps.Native.Browser.ielt9) ? Math.round(this._calcZFromY(y)) : this._calcZFromY(y);
@@ -236,10 +236,13 @@ jsMaps.Native.ZoomUI = function (themap) {
         var target= (evt.target) ? evt.target: evt.srcElement;
 
         this._cancelEvent(evt);
+        this._touchActive(evt);
+
         this.moving = true;
         if(target==this.scrollHandle){
-            this.dy=this.scrollHandle.offsetTop  - this.map.pageY(evt) +this.steps;
-        }else{
+            var PageY = (typeof evt.touches!= 'undefined' && evt.touches.length == 1) ?  evt.touches[0].pageY : this.map.pageY(evt);
+            this.dy=this.scrollHandle.offsetTop  - PageY +this.steps;
+       }else{
             this.dy=0;
         }
         this.map.wheeling = true;
@@ -263,6 +266,7 @@ jsMaps.Native.ZoomUI = function (themap) {
      */
     this._up = function(evt) {
         this._cancelEvent(evt);
+        this._touchDisable(evt);
 
         this.moving = false;
 
@@ -278,8 +282,31 @@ jsMaps.Native.ZoomUI = function (themap) {
         return {x :center['x'], y: center['y']}
     };
 
+    this._touchActive = function (evt) {
+        if (typeof evt.touches!= 'undefined' && evt.touches.length == 1) {
+            var element = (evt.target) ? evt.target: evt.srcElement;
+
+            element.className = element.className.replace(" zoom-hover zoom-active","");
+            element.className = element.className + " zoom-hover zoom-active";
+        }
+    };
+
+    this._touchDisable = function (evt) {
+        this._cancelEvent(evt);
+
+        var element = (evt.target) ? evt.target: evt.srcElement;
+
+        if (jsMaps.Native.Browser.touch) {
+            if (typeof element.className != 'undefined') {
+                var classList = element.className;
+                element.className = classList.replace(" zoom-hover zoom-active","");
+            }
+        }
+    };
+
     this._clickAdd = function(evt) {
         this._cancelEvent(evt);
+        this._touchActive(evt);
 
         var center = this._center();
         this.map.discretZoom(1, center.x, center.y);
@@ -289,6 +316,7 @@ jsMaps.Native.ZoomUI = function (themap) {
 
     this._clickMinus = function(evt) {
         this._cancelEvent(evt);
+        this._touchActive(evt);
 
         var center = this._center();
         this.map.discretZoom(-1, center.x, center.y);
@@ -306,13 +334,20 @@ jsMaps.Native.ZoomUI = function (themap) {
 
         jsMaps.Native.Event.attach(this.addZoom, "mousedown", this._clickAdd, this, false);
         jsMaps.Native.Event.attach(this.minusZoom, "mousedown", this._clickMinus, this, false);
+
+        jsMaps.Native.Event.attach(this.addZoom, "touchstart", this._clickAdd, this, false);
+        jsMaps.Native.Event.attach(this.minusZoom, "touchstart", this._clickMinus, this, false);
+        jsMaps.Native.Event.attach(this.addZoom, "touchend", this._touchDisable, this, false);
+        jsMaps.Native.Event.attach(this.minusZoom, "touchend", this._touchDisable, this, false);
+
+        jsMaps.Native.Event.attach(this.zoomBar, "touchstart", this._down, this, false);
+        jsMaps.Native.Event.attach(this.zoomBar, "touchmove", this._move, this, false);
+        jsMaps.Native.Event.attach(this.zoomBar, "touchend", this._up, this, false);
     };
 
     //called by maplib on every map change
     this.render = function () {
         if (this.themap.zoom() == undefined) return;
-
-        var zoom = (jsMaps.Native.Browser.ielt9) ? this.themap.getIntZoom() : this.themap.zoom();
 
         var top = parseFloat((parseFloat(this.maxzoom) - parseFloat(this.themap.zoom())) * parseFloat(this.steps));
         this.scrollHandle.style.top = parseFloat(top) + "px";
