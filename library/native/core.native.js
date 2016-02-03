@@ -137,144 +137,190 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     //
     //  Touchscreen
     //  Here also the multitouch zoom is done
-    //  Bugs: if map is not fullscreen it will not work as it should. (see pageX, pageY)
-
-    this.oldMoveX = 0;
-    this.oldMoveY = 0;
     this.moving=false;
 
-    this.start = function (evt) {
+    this.start = function(evt) {
         if (evt.preventDefault) {
             evt.preventDefault(); // The W3C DOM way
         } else {
             evt.returnValue = false; // The IE way
         }
 
+        this.moving = this.center();
         this.moveAnimationBlocked = true;
 
-        //this.hideOverlays();
         if (evt.touches.length == 1) {
-            this.startMoveX = this.moveX - evt.touches[0].pageX / this.factor / this.sc;
-            this.startMoveY = this.moveY - evt.touches[0].pageY / this.factor / this.sc;
             if (this.mousedownTime != null) {
                 var now = (new Date()).getTime();
                 if (now - this.mousedownTime < this.doubleclickTime) {
-                    var zoomD = Math.ceil(0.01 + this.getZoom() - this.intZoom);
-                    this.autoZoomIn(evt.touches[0].pageX, evt.touches[0].pageY, zoomD);
+                    this.discretZoom(1,this.pageX(evt.touches[0]), this.pageY(evt.touches[0]));
                 }
             }
-            this.mousedownTime = (new Date()).getTime();
-            var that = this;
-            clearTimeout(this.zoomOutInterval);
-            var tempFunction = function () {
-                //that.autoZoomOut()
-            };
-            this.zoomOutInterval = window.setInterval(tempFunction, 20);
+
+            if (!this.discretZoomBlocked) {
+                this.mousedownTime2 = (new Date()).getTime();
+
+                this.startMoveX = this.moveX - (this.pageX(evt.touches[0])) / this.factor / this.sc;
+                this.startMoveY = this.moveY - (this.pageY(evt.touches[0])) / this.factor / this.sc;
+                this.movestarted = true;
+
+                jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.dragstart);
+
+                this.mousedownTime = (new Date()).getTime();
+            }
         }
 
-        if (evt.touches.length == 2) {
-            window.clearInterval(this.zoomOutInterval);
-            this.moveok = false;
-            var X1 = evt.touches[0].pageX;
-            var Y1 = evt.touches[0].pageY;
-            var X2 = evt.touches[1].pageX;
-            var Y2 = evt.touches[1].pageY;
+        if (evt.touches.length == 2 && !this.discretZoomBlocked) {
+            this.mousedownTime = null;
+            this.movestarted = false;
+            var X1 = this.pageX(evt.touches[0]);
+            var Y1 = this.pageY(evt.touches[0]);
+            var X2 = this.pageX(evt.touches[1]);
+            var Y2 = this.pageY(evt.touches[1]);
+
             this.startDistance = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
             this.startZZ = this.position.zoom;
+
             var x = (X1 + X2) / 2 / this.factor / this.sc;
             var y = (Y1 + Y2) / 2 / this.factor / this.sc;
+
             this.startMoveX = this.moveX - x;
             this.startMoveY = this.moveY - y;
+
+            this.prevxy = {x:0,y:0};
         }
-        this.oldMoveX = this.moveX;
-        this.oldMoveY = this.moveY;
     };
 
     this.moveok = true;
+    this.prevxy = {x:0,y:0};
 
-    this.move = function (evt) {
+    this.move = function(evt) {
         if (evt.preventDefault) {
             evt.preventDefault(); // The W3C DOM way
         } else {
             evt.returnValue = false; // The IE way
         }
 
-        if (evt.touches.length == 1) {
-            if (this.moveok) {
-                this.lastMoveX = this.moveX;
-                this.lastMoveY = this.moveY;
-                this.moveX = evt.touches[0].pageX / this.factor / this.sc + this.startMoveX;
-                this.moveY = evt.touches[0].pageY / this.factor / this.sc + this.startMoveY;
-                if (!this.zoomOutStarted) {
-                    if ((Math.abs(this.moveX - this.oldMoveX) > 5) || (Math.abs(this.moveY - this.oldMoveY) > 5)) {
-                        window.clearInterval(this.zoomOutInterval);
-                        this.zoomOutSpeed = 0.01;
-                        this.mousedownTime = null;
-                    }
-                    var center = new jsMaps.geo.Location(this.lat, this.lng);
-                    this.setCenter2(center, this.position.zoom);
-                    this.moveAnimationBlocked = false;
-                }
-                if ((Math.abs(this.moveX - this.oldMoveX) > 5) || (Math.abs(this.moveY - this.oldMoveY) > 5)) {
-                    this.mousedownTime = null; // prevents doubleclick if map is moved already
-                }
-            }
+        var center;
+
+        if (evt.touches.length == 1 && this.movestarted) {
+            this.lastMouseX = this.pageX(evt.touches[0]);
+            this.lastMouseY = this.pageY(evt.touches[0]);
+
+            jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.drag);
+
+            this.lastMoveX = this.moveX;
+            this.lastMoveY = this.moveY;
+            this.lastMoveTime = new Date();
+            this.moveX = (this.pageX(evt.touches[0])) / this.factor / this.sc + this.startMoveX;
+            this.moveY = (this.pageY(evt.touches[0])) / this.factor / this.sc + this.startMoveY;
+
+            center = new jsMaps.geo.Location(this.lat, this.lng);
+
+            this.setCenter2(center, this.position.zoom);
+            this.moveAnimationBlocked = false;
+
+            jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.bounds_changed);
+            jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.center_changed);
         }
 
-        if (evt.touches.length == 2) {
+        if (evt.touches.length == 2 && !this.discretZoomBlocked) {
+            this.movestarted = false;
             this.mousedownTime = null;
-            var X1 = evt.touches[0].pageX;
-            var Y1 = evt.touches[0].pageY;
-            var X2 = evt.touches[1].pageX;
-            var Y2 = evt.touches[1].pageY;
-            var Distance = Math.sqrt(Math.pow((X2 - X1), 2) + Math.pow((Y2 - Y1), 2));
-            var zoomDelta = (Distance / this.startDistance);
 
+            var X1 = this.pageX(evt.touches[0]);
+            var Y1 = this.pageY(evt.touches[0]);
+            var X2 = this.pageX(evt.touches[1]);
+            var Y2 = this.pageY(evt.touches[1]);
+            var Distance = Math.sqrt(Math.pow((X2 - X1), 2)  + Math.pow((Y2 - Y1), 2));
+
+            var zoomDelta = (Distance / this.startDistance);
             var zz = this.startZZ + zoomDelta - 1;
-            if (zz < 1) {
-                zz = 1;
-            }
+
             if (zz > this.tileSource.maxzoom) {
                 zz = this.tileSource.maxzoom;
-                zoomDelta = 1;
+                zoomDelta = this.zoomDeltaOld;
             }
+            else
+                this.zoomDeltaOld = zoomDelta;
+
             var x = (X1 + X2) / 2;
             var y = (Y1 + Y2) / 2;
 
-            var factor = Math.pow(2, zz);
-            var zoomCenterDeltaX = x / factor - this.width / 2;
-            var zoomCenterDeltaY = y / factor - this.height / 2;
-            var f = Math.pow(2, zoomDelta - 1);
-            var dx = zoomCenterDeltaX - zoomCenterDeltaX * f;
-            var dy = zoomCenterDeltaY - zoomCenterDeltaY * f;
+            var diff  = (Distance - this.startDistance) / this.startDistance  * 100;
 
-            this.moveX = (x + dx) / factor + this.startMoveX;
-            this.moveY = (y + dy) / factor + this.startMoveY;
+            if (Math.round(x) != Math.round(this.prevxy.x) && Math.round(y) != Math.round(this.prevxy.y) && Math.round(this.startDistance) != Math.round(Distance) && Math.abs(diff) > 15) {
+                this.discretZoom(((zoomDelta < 1)? -1: 1),x, y);
+            }
 
-            this.setCenter2(new jsMaps.geo.Location(this.lat, this.lng), zz);
+            this.prevxy = {x:x,y:y};
         }
     };
 
-    this.end = function (evt) {
+    this.end = function(evt) {
         if (evt.preventDefault) {
             evt.preventDefault(); // The W3C DOM way
         } else {
-            evt.returnValue = false; // The IE way
+            evt.returnValue = false;
         }
-        window.clearInterval(this.zoomOutInterval);
-        this.zoomOutStarted = false;
-        this.zoomOutSpeed = 0.01;
+        this.prevxy = {x:0,y:0};
 
-        if (evt.touches.length == 0) {
-            this.moveok = true;
-            if (this.moveAnimationMobile) {
-                if (this.moveAnimationBlocked == false) {
-                    var speedX = this.lastMoveX - this.moveX;
-                    var speedY = this.lastMoveY - this.moveY;
-                    clearTimeout(this.animateMoveTimeout);
-                    this.animateMove(speedX, speedY);
+        var steps = 20;
+        for (var i = 1; i <= steps; i++) {
+            if (typeof this.zoomTimeouts[i] != 'undefined') {
+                clearTimeout(this.zoomTimeouts[i]);
+            }
+        }
+
+        if (this.movestarted) {
+            this.lastMouseX = this.pageX(evt.touches[0]);
+            this.lastMouseY = this.pageY(evt.touches[0]);
+
+            if (this.moveMarker) {
+                this.moveMarker = null;
+            }
+
+            // using this normalize some things are working better, others not so good.
+            // delete it will solve some problems but bring other problems
+            var now = new Date(evt.timeStamp);
+            var timeDelta = now - this.lastMoveTime;
+            if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
+                if (this.movestarted) {
+                    if (this.moveAnimationBlocked == false) {
+                        var speedX = (this.lastMoveX - this.moveX) / timeDelta;
+                        var speedY = (this.lastMoveY - this.moveY) / timeDelta;
+                        var maxSpeed = 200;
+
+                        if (speedX > maxSpeed)speedX = maxSpeed;
+                        if (speedY > maxSpeed)speedY = maxSpeed;
+                        if (speedX < -maxSpeed)speedX = -maxSpeed;
+                        if (speedY < -maxSpeed)speedY = -maxSpeed;
+
+                        if (Math.abs(speedX) > this.wheelSpeedConfig["animateMinSpeed"] || Math.abs(speedY) > this.wheelSpeedConfig["animateMinSpeed"]) {
+                            this.animateMove(speedX, speedY);
+                        }
+                    }
                 }
             }
+            var that = this;
+            var tempFunction = function () {
+                if (that.movestarted) {
+                    jsMaps.Native.Event.trigger(that.mapParent, jsMaps.api.supported_events.dragend);
+                    jsMaps.Native.Event.trigger(that.mapParent, jsMaps.api.supported_events.idle);
+                }
+
+                that.movestarted = false;
+            };
+
+            setTimeout(tempFunction, 1);
+        }
+
+        if (evt.touches.length == 1) {
+            this.startMoveX = this.moveX - evt.touches[0].pageX / this.factor / this.sc;
+            this.startMoveY = this.moveY - evt.touches[0].pageY / this.factor / this.sc;
+
+            //this.startDistance = 0;
+            //this.startZZ = this.position.zoom;
         }
     };
 
@@ -366,7 +412,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (evt.preventDefault) {
             evt.preventDefault(); // The W3C DOM way
         } else {
-            window.jsMaps.Native.Event.returnValue = false; // The IE way
+            window.returnValue = false; // The IE way
         }
 
         if (this.draggable == false) return;
@@ -404,7 +450,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                 this.moveAnimationBlocked = false;
 
                 jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.bounds_changed);
-                jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.center_changed);
                 jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.center_changed);
             }
         }
@@ -681,8 +726,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }
 
         factor = Math.pow(2, zoom);
-        var zoomCenterDeltaX = x - this.width / 2;
-        var zoomCenterDeltaY = y - this.height / 2;
+        var zoomCenterDeltaX = (x - this.mapLeft) - this.width / 2;
+        var zoomCenterDeltaY = (y - this.mapTop) - this.height / 2;
         var f = Math.pow(2, dzoom);
 
         var dx = zoomCenterDeltaX - zoomCenterDeltaX * f;
@@ -1654,8 +1699,9 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (jsMaps.Native.Browser.ielt9) return;
 
         if (alpha > 0 && jsMaps.Native.Browser.any3d && jsMaps.Native.Utils.TRANSITION != false) {
-            div.style.opacity = 0;
+            div.style[jsMaps.Native.Utils.BACKFACE_VISIBILITY] =  'hidden';
             div.style[jsMaps.Native.Utils.TRANSITION] = 'opacity 500ms ease-out';
+            div.style.opacity = 0;
 
             return;
         }
@@ -2028,6 +2074,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.wheelSpeedConfig["rectShiftAnimate"] = false;
     this.wheelSpeedConfig["rectShiftAnimationTime"] = 500;
     this.wheelSpeedConfig["animateMinSpeed"] = 0.4;
+    this.wheelSpeedConfig["animateMaxSpeed"] = 200;
 
     //variables for performance check
     this.wheelEventCounter = 0;
