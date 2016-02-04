@@ -530,6 +530,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
             this.position.lat = this.mapObj.XYTolatlng(this.x, this.y).lat;
             this.position.lng = this.mapObj.XYTolatlng(this.x, this.y).lng;
             this.render();
+            this._executeCallbackMoveFunctions();
 
             if (!this.clicked) {	//only suppress, when no click-handler added
                 // stop event from being passed to map
@@ -634,6 +635,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         window.clearInterval(this.mapmoveInterval);
 
         this.render();
+        this._executeCallbackFunctions();
     };
 
     /**

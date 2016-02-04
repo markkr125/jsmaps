@@ -662,17 +662,22 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
         this._mouseclickdetectstart(evt);
 
-        if (this.leftclick == false) return;
+        if (typeof evt.touches=='undefined' || evt.touches.length == 0) {
+            if (this.leftclick == false) return;
+        }
+
+        if (typeof evt.touches!='undefined' &&  evt.touches.length > 1 ) {
+            return;
+        }
 
         this.moving = true;
         jsMaps.Native.Event.trigger(this.vectorPath,jsMaps.api.supported_events.dragstart);
 
-        // calculate mousecursor-offset on marker div
-        this.clickx =  this.theMap.pageX(evt);
-        this.clicky = this.theMap.pageY(evt);
+        var useEvt = (typeof evt.touches!='undefined' && typeof evt.touches[0] !='undefined') ? evt.touches[0] : evt;
 
-        this.clickx =  this.theMap.pageX(evt);
-        this.clicky = this.theMap.pageY(evt);
+        // calculate mousecursor-offset on marker div
+        this.clickx =  this.theMap.pageX(useEvt);
+        this.clicky = this.theMap.pageY(useEvt);
 
         jsMaps.Native.Event.stopPropagation(evt);
         jsMaps.Native.Event.preventDefault(evt);
@@ -681,6 +686,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
         jsMaps.Native.Event.attach(w, "mousemove", this._mousemove, this, false);
         jsMaps.Native.Event.attach(w, "mouseup", this._mouseup, this, false);
+
+        jsMaps.Native.Event.attach(w, "touchmove", this._mousemove, this, false);
+        jsMaps.Native.Event.attach(w, "touchend", this._mouseup, this, false);
 
         jsMaps.Native.setCursor(this.vectorPath, "grabbing");
     };
@@ -714,8 +722,10 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
     this._mousemove = function (evt) {
         if (this.moving) {
-            var x = this.theMap.pageX(evt);
-            var y = this.theMap.pageY(evt);
+            var useEvt = (typeof evt.touches!='undefined' && typeof evt.touches[0] !='undefined') ? evt.touches[0] : evt;
+
+            var x = this.theMap.pageX(useEvt);
+            var y = this.theMap.pageY(useEvt);
 
             jsMaps.Native.Event.trigger(this.vectorPath,jsMaps.api.supported_events.drag);
 
@@ -729,8 +739,8 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
             if (latVariance == 0 && longVariance == 0) return;
 
-            this.clickx =  this.theMap.pageX(evt);
-            this.clicky =  this.theMap.pageY(evt);
+            this.clickx =  this.theMap.pageX(useEvt);
+            this.clicky =  this.theMap.pageY(useEvt);
 
             if (this._vectorType == jsMaps.Native.Vector.elements.circle) {
                 this._vectorOptions.center.lat  += latVariance;
@@ -881,9 +891,28 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     this._makeMovable = function () {
         if (this._vectorOptions.draggable == true) {
             jsMaps.Native.setCursor(this.vectorPath, "pointer");
+
             jsMaps.Native.Event.attach(this.vectorPath, "mousedown", this._mousedown, this, false);
+            jsMaps.Native.Event.attach(this.vectorPath, "touchstart", this._mousedown, this, false);
         } else {
             jsMaps.Native.setCursor(this.vectorPath, "default");
+
+            jsMaps.Native.Event.attach(this.vectorPath, "touchstart", function () {
+                if (!this._vectorOptions.draggable) {
+                    this.clicked = true;
+                }
+            }, this, false);
+
+            jsMaps.Native.Event.attach(this.vectorPath, "touchmove", function () {
+                if (!this._vectorOptions.draggable) {
+                    // hand when clicked, otherwise finger
+                    if (this.clicked == true)
+                        jsMaps.Native.setCursor(this.vectorPath,"grabbing");
+                    else
+                        jsMaps.Native.setCursor(this.vectorPath,"pointer");
+                }
+            }, this, false);
+
 
             jsMaps.Native.Event.attach(this.vectorPath, "mousedown", function () {
                 if (!this._vectorOptions.draggable) {
@@ -902,6 +931,14 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
             }, this, false);
 
             var w = (jsMaps.Native.Browser.ie) ? this.theMap.mapParent : window;
+
+            jsMaps.Native.Event.attach(w, "touchend", function () {
+                if (!this._vectorOptions.draggable) {
+                    this.clicked = false;
+                    // finger-cursor
+                    jsMaps.Native.setCursor(this.vectorPath,"pointer");
+                }
+            }, this, false);
 
             jsMaps.Native.Event.attach(w, "mouseup", function () {
                 if (!this._vectorOptions.draggable) {
