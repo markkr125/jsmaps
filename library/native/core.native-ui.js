@@ -111,7 +111,21 @@ jsMaps.Native.LayersUI = function (themap,tilesLayer) {
             iDiv.innerHTML = '<label><input type="radio"'+((themap.selectedTileLayer == i) ? ' checked="checked" ': ' ')+'name="layer-'+themap.MapNumber+'" value="'+i+'" /><span>'+layer.layerName+'</span></label>';
 
             jsMaps.Native.Event.attach(iDiv, "mousedown", this._down, this, false);
+            jsMaps.Native.Event.attach(iDiv, "touchstart", this._down, this, false);
         }
+
+        jsMaps.Native.Event.attach(LayerImage, "touchstart", function () {
+            var element = this.tilesUi;
+
+            if (element.className.indexOf('tiles-ui-hover') == -1) {
+                element.className = element.className.replace(" tiles-ui-hover","");
+                element.className = element.className + " tiles-ui-hover";
+            } else {
+                element.className = element.className.replace(" tiles-ui-hover","");
+            }
+
+        }, this, false);
+
     };
 
     this._down = function(evt) {
@@ -122,7 +136,13 @@ jsMaps.Native.LayersUI = function (themap,tilesLayer) {
         var target = (evt.target) ? evt.target: evt.srcElement;
         var parent = target.parentNode;
 
-        var mapValue = parent.querySelector('input[type="radio"]').value;
+
+        var radio = parent.querySelector('input[type="radio"]');
+        radio.checked = true;
+
+        var mapValue = radio.value;
+
+
         this.theMap.tiles(this.tilesLayer.Layers[mapValue]);
 
         this.theMap.centerAndZoom(this.theMap.getCenter(),this.theMap.zoom());
@@ -296,7 +316,7 @@ jsMaps.Native.ZoomUI = function (themap) {
 
         var element = (evt.target) ? evt.target: evt.srcElement;
 
-        if (jsMaps.Native.Browser.touch) {
+        if (typeof evt.touches!= 'undefined') {
             if (typeof element.className != 'undefined') {
                 var classList = element.className;
                 element.className = classList.replace(" zoom-hover zoom-active","");
