@@ -2406,11 +2406,30 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
                 });
             }
         } else {
+            if (jsMaps.Native.Browser.touch) {
+                if (eventTranslation == 'click'
+                    || eventTranslation == 'mousedown'
+                    || eventTranslation == 'mouseenter'
+                ) eventTranslation = 'touchstart';
+
+                if (eventTranslation == 'mousemove' || eventTranslation == 'drag') eventTranslation = 'touchmove';
+
+                if (eventTranslation == 'mouseup'
+                    || eventTranslation == 'mouseout'
+                ) eventTranslation = 'touchend';
+            }
+
             var eventTarget = document.createEvent('Event');
             eventTarget.initEvent(eventTranslation, true, true);
             elem.addEventListener(eventTranslation, useFn, false);
         }
     } else {
+        if (jsMaps.Native.Browser.touch) {
+            if (eventTranslation == jsMaps.api.supported_events.click) {
+                eventTranslation = 'touchstart';
+            }
+        }
+
         elem = content.object.attachEvent(jsMaps.api.supported_events.click,useFn,false,false);
     }
 
@@ -2477,6 +2496,7 @@ jsMaps.Native.prototype.marker = function (map,parameters) {
     hooking.prototype = new jsMaps.MarkerStructure();
 
     hooking.prototype.object = marker;
+    hooking.prototype._objectName = 'marker';
 
     /**
     *

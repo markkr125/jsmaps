@@ -303,6 +303,17 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
     /**
      * Execute the callback functions.
      */
+    this._executeClickCallbackFunctions = function () {
+        var that = this;
+        for (var i = 0; i < this.callbackFunctions.length; i++) {
+            this.callbackClickFunctions[i].call(that);
+        }
+    };
+
+
+    /**
+     * Execute the callback functions.
+     */
     this._executeCallbackMoveFunctions = function () {
         var that = this;
         for (var i = 0; i < this.callbackMoveFunctions.length; i++) {
@@ -821,9 +832,8 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         //alert("move");
     };
     this._touchclickdetectstop = function (evt) {
-        //alert(this.clickDetectX + " " + this.clickDetectY);
         if (evt.touches.length == 0) {
-            if ((this.clickDetectX == -1) && (this.clickDetectY == -1)) {
+            if (this.clicked == true || ((this.clickDetectX == -1) && (this.clickDetectY == -1))) {
                 this.originalClickFunction();
                 this.clicked = false;
             }
@@ -867,8 +877,9 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
 
         // workaround for detecting a click on touch devices
         // original click event is suppressed by touchmove-handler of the map
-        if ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || (navigator.userAgent.match(/iPad/i))) {
+        if (jsMaps.Native.Browser.touch) {
             if (t == "click") {
+
                 this.originalClickFunction = f;
                 // attach handler to shape area
                 if (this.MarkerOptions.shape) {

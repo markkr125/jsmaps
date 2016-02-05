@@ -145,6 +145,11 @@ jsMaps.Native.Overlay.InfoWindow = function (InfoWindowOptions) {
         this.close();
     }, this, false);
 
+    // attach eventhandler for close function
+    jsMaps.Native.Event.attach(this.closebutton, "touchend", function () {
+        this.close();
+    }, this, false);
+
     this.getPosition = function () {
         if (typeof this.mapObj == 'undefined') return new jsMaps.geo.Location(0,0);
         return this.mapObj.XYTolatlng(this.infobox.offsetLeft,this.infobox.offsetTop);
