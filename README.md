@@ -18,6 +18,7 @@ Several installation options are available:
 * Clone the repo: `git clone https://github.com/markkr125/jsmaps.git`.
 * Install with [Bower](http://bower.io): `bower install jsmaps`.
 * Install with [npm](https://www.npmjs.com): `npm install jsmaps`.
+* Install with [NuGet](https://www.nuget.org): `Install-Package jsmaps`.
 
 ## Supported External APIs
 * [Google v3](https://developers.google.com/maps/)
