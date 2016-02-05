@@ -25,17 +25,7 @@ jsMaps.Native.Overlay = {};
  * @returns {jsMaps.MapStructure}
  */
 jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
-    map.style.overflowX="hidden";
-    map.style.overflowY="hidden";
-    map.style.backgroundColor="#f5f5f5";
-    map.style.position="relative";
-    map.style.display="inline-block";
-    if (map.className == "")  {
-        map.className = "jsMaps-Native";
-    } else {
-        map.className = map.className + " jsMaps-Native";
-    }
-
+    jsMaps.Native.Dom.addClass(map,'jsMaps-Native');
 
     jsMaps.Native.MapCount++;
     this.MapNumber = jsMaps.Native.MapCount;
@@ -1546,6 +1536,17 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         jsMaps.Native.Dom.addClass(img,'map-image no-anim');
                     } else {
                         jsMaps.Native.Dom.addClass(img,'map-image');
+
+                        if (jsMaps.Native.Browser.any3d && jsMaps.Native.Utils.TRANSITION != false) {
+                            var fn = function (evt) {
+                                jsMaps.Native.Event.preventDefault(evt);
+                                jsMaps.Native.Event.stopPropagation(evt);
+
+                                jsMaps.Native.Dom.addClass(this,'no-anim');
+                            };
+
+                            img.addEventListener(jsMaps.Native.Utils.TRANSITION_END, fn, false);
+                        }
                     }
 
                     img.style.left = i * this.tileW + "px";
@@ -1577,7 +1578,13 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         var ovId = id + "_" + ov;
                         jsMaps.Native.Event.attach(ovImg, "load", this.imgLoaded, this, false);
 
-                        ovImg.className = 'map-image';
+                        if (this.discretZoomBlocked == true) {
+                            jsMaps.Native.Dom.addClass(ovImg,'map-image no-anim');
+                        } else {
+                            jsMaps.Native.Dom.addClass(ovImg,'map-image');
+                        }
+
+
                         ovImg.setAttribute("src", imgSrc);
                         ovImg.setAttribute("overlay", ov);
 

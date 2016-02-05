@@ -1,3 +1,10 @@
+.jsMaps-Native {
+    overflow: hidden;
+    background-color: #f5f5f5;
+    position: relative;
+    display: inline-block;
+}
+
 .jsMaps-Native .map-copyright {
     position: absolute;
     bottom: 5px;
