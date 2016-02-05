@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Version 0.0.11 released"
-date:   2016-02-05 15:50:00
+date:   2016-02-05 00:00:00
 categories: 0.0.11
 ---
 Version change log:
