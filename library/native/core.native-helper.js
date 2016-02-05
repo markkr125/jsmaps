@@ -104,6 +104,22 @@ jsMaps.Native.Event.stopPropagation = function (evt) {
     }
 };
 
+jsMaps.Native.Dom = {
+    addClass: function (object,className) {
+        if (object.className.indexOf(className)==-1) {
+            object.className += " "+className;
+            object.className = object.className.trim();
+        }
+    },
+
+    removeClass: function (object,className) {
+        if (object.className.indexOf(className)!=-1) {
+            object.className = object.className.replace(className,"");
+            object.className = object.className.replace(/"  "/g,"");
+        }
+    }
+};
+
 jsMaps.Native.Event.preventDefault = function (evt) {
     // suppress image dragging
     if (evt.preventDefault) {
@@ -313,6 +329,7 @@ jsMaps.Native.Utils.BACKFACE_VISIBILITY = jsMaps.Native.Utils.testProp(['backfac
 jsMaps.Native.Utils.TRANSFORM = jsMaps.Native.Utils.testProp(['transform', 'webkitTransform', 'oTransform', 'mozTransform', 'msTransform']);
 jsMaps.Native.Utils.TRANSFORM_ORIGIN = jsMaps.Native.Utils.testProp(['transformOrigin', 'webkitTransformOrigin', 'oTransformOrigin', 'mozTransformOrigin', 'msTransformOrigin']);
 jsMaps.Native.Utils.TRANSITION = jsMaps.Native.Utils.testProp(['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+jsMaps.Native.Utils.TRANSITION_END = ((jsMaps.Native.Utils.TRANSITION === 'webkitTransition' || jsMaps.Native.Utils.TRANSITION === 'OTransition') ? jsMaps.Native.Utils.TRANSITION + 'End' : 'transitionend');
 
 /**
  * An area defined by 2 Points

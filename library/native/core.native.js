@@ -1541,8 +1541,12 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                 if (this.layers[intZoom]["images"][id] == null && sc >=minsc) {
                     var img = document.createElement("img");
                     img.style.visibility = "hidden";
-                    img.style.position = "absolute";
-                    img.className = 'map-image';
+
+                    if (this.discretZoomBlocked == true) {
+                        jsMaps.Native.Dom.addClass(img,'map-image no-anim');
+                    } else {
+                        jsMaps.Native.Dom.addClass(img,'map-image');
+                    }
 
                     img.style.left = i * this.tileW + "px";
                     img.style.top = j * this.tileH + "px";
@@ -1699,10 +1703,17 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (jsMaps.Native.Browser.ielt9) return;
 
         if (alpha > 0 && jsMaps.Native.Browser.any3d && jsMaps.Native.Utils.TRANSITION != false) {
-            div.style[jsMaps.Native.Utils.BACKFACE_VISIBILITY] =  'hidden';
             div.style[jsMaps.Native.Utils.TRANSITION] = 'opacity 500ms ease-out';
             div.style.opacity = 0;
 
+            var fn = function (evt) {
+                jsMaps.Native.Event.preventDefault(evt);
+                jsMaps.Native.Event.stopPropagation(evt);
+
+                div.style[jsMaps.Native.Utils.TRANSITION] = "";
+            };
+
+            div.addEventListener(jsMaps.Native.Utils.TRANSITION_END, fn, false);
             return;
         }
 
@@ -1787,7 +1798,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         img.style.visibility = "";
         img.setAttribute("loaded", "yes");
         if (!img.parentNode) return;
-
+        img.style.opacity = 1;
         var notLoaded = 0;
         var total = 0;
         var zoomLevel = img.parentNode.getAttribute("zoomlevel");

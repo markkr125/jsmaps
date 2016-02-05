@@ -832,7 +832,11 @@ jsMaps.CRSEarth = {
     }
 };
 
-
+if (!String.prototype.trim) {
+    String.prototype.trim = function () {
+        return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+    };
+}
 
 if (('ActiveXObject' in window) && !document.addEventListener) {
     Function.prototype.bind = (function () {
