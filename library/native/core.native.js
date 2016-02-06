@@ -394,6 +394,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             this.movestarted = true;
 
             jsMaps.Native.Event.trigger(this.mapParent,jsMaps.api.supported_events.dragstart);
+
+            jsMaps.Native.setCursor(this.clone,"grabbing");
         }
         return false;
     };
@@ -412,6 +414,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         else if (evt.button) leftClick = (evt.button == 0) || (evt.button == 1);
 
         if (leftClick == false) {
+            jsMaps.Native.setCursor(this.clone,"grab");
             return;
         }
 
@@ -463,6 +466,9 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         } else {
             evt.returnValue = false; // The IE way
         }
+
+        jsMaps.Native.setCursor(this.clone,"grab");
+
         this.lastMouseX = this.pageX(evt);
         this.lastMouseY = this.pageY(evt);
         if (this.moveMarker) {
@@ -2119,6 +2125,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.clone = map.cloneNode(true); //clone is the same as the map div, but absolute positioned
     this.clone = document.createElement("div");
     this.clone.removeAttribute("id");
+    jsMaps.Native.setCursor(this.clone,"grab");
 
     if (map.firstChild) {
         map.insertBefore(this.clone, map.firstChild);

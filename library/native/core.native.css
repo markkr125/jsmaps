@@ -216,11 +216,21 @@
 .jsMaps-Native .map-image{
     max-width: initial;
     opacity: 0;
+    will-change: opacity;
+
+    transform: translateZ(0px);
+    -o-transform: translateZ(0px);
+    -ms-transform: translateZ(0px);
+    -moz-transform: translateZ(0px);
+    -webkit-transform: translateZ(0px);
+
     -webkit-transition: opacity 0.3s linear;
     -moz-transition: opacity 0.3s linear;
     -o-transition: opacity 0.3s linear;
     transition: opacity 0.3s linear;
     position: absolute;
+
+
 }
 
 .jsMaps-Native .map-image.no-anim{

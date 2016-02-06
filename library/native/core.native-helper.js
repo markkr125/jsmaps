@@ -523,6 +523,28 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
     bounds1.sw().lat > bounds2.ne().lat || bounds1.ne().lat < bounds2.sw().lat);
 };
 
+if (jsMaps.Native.Browser.ielt9) {
+    jsMaps.Native.getScriptSource = function () {
+        var scriptSource = (function () {
+            var scripts = document.getElementsByTagName('script'),
+                script = scripts[scripts.length - 1];
+
+            if (script.getAttribute.length !== undefined) {
+                return script.src
+            }
+
+            return script.getAttribute('src', -1)
+        }());
+
+        var source = scriptSource.split('/');
+        source.pop();
+
+        return source.join('/');
+    };
+
+    jsMaps.Native.scriptSource = jsMaps.Native.getScriptSource();
+}
+
 /**
  * @function
  * @param {Object} object DOM-Element to apply the style="cursor: ....." argument on
@@ -532,16 +554,16 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
  * or via url
  */
 jsMaps.Native.setCursor = function (object, string) {
-    // Internet Explorer
-    if (navigator.userAgent.indexOf("MSIE") != -1) {	// tested on IE6 and IE8
+    if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
+
+    if (jsMaps.Native.Browser.ielt9) {
         if (string == "grab")
-            object.style.cursor = "default";
+            object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")
-            object.style.cursor = "move";
+            object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/fist.cur'), move";
         else
             object.style.cursor = "pointer";
     }
-    // others
     else {
         object.style.cursor = "-moz-" + string;			// tested on firefox 3.6
         if (object.style.cursor != "-moz-" + string) {
@@ -560,6 +582,8 @@ jsMaps.Native.setCursor = function (object, string) {
             }
         }
     }
+
+    object.currentCursor = string;
 };
 
 jsMaps.Native.imageNotSelectable = function(el){
