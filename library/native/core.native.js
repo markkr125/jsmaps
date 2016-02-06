@@ -405,6 +405,16 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             window.returnValue = false; // The IE way
         }
 
+
+        var leftClick = false;
+        if (!evt) evt = window.event;
+        if (evt.which)  leftClick = (evt.which == 1);
+        else if (evt.button) leftClick = (evt.button == 0) || (evt.button == 1);
+
+        if (leftClick == false) {
+            return;
+        }
+
         if (this.draggable == false) return;
 
         this.lastMouseX = this.pageX(evt);
@@ -2177,9 +2187,11 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     if (this.internetExplorer) {
         w = map;
+        console.log('here');
     } else {
         w = window;
         jsMaps.Native.Event.attach(window, "resize", this.setMapPosition, this, false);
+        console.log('here1');
     }
 
     if (navigator.userAgent.indexOf("Konqueror") != -1) w = map;
