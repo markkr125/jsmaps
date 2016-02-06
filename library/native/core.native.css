@@ -229,8 +229,14 @@
     -o-transition: opacity 0.3s linear;
     transition: opacity 0.3s linear;
     position: absolute;
+}
 
-
+.jsMaps-Native .jsMaps-Native-Box {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
 }
 
 .jsMaps-Native .map-image.no-anim{

@@ -1979,13 +1979,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.width = this.mapsize.width;
         this.height = this.mapsize.height;
 
-        this.clone.style.top = "0px";
-        this.clone.style.left = "0px";
-        this.clone.style.width = '100%';
         this.clone.style.height = this.mapsize.height + "px";
-
-        this.clone.style.position = "relative";
-        this.clone.style.overflow = "hidden";
 
         this.map.style.left = this.mapsize.width / 2 + "px";
         this.map.style.top = this.mapsize.height / 2 + "px";
@@ -2125,7 +2119,9 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.clone = map.cloneNode(true); //clone is the same as the map div, but absolute positioned
     this.clone = document.createElement("div");
     this.clone.removeAttribute("id");
+
     jsMaps.Native.setCursor(this.clone,"grab");
+    jsMaps.Native.Dom.addClass(this.clone,'jsMaps-Native-Box');
 
     if (map.firstChild) {
         map.insertBefore(this.clone, map.firstChild);

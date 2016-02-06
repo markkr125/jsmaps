@@ -379,7 +379,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         jsMaps.Native.Event.attach(w, "mouseup", this._mouseup, this, false);
 
         // fist-cursor
-        jsMaps.Native.setCursor(this.mapObj.mapParent, "grabbing");
+        jsMaps.Native.setCursor(this.mapObj.clone, "grabbing");
         this._setCursor("grabbing");
     };
     /**
@@ -497,7 +497,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         }
 
         // hand-cursor
-        jsMaps.Native.setCursor(this.mapObj.mapParent, "grab");
+        jsMaps.Native.setCursor(this.mapObj.clone, "grab");
         // finger-cursor
         this._setCursor("pointer");
 
