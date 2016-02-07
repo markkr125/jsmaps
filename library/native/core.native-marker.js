@@ -852,6 +852,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         if (evt.which) this.leftclick = (evt.which == 1);
         else if (evt.button) this.leftclick = (evt.button == 0) || (evt.button == 1);
     };
+
     this._mouseclickdetectmove = function () {
         this.leftclick = false;
     };
@@ -877,9 +878,8 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
 
         // workaround for detecting a click on touch devices
         // original click event is suppressed by touchmove-handler of the map
-        if (jsMaps.Native.Browser.touch) {
+        if (jsMaps.Native.Browser.mobile) {
             if (t == "click") {
-
                 this.originalClickFunction = f;
                 // attach handler to shape area
                 if (this.MarkerOptions.shape) {
@@ -904,6 +904,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
             if (t == "click") {
                 this.originalClickFunction = f;
                 // attach handler to shape area
+
                 if (this.MarkerOptions.shape) {
                     jsMaps.Native.Event.attach(this.area, jsMaps.Native.Event.mousedown, this._mouseclickdetectstart, fc, c);
                     jsMaps.Native.Event.attach(this.area, jsMaps.Native.Event.mousemove, this._mouseclickdetectmove, fc, c);
