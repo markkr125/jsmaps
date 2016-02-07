@@ -905,17 +905,17 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 this.originalClickFunction = f;
                 // attach handler to shape area
                 if (this.MarkerOptions.shape) {
-                    jsMaps.Native.Event.attach(this.area, "mousedown", this._mouseclickdetectstart, fc, c);
-                    jsMaps.Native.Event.attach(this.area, "mousemove", this._mouseclickdetectmove, fc, c);
-                    jsMaps.Native.Event.attach(this.area, "mouseup", this._mouseclickdetectstop, fc, c);
+                    jsMaps.Native.Event.attach(this.area, jsMaps.Native.Event.mousedown, this._mouseclickdetectstart, fc, c);
+                    jsMaps.Native.Event.attach(this.area, jsMaps.Native.Event.mousemove, this._mouseclickdetectmove, fc, c);
+                    jsMaps.Native.Event.attach(this.area, jsMaps.Native.Event.mouseup, this._mouseclickdetectstop, fc, c);
 
                     usingElement = this.area;
                 }
                 // attach handler to div
                 else {
-                    jsMaps.Native.Event.attach(this.marker, "mousedown", this._mouseclickdetectstart, fc, c);
-                    jsMaps.Native.Event.attach(this.marker, "mousemove", this._mouseclickdetectmove, fc, c);
-                    jsMaps.Native.Event.attach(this.marker, "mouseup", this._mouseclickdetectstop, fc, c);
+                    jsMaps.Native.Event.attach(this.marker, jsMaps.Native.Event.mousedown, this._mouseclickdetectstart, fc, c);
+                    jsMaps.Native.Event.attach(this.marker, jsMaps.Native.Event.mousemove, this._mouseclickdetectmove, fc, c);
+                    jsMaps.Native.Event.attach(this.marker, jsMaps.Native.Event.mouseup, this._mouseclickdetectstop, fc, c);
 
                     usingElement = this.marker;
                 }

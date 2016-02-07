@@ -186,6 +186,31 @@ jsMaps.Native.Event.attach = function (o, t, f, fc, c) {
     return{o:o,type:t,fn:fn,c:c}
 };
 
+// this is ridicules
+if (jsMaps.Native.Browser.msPointer) {
+    jsMaps.Native.Event.mousedown = 'MSPointerDown';
+    jsMaps.Native.Event.mouseenter = 'MSPointerMove';
+    jsMaps.Native.Event.mouseup = 'MSPointerUp';
+    jsMaps.Native.Event.mouseenter = 'MSPointerOver';
+    jsMaps.Native.Event.mouseout = 'MSPointerOut';
+    jsMaps.Native.Event.mousemove = 'MSPointerHover';
+} else if (jsMaps.Native.Browser.pointer) {
+    jsMaps.Native.Event.mousedown = 'pointerdown';
+    jsMaps.Native.Event.mouseenter = 'pointerenter';
+    jsMaps.Native.Event.mouseup = 'pointerup';
+    jsMaps.Native.Event.mouseenter = 'pointerover';
+    jsMaps.Native.Event.mouseout = 'pointerout';
+    jsMaps.Native.Event.mousemove = 'pointermove';
+} else {
+    jsMaps.Native.Event.mousedown = 'mousedown';
+    jsMaps.Native.Event.mouseenter = 'mouseenter';
+    jsMaps.Native.Event.mouseup = 'mouseup';
+    jsMaps.Native.Event.mouseenter = 'mouseenter';
+    jsMaps.Native.Event.mouseout = 'mouseout';
+    jsMaps.Native.Event.mousemove = 'mousemove';
+}
+
+
 /**
  * Cancels the event if it is cancelable,
  * without stopping further propagation of the event.
@@ -303,13 +328,13 @@ jsMaps.Native.Utils = {
                 el.style[jsMaps.Native.Utils.TRANSFORM] = 'translate3d(' + parseFloat(pos.x).toFixed(0) + 'px,' + parseFloat(pos.y).toFixed(0) + 'px' + ',0)' + (scale ? ' scale3d(' + scale + ',' + scale + ',1)' : '');
             }
         } else {
-            el.style.left = (pos.x)+"px";
-            el.style.top = (pos.y)+"px";
-
+            el.style.left = (pos.x) + "px";
+            el.style.top = (pos.y) + "px";
+            
             var scaleParam = 1;
             if (scale) scaleParam = scale;
 
-            if (scaleParam !==1) {
+            if (scaleParam !== 1) {
                 el.style.display = 'none';
             } else {
                 el.style.display = '';
@@ -523,7 +548,7 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
     bounds1.sw().lat > bounds2.ne().lat || bounds1.ne().lat < bounds2.sw().lat);
 };
 
-if (jsMaps.Native.Browser.ielt9 || (!jsMaps.Native.Browser.any3d && jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.ielt9)) {
+if (jsMaps.Native.Browser.ie) {
     jsMaps.Native.getScriptSource = function () {
         var scriptSource = (function () {
             var scripts = document.getElementsByTagName('script'),
@@ -556,7 +581,7 @@ if (jsMaps.Native.Browser.ielt9 || (!jsMaps.Native.Browser.any3d && jsMaps.Nativ
 jsMaps.Native.setCursor = function (object, string) {
     if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
 
-    if (jsMaps.Native.Browser.ielt9 || (!jsMaps.Native.Browser.any3d && jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.ielt9)) {
+    if (jsMaps.Native.Browser.ie) {
         if (string == "grab")
             object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")

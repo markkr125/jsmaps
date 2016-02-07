@@ -328,9 +328,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
             if (t == "click") {
                 this.originalClickFunction = f;
 
-                jsMaps.Native.Event.attach(this.vectorPath, "mousedown", this._mouseclickdetectstart, fc, c);
-                jsMaps.Native.Event.attach(this.vectorPath, "mousemove", this._mouseclickdetectmove, fc, c);
-                jsMaps.Native.Event.attach(this.vectorPath, "mouseup", this._mouseclickdetectstop, fc, c);
+                jsMaps.Native.Event.attach(this.vectorPath, jsMaps.Native.Event.mousedown, this._mouseclickdetectstart, fc, c);
+                jsMaps.Native.Event.attach(this.vectorPath, jsMaps.Native.Event.mousemove, this._mouseclickdetectmove, fc, c);
+                jsMaps.Native.Event.attach(this.vectorPath, jsMaps.Native.Event.mouseup, this._mouseclickdetectstop, fc, c);
 
                 usingElement = this.marker;
             }

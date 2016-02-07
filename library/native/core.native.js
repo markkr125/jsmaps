@@ -670,7 +670,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
      * @param faktor
      */
     this.animateMove = function (speedX, speedY, faktor) {
-        if (jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.ie3d) return;
+        if (jsMaps.Native.Browser.ie && jsMaps.Native.Utils.TRANSFORM == false) return;
 
         if (typeof faktor == 'undefined') faktor=Math.pow(2,this.zoom());
         clearTimeout(this.animateMoveTimeout);
@@ -1433,7 +1433,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             layerDiv = document.createElement("div");
 
             layerDiv.setAttribute("zoomlevel", intZoom);
-            layerDiv.style.position = "absolute";
+            layerDiv.style.position = "relative";
 
             //higher zoomlevels are places in front of lower zoomleves.
             //no z-index in use.  z-index could give unwanted side effects to you application if you use this lib.
@@ -2188,13 +2188,11 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     var w;
 
-    if (this.internetExplorer) {
+    if (jsMaps.Native.Browser.ie) {
         w = map;
-        console.log('here');
     } else {
         w = window;
         jsMaps.Native.Event.attach(window, "resize", this.setMapPosition, this, false);
-        console.log('here1');
     }
 
     if (navigator.userAgent.indexOf("Konqueror") != -1) w = map;
@@ -2328,11 +2326,11 @@ jsMaps.Native.prototype.bounds = function (themap) {
  *
  * @param content
  * @param event
- * @param fn
+ * @param fnCore
  * @param once
  * @returns {*}
  */
-jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
+jsMaps.Native.prototype.attachEvent = function (content,event,fnCore,once) {
     var elem;
     var customEvent = false;
 
@@ -2347,6 +2345,16 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
         elem = content.object.vectorPath;
         if (event == jsMaps.api.supported_events.click) customEvent = true;
     }
+
+    var eventTranslation = event;
+    if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseenter';
+    if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'contextmenu';
+    if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'orientationchange';
+
+    var fn = fnCore;
+
+    // this is stupid, damn you micosoft
+    if (typeof jsMaps.Native.Event[eventTranslation] != 'undefined') eventTranslation = jsMaps.Native.Event[eventTranslation];
 
     var useFn = function (e) {
         if (event == jsMaps.api.supported_events.mouseout) {
@@ -2383,11 +2391,6 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
 
         fn(new eventHooking);
     };
-
-    var eventTranslation = event;
-    if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseenter';
-    if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'contextmenu';
-    if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'orientationchange';
 
     // Create the event.
     if (customEvent == false) {
@@ -2439,12 +2442,6 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fn,once) {
             elem.addEventListener(eventTranslation, useFn, false);
         }
     } else {
-        if (jsMaps.Native.Browser.touch) {
-            if (eventTranslation == jsMaps.api.supported_events.click) {
-                eventTranslation = 'touchstart';
-            }
-        }
-
         elem = content.object.attachEvent(jsMaps.api.supported_events.click,useFn,false,false);
     }
 
