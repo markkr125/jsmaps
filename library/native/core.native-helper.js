@@ -585,7 +585,7 @@ if (jsMaps.Native.Browser.ie) {
 jsMaps.Native.setCursor = function (object, string) {
     if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
 
-    if (jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.pointer) {
+    if (jsMaps.Native.Browser.ie) {
         if (string == "grab")
             object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")
