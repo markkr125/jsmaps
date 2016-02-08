@@ -150,8 +150,8 @@ jsMaps.Native.pixelValue = function(latitude, meters, zoomLevel) {
  */
 jsMaps.Native.Event.attach = function (o, t, f, fc, c) {
     var a = (arguments.length > 5 ? jsMaps.Native.Array(arguments).slice(5, arguments.length) : []);
-    var fn = function (e) {
 
+    var fn = function (e) {
         var ev = e || window.event;
         if ( !ev.target ) {
             ev.target = ev.srcElement;
@@ -160,12 +160,16 @@ jsMaps.Native.Event.attach = function (o, t, f, fc, c) {
         a.unshift(ev || window.event);
         return f.apply((fc ? fc : o), a);
     };
+
     if (o.addEventListener) {
-        if (navigator.appName.indexOf("Netscape") == -1) {
-            if (t == "DOMMouseScroll") {
-                t = "mousewheel";
+        if (t == 'DOMMouseScroll') {
+            var dom = "DOMMouseScroll" in window;
+
+            if (dom == false) {
+                t = 'mousewheel';
             }
         }
+
         if (navigator.userAgent.indexOf("Safari") != -1) {
             if (t == "DOMMouseScroll") {
                 o.onmousewheel = fn;
@@ -581,7 +585,7 @@ if (jsMaps.Native.Browser.ie) {
 jsMaps.Native.setCursor = function (object, string) {
     if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
 
-    if (jsMaps.Native.Browser.ie) {
+    if (jsMaps.Native.Browser.ie && !jsMaps.Native.Browser.pointer) {
         if (string == "grab")
             object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")
