@@ -4,7 +4,7 @@
  * native map: basic pointer events support, the map should work fine on ie10+
  * native map: adding grab and grabbing cursors on the map for dragging effects
  * native map: when the left button is not clicked dont drag the map.
- * native map: editable vector markers should respond on the first touch
+ * native map: editable vector markers should respond on the first touch (bugfix)
 
 ## 0.0.11 - 2016-02-05
  * native map: circle is editable 
