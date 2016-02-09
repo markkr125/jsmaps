@@ -136,6 +136,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             evt.returnValue = false; // The IE way
         }
 
+        jsMaps.Native.Dom.addClass(document.body,'jsMaps-Native-no-scroll');
+
         this.moving = this.center();
         this.moveAnimationBlocked = true;
 
@@ -254,6 +256,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             evt.returnValue = false;
         }
         this.prevxy = {x:0,y:0};
+
+        jsMaps.Native.Dom.removeClass(document.body,'jsMaps-Native-no-scroll');
 
         var steps = 20;
         for (var i = 1; i <= steps; i++) {
@@ -2188,7 +2192,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     var w;
 
-    if (jsMaps.Native.Browser.ie) {
+    if (jsMaps.Native.Browser.ielt9) {
         w = map;
     } else {
         w = window;

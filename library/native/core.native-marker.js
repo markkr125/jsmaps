@@ -303,17 +303,6 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
     /**
      * Execute the callback functions.
      */
-    this._executeClickCallbackFunctions = function () {
-        var that = this;
-        for (var i = 0; i < this.callbackFunctions.length; i++) {
-            this.callbackClickFunctions[i].call(that);
-        }
-    };
-
-
-    /**
-     * Execute the callback functions.
-     */
     this._executeCallbackMoveFunctions = function () {
         var that = this;
         for (var i = 0; i < this.callbackMoveFunctions.length; i++) {
@@ -510,10 +499,12 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
      * touchstart function
      */
     this._touchstart = function (evt) {
-        //alert("start");
         if (evt.touches.length == 1) {		// marker only movable, when 1 finger applied, 2 fingers used for zooming
             this.moving = true;
             jsMaps.Native.Event.trigger(this.marker,jsMaps.api.supported_events.dragstart);
+
+            jsMaps.Native.Event.preventDefault(evt);
+            jsMaps.Native.Event.stopPropagation(evt);
 
             this.touchx = this.marker.offsetLeft - this.mapObj.pageX(evt.touches[0]);
             this.touchy = this.marker.offsetTop - this.mapObj.pageY(evt.touches[0]);
@@ -538,19 +529,17 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
 
             this.x = this.mapObj.pageX(evt.touches[0]) + this.touchx + this.dx;
             this.y = this.mapObj.pageY(evt.touches[0]) + this.touchy + this.dy;
+
             this.position.lat = this.mapObj.XYTolatlng(this.x, this.y).lat;
             this.position.lng = this.mapObj.XYTolatlng(this.x, this.y).lng;
+
             this.render();
             this._executeCallbackMoveFunctions();
 
             if (!this.clicked) {	//only suppress, when no click-handler added
                 // stop event from being passed to map
                 // to avoid moving the map when dragging a marker
-                if (evt.stopPropagation) {
-                    evt.stopPropagation(); // The W3C DOM way
-                } else {
-                    window.event.cancelBubble = true; // The IE way
-                }
+                jsMaps.Native.Event.stopPropagation(evt);
             }
 
             // touched marker comes to foreground, seen at Google Maps

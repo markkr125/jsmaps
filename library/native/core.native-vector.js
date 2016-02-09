@@ -345,6 +345,10 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         if (this.markers.length > 0) {
             for (var o in this.markers) {
                 if (this.markers.hasOwnProperty(o) == false) continue;
+                if (this.markers[o].moving == true) {
+                    this.markers[o].setVisible(false);
+                    continue;
+                }
 
                 while (this.markers[o].marker.firstChild) {
                     this.markers[o].marker.removeChild(this.markers[o].marker.firstChild);
