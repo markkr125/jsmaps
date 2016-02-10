@@ -59,6 +59,8 @@ var touch = !phantomjs && (pointer || 'ontouchstart' in window ||
 jsMaps.Native.Browser = {
     ie: ie,
     ielt9: ie && !document.addEventListener,
+    ie11: ie && !(window.ActiveXObject),
+    edge: 'msLaunchUri' in navigator && !('documentMode' in document),
     webkit: webkit,
     gecko: gecko,
     android: ua.indexOf('android') !== -1,
@@ -93,8 +95,24 @@ jsMaps.Native.Array = function(a) {
     return r;
 };
 
+
 // Creates an object called "Event" if one doesn't already exist (IE).
+
 if (!jsMaps.Native.Event) jsMaps.Native.Event = {};
+
+jsMaps.Native.Event.leftClick = function(evt) {
+    var leftClick = false;
+    if (!evt) evt = window.event;
+    if (evt.which)  {
+        leftClick = (evt.which == 1);
+    }
+    else if (evt.button) {
+        leftClick = (evt.button == 0) || (evt.button == 1);
+    }
+
+    return leftClick;
+};
+
 
 jsMaps.Native.Event.stopPropagation = function (evt) {
     if (evt.stopPropagation) {

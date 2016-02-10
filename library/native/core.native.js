@@ -356,6 +356,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.discretZoom(1, this.pageX(evt), this.pageY(evt));
     };
 
+    this.leftClick = null;
+
     this.mousedown = function (evt) {
         this.mapParent.focus();
         if (evt.preventDefault) {
@@ -363,6 +365,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         } else {
             window.returnValue = false; // The IE way
         }
+
+        if (jsMaps.Native.Browser.ie) this.leftClick = true;
 
         this.lastMouseX = this.pageX(evt);
         this.lastMouseY = this.pageY(evt);
@@ -412,12 +416,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }
 
 
-        var leftClick = false;
-        if (!evt) evt = window.event;
-        if (evt.which)  leftClick = (evt.which == 1);
-        else if (evt.button) leftClick = (evt.button == 0) || (evt.button == 1);
+        var leftClick = jsMaps.Native.Event.leftClick(evt);
 
-        if (leftClick == false) {
+        if (leftClick == false || (this.leftClick !== null && this.leftClick == false)) {
+            this.movestarted = false;
             jsMaps.Native.setCursor(this.clone,"grab");
             return;
         }
@@ -2192,8 +2194,15 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     var w;
 
-    if (jsMaps.Native.Browser.ielt9) {
+    if (jsMaps.Native.Browser.ie
+        && !jsMaps.Native.Browser.ie11) {
         w = map;
+
+        jsMaps.Native.Event.attach(document.documentElement, "mouseup", function (e) {
+            this.leftClick = false;
+        }, this, false);
+
+        jsMaps.Native.Event.attach(document.documentElement, "mousemove", this.mousemove, this, false);
     } else {
         w = window;
         jsMaps.Native.Event.attach(window, "resize", this.setMapPosition, this, false);
