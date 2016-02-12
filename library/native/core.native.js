@@ -613,18 +613,17 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
         this.zoomActive  = true;
 
-        this.discretZoomBlockedTimeout = setTimeout(func, 400);
+        setTimeout(func, 400);
         this.discretZoomBlocked = true;
 
         var steps = 20;
-        for (var i = 1; i <= steps; i++) {
+        for (var i = 1; i <= 20; i++) {
             if (this.zoomTimeouts[i]) {
                 clearTimeout(this.zoomTimeouts[i]);
             }
         }
         var start = this.zoom();
         var end = (direction == 1) ? Math.ceil(this.zoom() + 0.9): Math.floor(this.zoom() - 0.9);
-        var q;
 
         if (direction == -1) {
             for (q in this.layers) {
@@ -1554,7 +1553,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     var img = document.createElement("img");
                     img.style.visibility = "hidden";
 
-                    if (this.discretZoomBlocked == true) {
+                    if ((this.discretZoomBlocked == true || this.zoomActive == true || this.wheeling == true || this.movestarted == false)) {
                         jsMaps.Native.Dom.addClass(img,'map-image no-anim');
                     } else {
                         jsMaps.Native.Dom.addClass(img,'map-image');
