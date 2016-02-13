@@ -74,6 +74,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
                 this.vectorEl.width = this.theMap.mapsize.width;
                 this.vectorEl.height = this.theMap.mapsize.height;
+                this.vectorEl.setAttribute("viewBox","0 0 "+this.theMap.mapsize.width+" "+this.theMap.mapsize.height);
                 break;
             case jsMaps.Native.Vector.vml:
                 if(document.namespaces){
@@ -193,6 +194,8 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         if (this._vectorNumber ==  0) {
             this.vectorEl.style.width = this.theMap.mapsize.width + "px";
             this.vectorEl.style.height = this.theMap.mapsize.height + "px";
+
+            this.vectorEl.setAttribute("viewBox","0 0 "+this.theMap.mapsize.width+" "+this.theMap.mapsize.height);
 
             this.vectorEl.points = undefined;
         }
