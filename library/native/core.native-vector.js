@@ -395,6 +395,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     };
 
     this._attachMarkers = function () {
+        if (this.moving) return;
         this._removeMarkers();
 
         if (this._vectorOptions.editable) {
@@ -730,6 +731,8 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
     this._mousemove = function (evt) {
         if (this.moving) {
             var useEvt = (typeof evt.touches!='undefined' && typeof evt.touches[0] !='undefined') ? evt.touches[0] : evt;
+
+            this._removeMarkers();
 
             var x = this.theMap.pageX(useEvt);
             var y = this.theMap.pageY(useEvt);
