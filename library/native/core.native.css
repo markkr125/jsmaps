@@ -237,6 +237,21 @@
     position: absolute;
 }
 
+.jsMaps-Native .layer-div{
+    position: relative;
+    will-change: transform;
+
+    transform: translateZ(0px);
+    -o-transform: translateZ(0px);
+    -ms-transform: translateZ(0px);
+    -moz-transform: translateZ(0px);
+    -webkit-transform: translateZ(0px);
+
+    transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+}
+
 .jsMaps-Native .jsMaps-Native-Box {
     position: relative;
     top: 0;

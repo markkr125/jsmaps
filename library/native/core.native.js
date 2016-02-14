@@ -1435,10 +1435,11 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             this.layers[intZoom]["startLat"] = lat2y(lat);
             this.layers[intZoom]["startLng"] = lng;
             this.layers[intZoom]["images"] = {};
-            layerDiv = document.createElement("div");
 
+            layerDiv = document.createElement("div");
             layerDiv.setAttribute("zoomlevel", intZoom);
-            layerDiv.style.position = "relative";
+
+            jsMaps.Native.Dom.addClass(layerDiv,'layer-div');
 
             //higher zoomlevels are places in front of lower zoomleves.
             //no z-index in use.  z-index could give unwanted side effects to you application if you use this lib.
