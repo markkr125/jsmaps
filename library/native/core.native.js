@@ -2216,7 +2216,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     jsMaps.Native.Event.attach(w, "mousemove", this.mousemove, this, false);
     jsMaps.Native.Event.attach(map, "mousedown", this.mousedown, this, false);
     jsMaps.Native.Event.attach(w, "mouseup", this.mouseup, this, false);
-    jsMaps.Native.Event.attach(w, "orientationchange", this.reSize, this, false);
+    jsMaps.Native.Event.attach(w, "orientationchange", this.redraw, this, false);
 
     if (options.mouse_scroll) jsMaps.Native.Event.attach(map, "DOMMouseScroll", this.mousewheel, this, false);
 
