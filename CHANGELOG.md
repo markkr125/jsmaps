@@ -5,8 +5,10 @@
  * native map: adding grab and grabbing cursors on the map for dragging effects
  * native map: when the left button is not clicked dont drag the map.
  * native map: remove editable markers when a vector is moving, and put then back only when dragging is done, this solves slow dragging on old ie (bugfix)
- * native map: editable vector markers should respond on the first touch (bugfix)
- * native map: vectors should not move around on map resize with svg backend (bugfix)
+ * native map: editable vector markers should respond on the first touch
+ * native map: vectors should not move around on map resize with svg backend
+ * native map: vectors should be properly draggable after orientationchange event 
+ * native map: Mouse scroll should work fine with a small map 
  
 ## 0.0.11 - 2016-02-05
  * native map: circle is editable 

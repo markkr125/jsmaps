@@ -327,7 +327,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
      */
     this.pageX = function (evt) {
         try {
-            var px = (evt.pageX === undefined) ? evt.clientX + document.body.scrollLeft: evt.pageX;
+            var px = (evt.pageX === undefined) ? evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft: evt.pageX;
             return px - this.mapLeft;
         } catch (e) {
             return this.lastMouseX;
@@ -343,7 +343,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
      */
     this.pageY = function (evt) {
         try {
-            var py = (evt.pageY === undefined) ? evt.clientY + document.body.scrollTop: evt.pageY;
+            var py = (evt.pageY === undefined) ? evt.clientY + document.body.scrollTop + document.documentElement.scrollTop: evt.pageY;
             return py - this.mapTop;
         } catch (e) {
             return this.lastMouseY;
@@ -1867,7 +1867,6 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     this.lng = center.lng;
 
                     this.position.zoom = this.getZoom();
-                    //this.centerAndZoom(this.getCenter(),this.getZoom());
                 }
 
                 this.wheeling = false;
@@ -1950,6 +1949,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         //this method is very slow in 2010 browsers
         var el = this.mapParent;
 
+        var bodyRect = document.body.getBoundingClientRect();
         var size1= el.getBoundingClientRect();
 
         var height = (size1.height) ? size1.height: size1.bottom - size1.top;
@@ -1959,12 +1959,12 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (parseInt(width) === parseInt(document.body.clientWidth) && parseInt(height) === parseInt(document.body.clientHeight)) document.body.style.overflow = "hidden";
 
         return {
-            top : size1.top - document.body.scrollTop,
-            left : size1.left - document.body.scrollLeft,
+            top : size1.top - bodyRect.top,
+            left : size1.left - bodyRect.left,
             width : width,
             height : height,
-            deltaTop : size1.top - document.body.scrollTop,
-            deltaLeft : size1.left - document.body.scrollLeft,
+            deltaTop : size1.top - bodyRect.top,
+            deltaLeft : size1.left - bodyRect.left,
             deltaBottom : size1.bottom,
             deltaRight : size1.right
         };
@@ -2205,8 +2205,9 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         jsMaps.Native.Event.attach(document.documentElement, "mousemove", this.mousemove, this, false);
     } else {
         w = window;
-        jsMaps.Native.Event.attach(window, "resize", this.setMapPosition, this, false);
     }
+
+    jsMaps.Native.Event.attach(window, "resize", this.setMapPosition, this, false);
 
     if (navigator.userAgent.indexOf("Konqueror") != -1) w = map;
 
