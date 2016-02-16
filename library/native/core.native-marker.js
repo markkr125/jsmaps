@@ -684,12 +684,24 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
     var mapMoveSpeedX = 1;
     var mapMoveSpeedY = 1;
     var mapMoveMaxSpeed = 10;
+
+    this._vectorMovement = function (x,y) {
+        if (typeof this.vectorObject != 'undefined') {
+            this.position.lat = this.mapObj.XYTolatlng(this.x, this.y).lat;
+            this.position.lng = this.mapObj.XYTolatlng(this.x, this.y).lng;
+
+            // ugly hack, but will do for now
+            this.vectorObject.theMap.finalDraw = true;
+        }
+    };
+
     /**
      * move map when dragging marker to the edge
      * speed depending on distance to edge, the nearer, the faster
      */
     this._mousemoveMap = function () {
         var that = this;
+
         // move left
         if (this.mapObj.latlngToXY(this.position)["x"] < this.mapObj.size.width / 10) {
             mapMoveSpeedX = (1 - (this.mapObj.latlngToXY(this.position)["x"] / (this.mapObj.size.width / 10))) * mapMoveMaxSpeed;
@@ -699,6 +711,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.latlngToXY(this.position)["y"] / (this.mapObj.size.height / 10))) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(mapMoveSpeedX, mapMoveSpeedY);
+                    that._vectorMovement(mapMoveSpeedX, mapMoveSpeedY);
                 }, 10);
             }
             // move left down
@@ -707,6 +720,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.size.height - this.mapObj.latlngToXY(this.position)["y"]) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
+                    that._vectorMovement(mapMoveSpeedX, -mapMoveSpeedY);
                 }, 10);
             }
             // move left
@@ -714,6 +728,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 window.clearInterval(this.mapmoveInterval);
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(mapMoveSpeedX, 0);
+                    that._vectorMovement(mapMoveSpeedX, 0);
                 }, 10);
             }
         }
@@ -726,6 +741,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.latlngToXY(this.position)["y"] / (this.mapObj.size.height / 10))) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
+                    that._vectorMovement(-mapMoveSpeedX, mapMoveSpeedY);
                 }, 10);
             }
             // move right down
@@ -734,6 +750,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.size.height - this.mapObj.latlngToXY(this.position)["y"]) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
+                    that._vectorMovement(-mapMoveSpeedX, -mapMoveSpeedY);
                 }, 10);
             }
             // move right
@@ -742,6 +759,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
 
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(-mapMoveSpeedX, 0);
+                    that._vectorMovement(-mapMoveSpeedX, 0);
                 }, 10);
             }
         }
@@ -752,6 +770,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.latlngToXY(this.position)["y"] / (this.mapObj.size.height / 10))) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(0, mapMoveSpeedY);
+                    that._vectorMovement();
                 }, 10);
             }
             // move down
@@ -760,6 +779,7 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
                 mapMoveSpeedY = (1 - (this.mapObj.size.height - this.mapObj.latlngToXY(this.position)["y"]) / (this.mapObj.size.height / 10)) * mapMoveMaxSpeed;
                 this.mapmoveInterval = window.setInterval(function () {
                     that.mapObj.moveXY(0, -mapMoveSpeedY);
+                    that._vectorMovement();
                 }, 10);
             }
             // stop moving

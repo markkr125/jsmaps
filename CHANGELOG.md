@@ -10,6 +10,7 @@
  * native map: vectors should be properly draggable after orientationchange event 
  * native map: Mouse scroll should work fine with a small map 
  * native map: if the zoom ui is to big for the map viewport, the zoom handle will be hidden and only +/- buttons will be displayed
+ * native map: edit marker on vectors objects will resize the vector even if the marker is dragged outside of the map bounds
  
 ## 0.0.11 - 2016-02-05
  * native map: circle is editable 

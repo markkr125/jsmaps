@@ -999,7 +999,6 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
     this.render = function (overWrite) {
         if ((!this.theMap.finalDraw && overWrite != true && !this.moving) && this.theMap.movingVector == false) {
-
             if (typeof this.bounds == 'undefined') {
                 this.vectorEl.style.display = "none";
                 return;
