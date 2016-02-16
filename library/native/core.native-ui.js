@@ -211,7 +211,17 @@ jsMaps.Native.ZoomUI = function (themap) {
         return zoomLevels < Infinity ? zoomLevels : 0;
     };
 
-    this.zoomBar.style.height = (this.steps*this._zoomLevels())+"px";
+    var height = parseFloat(this.steps*this._zoomLevels());
+    this.zoomBar.style.height = (height)+"px";
+
+    var totalValue = parseInt((height / this.uiContainer.offsetHeight) * 100);
+
+    if (totalValue.toFixed(0) > 80) {
+        this.zoomBar.style.height = "2px";
+        this.scrollHandle.style.display = "none";
+    } else {
+        this.scrollHandle.style.display = "";
+    }
 
     this._cancelEvent = function(evt) {
         evt.cancelBubble = true;
