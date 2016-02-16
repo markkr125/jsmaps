@@ -1732,7 +1732,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (jsMaps.Native.Browser.ielt9) return;
 
         if (alpha > 0 && jsMaps.Native.Browser.any3d && jsMaps.Native.Utils.TRANSITION != false) {
-            div.style[jsMaps.Native.Utils.TRANSITION] = 'opacity 500ms ease-out';
+            div.style[jsMaps.Native.Utils.TRANSITION] = 'opacity '+((this.discretZoomBlocked)? '200ms':'500ms')+' ease-out';
             div.style.opacity = 0;
 
             var fn = function (evt) {
