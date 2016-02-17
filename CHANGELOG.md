@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.0.12 - ?
+## 0.0.14 - 2016-02-17
+ - Version bump due to meteor package generation
+ 
+ changes:
  * native map: basic pointer events support, the map should work fine on ie10+
  * native map: adding grab and grabbing cursors on the map for dragging effects
  * native map: when the left button is not clicked dont drag the map.
