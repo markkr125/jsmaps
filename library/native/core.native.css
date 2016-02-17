@@ -239,7 +239,7 @@
 
 .jsMaps-Native .layer-div{
     position: relative;
-    will-change: transform;
+    will-change: transform, opacity;
 
     transform: translateZ(0px);
     -o-transform: translateZ(0px);
