@@ -35,8 +35,6 @@ Package.onUse(function (api) {
         'library/native/core.native-marker.js',
         'library/native/core.native-ui.js',
         'library/native/core.native-vector.js',
-        'library/native/fist.cur',
-        'library/native/hand.cur',
         'library/yandex/core.yandex.js',
         'library/yandex/core.yandex-geocoder.js',
         'library/yandex/core.yandex-staticmap.js'
