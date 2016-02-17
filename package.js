@@ -6,7 +6,7 @@
 Package.describe({
     name: 'mark125:jsmaps',
     summary: 'A javascript map, and also with an abstraction layer for javascript mapping apis.',
-    version: '0.0.13',
+    version: '0.0.14',
     git: 'https://github.com/markkr125/jsmaps.git',
     documentation: 'README.md'
 });
@@ -14,7 +14,7 @@ Package.describe({
 Package.onUse(function (api) {
     api.versionsFrom(['METEOR@0.9.0', 'METEOR@1.0', 'METEOR@1.2']);
 
-    var files = [
+    var assets = [
         'library/core.js',
         'library/core.abstract-helper.js',
         'library/core.abstract.js',
@@ -37,15 +37,15 @@ Package.onUse(function (api) {
         'library/native/core.native-vector.js',
         'library/yandex/core.yandex.js',
         'library/yandex/core.yandex-geocoder.js',
-        'library/yandex/core.yandex-staticmap.js'
-    ];
-
-    var assets = [
+        'library/yandex/core.yandex-staticmap.js',
         'library/native/hand.cur',
         'library/native/fist.cur'
     ];
 
-    api.addAssets(assets, 'client');
-    api.addFiles(files, 'client');
+    if (api.addAssets) {
+        api.addAssets(assets, 'client');
+    } else {
+        api.addFiles(assets, 'client', { isAsset: true });
+    }
 });
 
