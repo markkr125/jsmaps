@@ -19,6 +19,7 @@ Several installation options are available:
 * Install with [Bower](http://bower.io): `bower install jsmaps`.
 * Install with [npm](https://www.npmjs.com): `npm install jsmaps`.
 * Install with [NuGet](https://www.nuget.org): `Install-Package jsmaps`.
+* Install with [Meteor](https://www.meteor.com): `meteor add mark125:jsmaps`.
 
 ## Supported External APIs
 * [Google v3](https://developers.google.com/maps/)
