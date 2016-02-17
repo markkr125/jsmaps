@@ -13,5 +13,4 @@ Package.describe({
 
 Package.onUse(function (api) {
     api.versionsFrom('METEOR@1.0');
-    api.addFiles('library/', 'client', { isAsset: true });
 });
