@@ -367,6 +367,11 @@ jsMaps.Native.Overlay.Marker = function (MarkerOptions) {
         jsMaps.Native.Event.attach(w, "mousemove", this._mousemove, this, false);
         jsMaps.Native.Event.attach(w, "mouseup", this._mouseup, this, false);
 
+        jsMaps.Native.Event.attach(parent, "mouseup", this._mouseup, this, false);
+        jsMaps.Native.Event.attach(document.documentElement, "mouseup", this._mouseup, this, false);
+
+
+
         // fist-cursor
         jsMaps.Native.setCursor(this.mapObj.clone, "grabbing");
         this._setCursor("grabbing");

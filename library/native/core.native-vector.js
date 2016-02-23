@@ -698,6 +698,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         jsMaps.Native.Event.attach(w, "touchmove", this._mousemove, this, false);
         jsMaps.Native.Event.attach(w, "touchend", this._mouseup, this, false);
 
+        jsMaps.Native.Event.attach(parent, "mouseup", this._mouseup, this, false);
+        jsMaps.Native.Event.attach(document.documentElement, "mouseup", this._mouseup, this, false);
+
         jsMaps.Native.setCursor(this.vectorPath, "grabbing");
     };
 

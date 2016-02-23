@@ -2203,6 +2203,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }, this, false);
 
         jsMaps.Native.Event.attach(document.documentElement, "mousemove", this.mousemove, this, false);
+
+        jsMaps.Native.Event.attach(parent, "mouseup", function (e) {
+            this.leftClick = false;
+        }, this, false);
     } else {
         w = window;
     }
