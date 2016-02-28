@@ -127,6 +127,7 @@ jsMaps.Native.Dom = {
         if (object.className.indexOf(className)==-1) {
             object.className += " "+className;
             object.className = object.className.trim();
+            object.className = object.className.replace(/\s+/g, ' ');
         }
     },
 
@@ -134,6 +135,7 @@ jsMaps.Native.Dom = {
         if (object.className.indexOf(className)!=-1) {
             object.className = object.className.replace(className,"");
             object.className = object.className.replace(/"  "/g,"");
+            object.className = object.className.replace(/\s+/g, ' ');
         }
     }
 };
@@ -571,7 +573,7 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
     bounds1.sw().lat > bounds2.ne().lat || bounds1.ne().lat < bounds2.sw().lat);
 };
 
-if (jsMaps.Native.Browser.ie) {
+if (jsMaps.Native.Browser.ielt9) {
     jsMaps.Native.getScriptSource = function () {
         var scriptSource = (function () {
             var scripts = document.getElementsByTagName('script'),
@@ -604,7 +606,7 @@ if (jsMaps.Native.Browser.ie) {
 jsMaps.Native.setCursor = function (object, string) {
     if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
 
-    if (jsMaps.Native.Browser.ie) {
+    if (jsMaps.Native.Browser.ielt9) {
         if (string == "grab")
             object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")
@@ -613,21 +615,18 @@ jsMaps.Native.setCursor = function (object, string) {
             object.style.cursor = "pointer";
     }
     else {
-        object.style.cursor = "-moz-" + string;			// tested on firefox 3.6
-        if (object.style.cursor != "-moz-" + string) {
-            object.style.cursor = "-webkit-" + string;		// tested on safari 5 and chrome 12
-            if (object.style.cursor != "-webkit-" + string) {
-                object.style.cursor = "-ms-" + string;
-                if (object.style.cursor != "-ms-" + string) {		// missing, not sure if it works
-                    object.style.cursor = "-khtml-" + string;
-                    if (object.style.cursor != "-khtml-" + string) {		// missing, not sure if it works
-                        object.style.cursor = string;
-                        if (object.style.cursor != string) {
-                            object.style.cursor = "pointer";
-                        }
-                    }
-                }
-            }
+        if (string == "grab") {
+            jsMaps.Native.Dom.removeClass(object,'cursor-pointer');
+            jsMaps.Native.Dom.removeClass(object,'cursor-grabbing');
+            jsMaps.Native.Dom.addClass(object,'cursor-grab');
+        } else if (string == "grabbing"){
+            jsMaps.Native.Dom.removeClass(object,'cursor-pointer');
+            jsMaps.Native.Dom.addClass(object,'cursor-grabbing');
+            jsMaps.Native.Dom.removeClass(object,'cursor-grab');
+        } else {
+            jsMaps.Native.Dom.addClass(object,'cursor-pointer');
+            jsMaps.Native.Dom.removeClass(object,'cursor-grabbing');
+            jsMaps.Native.Dom.removeClass(object,'cursor-grab');
         }
     }
 
