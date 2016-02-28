@@ -141,6 +141,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.moving = this.center();
         this.moveAnimationBlocked = true;
 
+        clearTimeout(this.animateMoveTimeout);
+
         if (evt.touches.length == 1) {
             if (this.mousedownTime != null) {
                 var now = (new Date()).getTime();
@@ -281,8 +283,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
                 if (this.movestarted) {
                     if (this.moveAnimationBlocked == false) {
-                        var speedX = (this.lastMoveX - this.moveX) / timeDelta;
-                        var speedY = (this.lastMoveY - this.moveY) / timeDelta;
+                        var speedX = (this.lastMoveX - this.moveX);
+                        var speedY = (this.lastMoveY - this.moveY);
                         var maxSpeed = 200;
 
                         if (speedX > maxSpeed)speedX = maxSpeed;
@@ -290,9 +292,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         if (speedX < -maxSpeed)speedX = -maxSpeed;
                         if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                        if (Math.abs(speedX) > this.wheelSpeedConfig["animateMinSpeed"] || Math.abs(speedY) > this.wheelSpeedConfig["animateMinSpeed"]) {
-                            this.animateMove(speedX, speedY);
-                        }
+                        var factor=Math.pow(2,this.zoom());
+                        this.animateMove(speedX, speedY, factor);
                     }
                 }
             }
@@ -365,6 +366,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         } else {
             window.returnValue = false; // The IE way
         }
+
+        clearTimeout(this.animateMoveTimeout);
 
         if (jsMaps.Native.Browser.ie) this.leftClick = true;
 
@@ -497,17 +500,17 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
             if (this.movestarted) {
                 if (this.moveAnimationBlocked == false) {
-                    var speedX = (this.lastMoveX - this.moveX) / timeDelta;
-                    var speedY = (this.lastMoveY - this.moveY) / timeDelta;
+                    var speedX = (this.lastMoveX - this.moveX);
+                    var speedY = (this.lastMoveY - this.moveY);
                     var maxSpeed = 200;
+
                     if (speedX > maxSpeed)speedX = maxSpeed;
                     if (speedY > maxSpeed)speedY = maxSpeed;
                     if (speedX < -maxSpeed)speedX = -maxSpeed;
                     if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                    if (Math.abs(speedX) > this.wheelSpeedConfig["animateMinSpeed"] || Math.abs(speedY) > this.wheelSpeedConfig["animateMinSpeed"]) {
-                        this.animateMove(speedX, speedY);
-                    }
+                    var factor=Math.pow(2,this.zoom());
+                    this.animateMove(speedX, speedY,factor);
                 }
             }
         }
