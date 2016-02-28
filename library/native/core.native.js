@@ -2194,8 +2194,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     var w;
 
-    if (jsMaps.Native.Browser.ie
-        && !jsMaps.Native.Browser.ie11) {
+    if (jsMaps.Native.Browser.ie) {
         w = map;
 
         jsMaps.Native.Event.attach(document.documentElement, "mouseup", function (e) {
