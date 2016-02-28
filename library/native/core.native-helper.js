@@ -124,7 +124,7 @@ jsMaps.Native.Event.stopPropagation = function (evt) {
 
 jsMaps.Native.Dom = {
     addClass: function (object,className) {
-        if (object.className.indexOf(className)==-1) {
+        if (typeof object.className.indexOf == 'function' && object.className.indexOf(className)==-1) {
             object.className += " "+className;
             object.className = object.className.trim();
             object.className = object.className.replace(/\s+/g, ' ');
@@ -132,7 +132,7 @@ jsMaps.Native.Dom = {
     },
 
     removeClass: function (object,className) {
-        if (object.className.indexOf(className)!=-1) {
+        if (typeof object.className.indexOf == 'function' && object.className.indexOf(className)!=-1) {
             object.className = object.className.replace(className,"");
             object.className = object.className.replace(/"  "/g,"");
             object.className = object.className.replace(/\s+/g, ' ');
