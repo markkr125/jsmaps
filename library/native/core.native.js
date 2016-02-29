@@ -285,14 +285,14 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     if (this.moveAnimationBlocked == false) {
                         var speedX = (this.lastMoveX - this.moveX);
                         var speedY = (this.lastMoveY - this.moveY);
-                        var maxSpeed = 200;
+                        var maxSpeed = 0.7;
 
                         if (speedX > maxSpeed)speedX = maxSpeed;
                         if (speedY > maxSpeed)speedY = maxSpeed;
                         if (speedX < -maxSpeed)speedX = -maxSpeed;
                         if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                        var factor=Math.pow(2,this.zoom());
+                        var factor=128;
                         this.animateMove(speedX, speedY, factor);
                     }
                 }
@@ -502,14 +502,14 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                 if (this.moveAnimationBlocked == false) {
                     var speedX = (this.lastMoveX - this.moveX);
                     var speedY = (this.lastMoveY - this.moveY);
-                    var maxSpeed = 200;
+                    var maxSpeed = 0.2;
 
                     if (speedX > maxSpeed)speedX = maxSpeed;
                     if (speedY > maxSpeed)speedY = maxSpeed;
                     if (speedX < -maxSpeed)speedX = -maxSpeed;
                     if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                    var factor=Math.pow(2,this.zoom());
+                    var factor=128;
                     this.animateMove(speedX, speedY,factor);
                 }
             }
@@ -697,8 +697,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         that = this;
 
         var speed=Math.sqrt(Math.pow(speedX,2) + Math.pow(speedY,2));
-        var fx=speedX/speed;
-        var fy=speedY/speed;
+        var fx=(speedX/speed);
+        var fy=(speedY/speed);
 
         var tempFunction = function() {
             var newSpeedX=speedX - fx*that.wheelSpeedConfig["moveAnimationSlowdown"]/faktor;
