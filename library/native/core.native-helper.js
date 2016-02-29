@@ -573,7 +573,7 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
     bounds1.sw().lat > bounds2.ne().lat || bounds1.ne().lat < bounds2.sw().lat);
 };
 
-if (jsMaps.Native.Browser.ielt9) {
+if (jsMaps.Native.Browser.ie) {
     jsMaps.Native.getScriptSource = function () {
         var scriptSource = (function () {
             var scripts = document.getElementsByTagName('script'),
@@ -606,7 +606,7 @@ if (jsMaps.Native.Browser.ielt9) {
 jsMaps.Native.setCursor = function (object, string) {
     if (typeof object.currentCursor != 'undefined' && object.currentCursor == string) return;
 
-    if (jsMaps.Native.Browser.ielt9) {
+    if (jsMaps.Native.Browser.ie) {
         if (string == "grab")
             object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
         else if (string == "grabbing")
