@@ -141,6 +141,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         this.moving = this.center();
         this.moveAnimationBlocked = true;
 
+        clearTimeout(this.animateMoveTimeout);
+
         if (evt.touches.length == 1) {
             if (this.mousedownTime != null) {
                 var now = (new Date()).getTime();
@@ -290,9 +292,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                         if (speedX < -maxSpeed)speedX = -maxSpeed;
                         if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                        if (Math.abs(speedX) > this.wheelSpeedConfig["animateMinSpeed"] || Math.abs(speedY) > this.wheelSpeedConfig["animateMinSpeed"]) {
-                            this.animateMove(speedX, speedY);
-                        }
+                        this.animateMove(speedX, speedY);
                     }
                 }
             }
@@ -379,7 +379,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             }
         }
         this.mousedownTime2 = (new Date()).getTime();
-
+        clearTimeout(this.animateMoveTimeout);
 
         if (evt.shiftKey) {
             this.selectRectLeft = this.pageX(evt);
@@ -490,6 +490,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             this.selectRect = null;
         }
 
+        clearTimeout(this.animateMoveTimeout);
+
         // using this normalize some things are working better, others not so good.
         // delete it will solve some problems but bring other problems
         var now = new Date(evt.timeStamp);
@@ -500,14 +502,13 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
                     var speedX = (this.lastMoveX - this.moveX) / timeDelta;
                     var speedY = (this.lastMoveY - this.moveY) / timeDelta;
                     var maxSpeed = 200;
+
                     if (speedX > maxSpeed)speedX = maxSpeed;
                     if (speedY > maxSpeed)speedY = maxSpeed;
                     if (speedX < -maxSpeed)speedX = -maxSpeed;
                     if (speedY < -maxSpeed)speedY = -maxSpeed;
 
-                    if (Math.abs(speedX) > this.wheelSpeedConfig["animateMinSpeed"] || Math.abs(speedY) > this.wheelSpeedConfig["animateMinSpeed"]) {
-                        this.animateMove(speedX, speedY);
-                    }
+                    this.animateMove(speedX, speedY);
                 }
             }
         }
@@ -2101,7 +2102,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.wheelSpeedConfig["maxSpeed"] = 2;
 
     this.wheelSpeedConfig["digizoom"] = true;
-    this.wheelSpeedConfig["zoomAnimationSlowdown"] = 0.05;
+    this.wheelSpeedConfig["zoomAnimationSlowdown"] = 0.02;
     this.wheelSpeedConfig["animationFPS"] = 100;
     this.wheelSpeedConfig["moveAnimateDesktop"] = true;
     this.wheelSpeedConfig["moveAnimationSlowdown"] = 0.4;
