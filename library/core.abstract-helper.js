@@ -458,6 +458,7 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
     var mapMoveSpeedY = 1;
     var mapMoveMaxSpeed = 20;
     var hasObject = (typeof attachedObject != 'undefined');
+    var that = this;
 
     // move left
     if (xy["x"] < viewPort.width / 10) {
@@ -468,6 +469,11 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
+
                 mapObject.moveXY(mapMoveSpeedX, mapMoveSpeedY);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
@@ -478,6 +484,11 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
+
                 mapObject.moveXY(mapMoveSpeedX, -mapMoveSpeedY);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
@@ -487,6 +498,10 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
         else {
             window.clearInterval(this.mapmoveInterval);
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
                 mapObject.moveXY(mapMoveSpeedX, 0);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]-mapMoveSpeedX,y:  xy["y"]});
@@ -501,6 +516,10 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
                 mapObject.moveXY(-mapMoveSpeedX, mapMoveSpeedY);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]-mapMoveSpeedY});
@@ -511,6 +530,10 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
                 mapObject.moveXY(-mapMoveSpeedX, -mapMoveSpeedY);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]+mapMoveSpeedY});
@@ -521,6 +544,10 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
 
             this.mapmoveInterval = window.setInterval(function () {
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
                 mapObject.moveXY(-mapMoveSpeedX, 0);
 
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"]+mapMoveSpeedX,y:  xy["y"]});
@@ -533,8 +560,12 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (xy["y"] / (viewPort.height / 10))) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(0, mapMoveSpeedY);
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
 
+                mapObject.moveXY(0, mapMoveSpeedY);
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"],y:  xy["y"]-mapMoveSpeedY});
             }, 10);
         }
@@ -543,8 +574,12 @@ jsMaps.moveMap = function (mapObject,xy,attachedObject) {
             window.clearInterval(this.mapmoveInterval);
             mapMoveSpeedY = (1 - (viewPort.height - xy["y"]) / (viewPort.height / 10)) * mapMoveMaxSpeed;
             this.mapmoveInterval = window.setInterval(function () {
-                mapObject.moveXY(0, -mapMoveSpeedY);
+                if (hasObject && typeof attachedObject.moving != 'undefined' && attachedObject.moving == false) {
+                    window.clearInterval(that.mapmoveInterval);
+                    return;
+                }
 
+                mapObject.moveXY(0, -mapMoveSpeedY);
                 if (hasObject) jsMaps.vectorPosition(mapObject,attachedObject,{x: xy["x"],y:  xy["y"]+mapMoveSpeedY});
             }, 10);
         }
