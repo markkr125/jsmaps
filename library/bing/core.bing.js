@@ -197,8 +197,11 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
                 mapObject = content.object;
             }
 
-            var latLng = mapObject.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
+            if (typeof content.__className != 'undefined' && content.__className == 'marker') {
+                return content.getPosition();
+            }
 
+            var latLng = mapObject.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
             return  {lat: latLng.latitude, lng: latLng.longitude};
         };
 
@@ -332,6 +335,7 @@ jsMaps.Bing.prototype.marker = function (map,parameters) {
 
     hooking.prototype.object = marker;
     hooking.prototype.map = map;
+    hooking.prototype.__className = 'marker';
 
     /**
      *
