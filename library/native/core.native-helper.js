@@ -572,7 +572,7 @@ jsMaps.Native.overlaps = function(bounds1, bounds2) {
     return !(bounds1.sw().lng > bounds2.ne().lng || bounds1.ne().lng < bounds2.sw().lng ||
     bounds1.sw().lat > bounds2.ne().lat || bounds1.ne().lat < bounds2.sw().lat);
 };
-
+/*
 if (jsMaps.Native.Browser.ie) {
     jsMaps.Native.getScriptSource = function () {
         var scriptSource = (function () {
@@ -594,7 +594,7 @@ if (jsMaps.Native.Browser.ie) {
 
     jsMaps.Native.scriptSource = jsMaps.Native.getScriptSource();
 }
-
+*/
 /**
  * @function
  * @param {Object} object DOM-Element to apply the style="cursor: ....." argument on
@@ -608,9 +608,9 @@ jsMaps.Native.setCursor = function (object, string) {
 
     if (jsMaps.Native.Browser.ie) {
         if (string == "grab")
-            object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/hand.cur'), default";
+            object.style.cursor = "url('http://jsmaps.net/resources/hand.cur'), default";
         else if (string == "grabbing")
-            object.style.cursor = "url('"+jsMaps.Native.scriptSource+"/fist.cur'), move";
+            object.style.cursor = "url('http://jsmaps.net/resources/fist.cur'), move";
         else
             object.style.cursor = "pointer";
     }
