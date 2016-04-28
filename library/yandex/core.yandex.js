@@ -62,6 +62,48 @@ jsMaps.Yandex.prototype.initializeMap = function (mapDomDocument, options, provi
         return this.object.container.getElement()
     };
 
+    hooking.prototype.setPropOption = function (type,option,setting) {
+        if (type == 'controls') {
+            if (setting === false) {
+                this.object.controls.remove(option);
+            } else if (setting === true) {
+                this.object.controls.add(option);
+            }
+        }
+
+        if (type == 'behaviors') {
+            if (setting === false) {
+                this.object.behaviors.disable(option);
+            } else if (setting === true) {
+                this.object.behaviors.enable(option);
+            }
+        }
+    };
+
+    /**
+     *
+     * @param {jsMaps.api.options} options
+     */
+    hooking.prototype.setOptions = function (options) {
+        ymaps.ready(function () {
+            var opts = {};
+
+            if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') {
+                this.setCenter(options.center.latitude,options.center.longitude);
+            }
+
+            if (typeof options.zoom != 'undefined') {
+                this.setZoom(options.zoom);
+            }
+
+            if (typeof options.zoom_control != 'undefined') this.setPropOption('controls','zoomControl',options.zoom_control);
+            if (typeof options.map_type != 'undefined') this.setPropOption('controls','typeSelector',options.map_type);
+            if (typeof options.scale_control != 'undefined') this.setPropOption('controls','rulerControl',options.scale_control);
+
+            if (typeof options.mouse_scroll != 'undefined') this.setPropOption('behaviors','scrollZoom',options.mouse_scroll);
+        }, this);
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         ymaps.ready(function () {
             if (flag) {

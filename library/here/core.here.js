@@ -45,6 +45,7 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
     jsMaps.Here.MapZoom = options.zoom;
 
     if ( options.street_view == true)  ui.getControl('panorama').setVisibility(options.street_view);
+    ui.getControl('scalebar').setVisibility(options.scale_control);
 
     map.addEventListener('mapviewchangeend', function(evt) {
         jsMaps.Here.MapZoom = this.getZoom();
@@ -65,6 +66,38 @@ jsMaps.Here.prototype.initializeMap = function (mapDomDocument, options, provide
 
     hooking.prototype.getElement = function () {
         return this.object.map.getElement();
+    };
+
+    /**
+     *
+     * @param {jsMaps.api.options} options
+     */
+    hooking.prototype.setOptions = function (options) {
+        if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') {
+            jsMaps.Here.MapCenter.lat = options.center.latitude;
+            jsMaps.Here.MapCenter.lng = options.center.longitude;
+
+            this.object.map.setCenter({lat:options.center.latitude, lng: options.center.longitude});
+        }
+
+        if (typeof options.zoom != 'undefined') {
+            jsMaps.Here.MapZoom = options.zoom;
+            this.object.map.setZoom(options.zoom);
+        }
+
+        if (typeof options.mouse_scroll != 'undefined') {
+            if (options.mouse_scroll == false) {
+                this.object.behavior.disable(H.mapevents.Behavior.WHEELZOOM);
+            } else {
+                this.object.behavior.enable(H.mapevents.Behavior.WHEELZOOM);
+            }
+        }
+
+        if (typeof options.zoom_control != 'undefined') this.object.ui.getControl('zoom').setVisibility(options.zoom_control);
+        if (typeof options.map_type != 'undefined') this.object.ui.getControl('mapsettings').setVisibility(options.map_type);
+
+        if (typeof options.scale_control != 'undefined') this.object.ui.getControl('scalebar').setVisibility(options.scale_control);
+        if (typeof options.street_view != 'undefined') this.object.ui.getControl('panorama').setVisibility(options.street_view);
     };
 
     hooking.prototype.getViewPort = function () {

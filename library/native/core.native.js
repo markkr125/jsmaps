@@ -37,6 +37,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
             obj.init(this);
         }
         this.renderOverlay(obj);
+
+        return obj;
     };
 
     this.renderOverlay = function (obj) {
@@ -97,7 +99,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         for (var i = 0; i < this.overlays.length; i++) {
             var overlay = this.overlays[i];
             if (ov == overlay) {
-                ov.clear();
+                if (typeof ov.clear != 'undefined') {
+                    ov.clear();
+                }
+
                 this.overlays.splice(i, 1);
                 break;
             }
@@ -542,6 +547,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         } else {
             evt.returnValue = false; // The IE way
         }
+
+        if (this.mousewheelEnabled == false) return;
 
         this.mapParent.focus();
         this.zoomActive  = true;
@@ -2059,8 +2066,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
         }
     };
 
+    this.scaleEnabled = options.scale_control;
+
     this.scaleDivExec = function () {
-        if (options.scale_control) {
+        if (this.scaleEnabled) {
             jsMaps.Native.ScaleUI.init(this);
             jsMaps.Native.ScaleUI._update();
         }
@@ -2120,8 +2129,12 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
     // Add the zoom ui
     this.uiContainer = false;
-    if (options.zoom_control) this.addOverlay(new jsMaps.Native.ZoomUI(this));
-    if (options.map_type) this.addOverlay(new jsMaps.Native.LayersUI(this,tileLayers));
+
+    this.zoomControl = null;
+    this.mapType = null;
+
+    if (options.zoom_control) this.zoomControl = this.addOverlay(new jsMaps.Native.ZoomUI(this));
+    if (options.map_type) this.mapType = this.addOverlay(new jsMaps.Native.LayersUI(this,tileLayers));
 
     this.clone = map.cloneNode(true); //clone is the same as the map div, but absolute positioned
     this.clone = document.createElement("div");
@@ -2191,7 +2204,10 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     this.zoomOutSpeed = 0.01;
     this.zoomOutInterval = null;
     this.zoomOutStarted = false;
+
     this.draggable = true;
+
+    this.mousewheelEnabled = options.mouse_scroll;
 
     var w;
 
@@ -2223,7 +2239,7 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     jsMaps.Native.Event.attach(w, "mouseup", this.mouseup, this, false);
     jsMaps.Native.Event.attach(w, "orientationchange", this.redraw, this, false);
 
-    if (options.mouse_scroll) jsMaps.Native.Event.attach(map, "DOMMouseScroll", this.mousewheel, this, false);
+    jsMaps.Native.Event.attach(map, "DOMMouseScroll", this.mousewheel, this, false);
 
     jsMaps.Native.Event.attach(map, "dblclick", this.doubleclick, this, false);
 
@@ -2249,7 +2265,48 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
     hooking.prototype.getElement = function () {
         return this.object.clone;
     };
+    /**
+     *
+     * @param {jsMaps.api.options} options
+     */
+    hooking.prototype.setOptions = function (options) {
+        if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') this.setCenter(options.center.latitude, options.center.longitude);
+        if (typeof options.zoom != 'undefined') this.setCenter(options.zoom);
 
+        if (typeof options.mouse_scroll != 'undefined') this.object.mousewheelEnabled = options.mouse_scroll;
+        if (typeof options.zoom_control != 'undefined') {
+            if (options.zoom_control == true && this.object.zoomControl == null){
+                this.object.zoomControl = this.object.addOverlay(new jsMaps.Native.ZoomUI(this.object));
+            } else if (options.zoom_control == false && this.object.zoomControl != null) {
+                this.object.removeOverlay(this.object.zoomControl);
+                this.object.zoomControl = null;
+            }
+        }
+
+        if (typeof options.map_type != 'undefined') {
+            if (options.map_type == true && this.object.mapType == null){
+                this.object.mapType = this.object.addOverlay(new jsMaps.Native.LayersUI(this.object,tileLayers))
+            } else if (options.map_type == false && this.object.mapType != null) {
+                this.object.removeOverlay(this.object.mapType);
+                this.object.mapType = null;
+            }
+        }
+
+        if (typeof options.scale_control != 'undefined') {
+            if (options.scale_control == true){
+                this.object.scaleEnabled  = true;
+
+                jsMaps.Native.ScaleUI.clear();
+
+                jsMaps.Native.ScaleUI.init(this.object);
+                jsMaps.Native.ScaleUI._update();
+            } else if (options.scale_control == false) {
+                this.object.scaleEnabled  = false;
+
+                jsMaps.Native.ScaleUI.clear();
+            }
+        }
+    };
 
     hooking.prototype.setDraggable = function (flag) {
         this.object.draggable = flag;

@@ -8,9 +8,14 @@
  */
 jsMaps.Native.ScaleUI = {
     /**
-     * @type  {HTMLElement}
+     * @type  {HTMLElement|boolean}
      */
     scaleMetricDiv: false,
+
+    /**
+     * @type  {HTMLElement|boolean}
+     */
+    scaleImperialDiv: false,
     mapObject: null,
     options: {
         metric: true,
@@ -24,6 +29,18 @@ jsMaps.Native.ScaleUI = {
 
             if (this.options.metric) this.scaleMetricDiv = jsMaps.Native.CreateDiv(this.mapObject.map.parentNode,'metric-scale');
             if (this.options.imperial) this.scaleImperialDiv = jsMaps.Native.CreateDiv(this.mapObject.map.parentNode,'metric-scale imperial-scale');
+        }
+    },
+
+    clear: function () {
+        if (this.scaleMetricDiv !== false) {
+            this.mapObject.map.parentNode.removeChild(this.scaleMetricDiv);
+            this.scaleMetricDiv = false;
+        }
+
+        if (this.scaleImperialDiv !== false) {
+            this.mapObject.map.parentNode.removeChild(this.scaleImperialDiv);
+            this.scaleImperialDiv = false;
         }
     },
 
@@ -128,6 +145,10 @@ jsMaps.Native.LayersUI = function (themap,tilesLayer) {
 
     };
 
+    this.clear = function () {
+        this.tilesUi.parentNode.removeChild(this.tilesUi);
+    };
+
     this._down = function(evt) {
         this._cancelEvent(evt);
         this._stopEventPropagation(evt);
@@ -205,6 +226,10 @@ jsMaps.Native.ZoomUI = function (themap) {
      * without stopping further propagation of the jsMaps.Native.Event.
      */
     this.moving=false;
+
+    this.clear = function () {
+        this.uiContainer.parentNode.removeChild(this.uiContainer);
+    };
 
     this._zoomLevels = function () {
         var zoomLevels = this.map.tileSource.maxzoom - this.map.tileSource.minzoom + 1;
