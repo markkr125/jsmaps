@@ -49,6 +49,24 @@ jsMaps.Google.prototype.initializeMap = function (mapDomDocument, options, provi
         return this.object.getDiv();
     };
 
+    /**
+     *
+     * @param {jsMaps.api.options} options
+     */
+    hooking.prototype.setOptions = function (options) {
+        var opts = {};
+
+        if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') opts.center = new google.maps.LatLng(options.center.latitude, options.center.longitude);
+        if (typeof options.zoom != 'undefined') opts.zoom = options.zoom;
+        if (typeof options.mouse_scroll != 'undefined') opts.scrollwheel = options.mouse_scroll;
+        if (typeof options.zoom_control != 'undefined') opts.zoomControl = options.zoom_control;
+        if (typeof options.map_type != 'undefined') opts.mapTypeControl = options.map_type;
+        if (typeof options.scale_control != 'undefined') opts.scaleControl = options.scale_control;
+        if (typeof options.street_view != 'undefined') opts.streetViewControl = options.street_view;
+
+        this.object.setOptions(opts);
+    };
+
     hooking.prototype.setDraggable = function (flag) {
         this.object.setOptions({draggable: flag});
     };

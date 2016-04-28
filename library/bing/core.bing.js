@@ -3,6 +3,15 @@ if (typeof jsMaps.Bing == 'undefined') {
     jsMaps.Bing.prototype = new jsMaps.Abstract();
 }
 
+jsMaps.Bing.hideMapZoom = function () {
+    var html = '<style type="text/css">.NavBar_zoomControlContainer .NavBar_zoomOut, .NavBar_zoomControlContainer .NavBar_zoomIn{display: none;} </style>';
+    var e = document.createElement('p');
+    e.setAttribute("data-temp-id","bing-zoom-hide");
+    e.innerHTML = html;
+
+    document.body.insertBefore(e, document.body.childNodes[0]);
+};
+
 /**
  * create the map
  *
@@ -24,11 +33,7 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
 
     // Currently there is no other way
     if (options.zoom_control == false) {
-        var html = '<style type="text/css">.NavBar_zoomControlContainer .NavBar_zoomOut, .NavBar_zoomControlContainer .NavBar_zoomIn{display: none;} </style>';
-        var e = document.createElement('p');
-        e.innerHTML = html;
-
-        document.body.insertBefore(e, document.body.childNodes[0]);
+        jsMaps.Bing.hideMapZoom();
     }
 
     if (typeof providerOptions != 'undefined') {
@@ -37,21 +42,26 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
 
     var map = new Microsoft.Maps.Map(mapDomDocument, myOptions);
 
-    // no other way to stop the scroll zoom
-    if (options.mouse_scroll == false) {
-        Microsoft.Maps.Events.addHandler(map, 'mousewheel', function(e) {
-            e.handled = true;
-            return true;
-        });
-    }
     var hooking = function() {};
+
+    hooking.prototype = new jsMaps.MapStructure();
     hooking.prototype.bounds = null;
 
 
-    hooking.prototype = new jsMaps.MapStructure();
     hooking.prototype.__className = 'MapStructure';
     hooking.prototype.object = map;
     hooking.prototype.draggable = true;
+
+    // no other way to stop the scroll zoom
+    if (options.mouse_scroll == false) {
+        hooking.prototype.mouseScroll = Microsoft.Maps.Events.addHandler(map, 'mousewheel', function(e) {
+            e.handled = true;
+            return true;
+        });
+    } else {
+        hooking.prototype.mouseScroll = true;
+    }
+
 
     hooking.prototype.getCenter = function () {
         var center = this.object.getCenter();
@@ -60,6 +70,51 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
 
     hooking.prototype.getElement = function () {
         return this.object.getRootElement();
+    };
+
+    /**
+     *
+     * @param {jsMaps.api.options} options
+     */
+    hooking.prototype.setOptions = function (options) {
+        if (
+            (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined')
+         || (typeof options.zoom != 'undefined')
+         || (typeof options.map_type != 'undefined')
+         || (typeof options.scale_control != 'undefined')
+        ) {
+            var opts = {};
+
+            if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') opts.center = new Microsoft.Maps.Location(options.center.latitude, options.center.longitude);
+            if (typeof options.zoom != 'undefined') opts.zoom = options.zoom;
+            if (typeof options.map_type != 'undefined') opts.showMapTypeSelector = options.map_type;
+            if (typeof options.scale_control != 'undefined') opts.showScalebar = options.scale_control;
+
+            this.object.setOptions(opts);
+        }
+
+
+        if (typeof options.zoom_control != 'undefined') {
+            var element = document.querySelector('[data-temp-id="bing-zoom-hide"]');
+
+            if (options.zoom_control == true && element != null) {
+                element.parentNode.removeChild(element);
+            } else if (options.zoom_control == false && element == null) {
+                jsMaps.Bing.hideMapZoom();
+            }
+        }
+
+        if (typeof options.mouse_scroll != 'undefined') {
+           if (options.mouse_scroll === false && this.mouseScroll === true) {
+               this.mouseScroll = Microsoft.Maps.Events.addHandler(this.object, 'mousewheel', function(e) {
+                   e.handled = true;
+                   return true;
+               });
+           } else if  (options.mouse_scroll === true && this.mouseScroll !== true) {
+               Microsoft.Maps.Events.removeHandler(this.mouseScroll);
+               this.mouseScroll = true;
+           }
+        }
     };
 
     hooking.prototype.setDraggable = function (flag) {

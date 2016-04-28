@@ -429,6 +429,14 @@ jsMaps.MapStructure = function () {
             return {x:0,y:0};
         },
 
+        /**
+         *
+         * @param {jsMaps.api.options} options
+         */
+        setOptions: function (options) {
+
+        },
+
         pointToLatLng: function (x, y) {
             return {lat:0,lng:0};
         },
