@@ -575,6 +575,19 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
+    /**
+     * @param {jsMaps.PolylineStyle} options
+     */
+    hooking.prototype._setStyle = function (options) {
+        var opts = {};
+        if (options.strokeColor != '') opts.strokeColor = options.strokeColor;
+        if (options.strokeOpacity != '') opts.strokeOpacity = options.strokeOpacity;
+        if (options.strokeWeight != '') opts.strokeWeight = options.strokeWeight;
+        if (options.zIndex != '') opts.zIndex = options.zIndex;
+
+        this.object.setOptions(opts);
+    };
+
     hooking.prototype.getPaths = function () {
         var arrayOfPaths = [];
         var path = this.object.getPaths().getArray();

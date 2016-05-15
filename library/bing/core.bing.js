@@ -581,6 +581,35 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
+    /**
+     * @param {jsMaps.PolylineStyle} options
+     */
+    hooking.prototype._setStyle = function (options) {
+        var opts = {};
+
+        if (options.strokeColor != '' || options.strokeOpacity != false) {
+            var currentColor = this.object.getStrokeColor();
+
+            var color,tempColor;
+
+            if (options.strokeColor!='' && options.strokeOpacity != '') {
+                tempColor = jsMaps.convertHex(options.strokeColor,options.strokeOpacity*100,true);
+                color = new Microsoft.Maps.Color((255*tempColor.opacity),tempColor.red,tempColor.greed,tempColor.blue);
+            } else if (options.strokeColor!='' && options.strokeOpacity == '') {
+                tempColor = jsMaps.convertHex(options.strokeColor,0,true);
+                color = new Microsoft.Maps.Color(255*currentColor.getOpacity(),tempColor.red,tempColor.greed,tempColor.blue);
+            } else if (options.strokeColor=='' && options.strokeOpacity != '') {
+                color = new Microsoft.Maps.Color((255*options.strokeOpacity),currentColor.r,currentColor.g,currentColor.b);
+            }
+
+            opts.strokeColor = color;
+        }
+
+        if (options.strokeWeight != '') opts.strokeThickness = options.strokeWeight;
+
+        this.object.setOptions(opts);
+    };
+
     hooking.prototype.getPaths = function () {
         return hooking.prototype.getPath();
     };

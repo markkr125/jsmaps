@@ -51,6 +51,47 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
+    hooking.prototype._setStyle = function (options) {
+        var opts = {};
+        var currentColor = this.object.getStyle().strokeColor;
+
+        if (options.strokeColor != '' || options.strokeOpacity != false) {
+
+            currentColor = currentColor.replace('rgba','');
+            currentColor = currentColor.replace('(','');
+            currentColor = currentColor.replace(')','');
+            currentColor = currentColor.split(',');
+
+            var _currentColor = jsMaps.convertRgb(parseInt(currentColor[0]),parseInt(currentColor[1]),parseInt(currentColor[2]));
+
+            var color,tempColor;
+
+            if (options.strokeColor!='' && options.strokeOpacity != '') {
+                color = jsMaps.convertHex(options.strokeColor,options.strokeOpacity*100);
+            } else if (options.strokeColor!='' && options.strokeOpacity == '') {
+                color = jsMaps.convertHex(options.strokeColor,parseFloat(currentColor[3])*100);
+            } else if (options.strokeColor=='' && options.strokeOpacity != '') {
+                color = jsMaps.convertHex(_currentColor,parseInt(options.strokeOpacity)*100);
+            }
+
+            opts.strokeColor = color;
+        } else {
+            opts.strokeColor = currentColor;
+        }
+
+        if (options.strokeWeight != '') {
+            opts.lineWidth = options.strokeWeight;
+        } else {
+            opts.lineWidth = this.object.getStyle().lineWidth;
+        }
+
+        if (options.zIndex != '') this.object.setZIndex(options.zIndex);
+
+        if (typeof opts.lineWidth != 'undefined' || typeof opts.strokeColor != 'undefined') {
+            this.object.setStyle(opts);
+        }
+    };
+
     hooking.prototype.getPaths = function () {
         return hooking.prototype.getPath();
     };

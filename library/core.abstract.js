@@ -240,6 +240,13 @@ jsMaps.PolygonOptions = function () {
     polygonId: ''}
 };
 
+jsMaps.PolylineStyle = function () {
+    return {strokeColor: '',
+    strokeOpacity: '',
+    strokeWeight: '',
+    zIndex: ''}
+};
+
 jsMaps.PolyLineStructure = function () {
     return {
         object: null,
@@ -258,6 +265,27 @@ jsMaps.PolyLineStructure = function () {
         },
 
         getVisible: function () {
+        },
+
+        /**
+         * @param {jsMaps.PolylineStyle} parameters
+
+         * @private
+         */
+        _setStyle: function (parameters) {
+        },
+
+        /**
+         * @param {jsMaps.PolylineStyle} parameters
+         */
+        setStyle: function (parameters) {
+            var options = new jsMaps.PolylineStyle();
+
+            if (typeof parameters != 'undefined') {
+                parameters = jsMaps.merge(options,parameters);
+            }
+
+            this._setStyle(parameters);
         },
 
         /**
@@ -811,6 +839,29 @@ jsMaps.convertHex = function (hex,opacity,returnArray){
     result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
     return result;
 };
+
+/**
+ * Thanks to:
+ * http://stackoverflow.com/a/5624139
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @returns {*}
+ */
+jsMaps.convertRgb = function (r,g,b){
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    return rgbToHex(r,g,b);
+};
+
 
 if (typeof Array.isArray === 'undefined') {
     Array.isArray = function(obj) {
