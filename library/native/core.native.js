@@ -2772,6 +2772,19 @@ jsMaps.Native.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
+    /**
+     * @param {jsMaps.PolylineStyle} options
+     */
+    hooking.prototype._setStyle = function (options) {
+        if (options.strokeColor != '') this.object._vectorOptions.stroke = options.strokeColor;
+        if (options.strokeOpacity != '') this.object._vectorOptions.strokeOpacity = options.strokeOpacity;
+        if (options.strokeWeight != '') this.object._vectorOptions.strokeWidth = options.strokeWeight;
+        if (options.zIndex != '') this.object._vectorOptions.zIndex = options.zIndex;
+
+        this.object._setStyle();
+        this.object.render(true);
+    };
+
     hooking.prototype.getVisible = function () {
         return this.object._vectorOptions.visible;
     };

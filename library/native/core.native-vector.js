@@ -122,6 +122,51 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         this._removeMarkers();
     };
 
+    this._setStyle = function () {
+        var opacity,fillOpacity,strokeOpacity,stroke,fill,strokeWidth,path;
+
+        opacity       = (this._vectorOptions.opacity)       ? this._vectorOptions.opacity: 1;
+        fillOpacity   = (this._vectorOptions.fillOpacity)   ? this._vectorOptions.fillOpacity: 1;
+        strokeOpacity = (this._vectorOptions.strokeOpacity) ? this._vectorOptions.strokeOpacity: 1;
+
+        strokeWidth = (this._vectorOptions.strokeWidth) ? this._vectorOptions.strokeWidth: 4;
+
+        switch (this._backend) {
+            case jsMaps.Native.Vector.svg:
+                stroke        = (this._vectorOptions.stroke)        ? jsMaps.convertHex(this._vectorOptions.stroke, 100 * strokeOpacity,false): '#FF0000';
+                fill          = (this._vectorOptions.fill)          ? jsMaps.convertHex(this._vectorOptions.fill, 100 * fillOpacity,false) : '';
+
+                if (this._vectorType == jsMaps.Native.Vector.elements.polygon || this._vectorType == jsMaps.Native.Vector.elements.circle) {
+                    this.vectorPath.setAttribute("fill", fill);
+                } else {
+                    this.vectorPath.setAttribute("fill", "none");
+                }
+
+                this.vectorPath.setAttribute("stroke",stroke);
+                this.vectorPath.setAttribute("stroke-width",strokeWidth);
+                break;
+            case jsMaps.Native.Vector.vml:
+                stroke        = (this._vectorOptions.stroke)        ? this._vectorOptions.stroke : '#FF0000';
+                fill          = (this._vectorOptions.fill)          ? this._vectorOptions.fill : '';
+
+                if (this._vectorType == jsMaps.Native.Vector.elements.polyLine || fill == ''){
+                    this.fillEl.setAttribute("on","false");
+                } else {
+                    this.fillEl.setAttribute("true","false");
+                    this.fillEl.setAttribute("color",fill);
+                    this.fillEl.setAttribute("opacity",fillOpacity);
+                }
+
+                this.strokeEl.setAttribute("opacity",strokeOpacity*100+'%');
+                this.strokeEl.setAttribute("color",stroke);
+                this.strokeEl.setAttribute("weight",strokeWidth+'px');
+
+                break;
+            default:
+                throw "Cannot init element, unknown backend " + this._backend;
+        }
+    };
+
     this._initElement = function () {
         var opacity,fillOpacity,strokeOpacity,stroke,fill,strokeWidth,path;
 
@@ -701,7 +746,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
         jsMaps.Native.Event.attach(parent, "mouseup", this._mouseup, this, false);
         jsMaps.Native.Event.attach(document.documentElement, "mouseup", this._mouseup, this, false);
 
-        jsMaps.Native.setCursor(this.vectorPath, "grabbing");
+        jsMaps.Native.setCursor(this.theMap.clone, "grabbing");
     };
 
     this._moveVector = function (point) {
@@ -788,7 +833,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
         if (this.moving == true) {
             this.moving = false;
-            jsMaps.Native.setCursor(this.vectorPath, "pointer");
+            jsMaps.Native.setCursor(this.theMap.clone, "pointer");
 
             // stop moving map
             mapMoveSpeed = 1;
@@ -903,12 +948,12 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
 
     this._makeMovable = function () {
         if (this._vectorOptions.draggable == true) {
-            jsMaps.Native.setCursor(this.vectorPath, "pointer");
+            jsMaps.Native.setCursor(this.theMap.clone, "pointer");
 
             jsMaps.Native.Event.attach(this.vectorPath, "mousedown", this._mousedown, this, false);
             jsMaps.Native.Event.attach(this.vectorPath, "touchstart", this._mousedown, this, false);
         } else {
-            jsMaps.Native.setCursor(this.vectorPath, "default");
+            jsMaps.Native.setCursor(this.theMap.clone, "default");
 
             jsMaps.Native.Event.attach(this.vectorPath, "touchstart", function () {
                 if (!this._vectorOptions.draggable) {
@@ -920,9 +965,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 if (!this._vectorOptions.draggable) {
                     // hand when clicked, otherwise finger
                     if (this.clicked == true)
-                        jsMaps.Native.setCursor(this.vectorPath,"grabbing");
+                        jsMaps.Native.setCursor(this.theMap.clone,"grabbing");
                     else
-                        jsMaps.Native.setCursor(this.vectorPath,"pointer");
+                        jsMaps.Native.setCursor(this.theMap.clone,"pointer");
                 }
             }, this, false);
 
@@ -937,9 +982,9 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 if (!this._vectorOptions.draggable) {
                     // hand when clicked, otherwise finger
                     if (this.clicked == true)
-                        jsMaps.Native.setCursor(this.vectorPath,"grabbing");
+                        jsMaps.Native.setCursor(this.theMap.clone,"grabbing");
                     else
-                        jsMaps.Native.setCursor(this.vectorPath,"pointer");
+                        jsMaps.Native.setCursor(this.theMap.clone,"pointer");
                 }
             }, this, false);
 
@@ -957,7 +1002,7 @@ jsMaps.Native.Overlay.Vector = function (vectorOptions, vectorPoints, vectorType
                 if (!this._vectorOptions.draggable) {
                     this.clicked = false;
                     // finger-cursor
-                    jsMaps.Native.setCursor(this.vectorPath,"pointer");
+                    jsMaps.Native.setCursor(this.theMap.clone,"pointer");
                 }
             }, this, false);
         }

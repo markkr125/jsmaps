@@ -712,6 +712,22 @@ jsMaps.Yandex.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
+    /**
+     * @param {jsMaps.PolylineStyle} options
+     */
+    hooking.prototype._setStyle = function (options) {
+        if (this.object == null) {
+            return;
+        }
+
+        ymaps.ready(function () {
+            if (options.strokeColor != '') this.object.options.set('strokeColor', options.strokeColor);
+            if (options.strokeOpacity != '') this.object.options.set('strokeOpacity', options.strokeOpacity);
+            if (options.strokeWeight != '') this.object.options.set('strokeWeight', options.strokeWeight);
+            if (options.zIndex != '') this.object.options.set('zIndex', options.zIndex);
+        }, this);
+    };
+
     hooking.prototype.getPaths = function () {
         if (this.object == null) {
             return parameters.path;
