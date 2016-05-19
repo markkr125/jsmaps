@@ -838,5 +838,12 @@ jsMaps.Google.prototype.circle = function (map,parameters) {
         this.object.setMap(null);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+
+    return object;
 };
