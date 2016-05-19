@@ -17,6 +17,21 @@ jsMaps.Native.MapCount = 0;
 jsMaps.Native.Overlay = {};
 
 /**
+ * @param {jsMaps.VectorStyle} options
+ */
+jsMaps.Native.VectorStyle =  function (options) {
+    if (options.strokeColor != '') this.object._vectorOptions.stroke = options.strokeColor;
+    if (options.strokeOpacity != '') this.object._vectorOptions.strokeOpacity = options.strokeOpacity;
+    if (options.strokeWeight != '') this.object._vectorOptions.strokeWidth = options.strokeWeight;
+    if (options.zIndex != '') this.object._vectorOptions.zIndex = options.zIndex;
+    if (options.fillColor != '') this.object._vectorOptions.fill = options.fillColor;
+    if (options.fillOpacity != '')  this.object._vectorOptions.fillOpacity=  options.fillOpacity;
+
+    this.object._setStyle();
+    this.object.render(true);
+};
+
+/**
  * create the map
  *
  * @param map
@@ -2772,19 +2787,6 @@ jsMaps.Native.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
-    /**
-     * @param {jsMaps.PolylineStyle} options
-     */
-    hooking.prototype._setStyle = function (options) {
-        if (options.strokeColor != '') this.object._vectorOptions.stroke = options.strokeColor;
-        if (options.strokeOpacity != '') this.object._vectorOptions.strokeOpacity = options.strokeOpacity;
-        if (options.strokeWeight != '') this.object._vectorOptions.strokeWidth = options.strokeWeight;
-        if (options.zIndex != '') this.object._vectorOptions.zIndex = options.zIndex;
-
-        this.object._setStyle();
-        this.object.render(true);
-    };
-
     hooking.prototype.getVisible = function () {
         return this.object._vectorOptions.visible;
     };
@@ -2824,7 +2826,13 @@ jsMaps.Native.prototype.polyLine = function (map,parameters) {
         this.object.destroy();
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    return object;
 };
 
 
@@ -2918,7 +2926,13 @@ jsMaps.Native.prototype.polygon = function (map,parameters) {
         this.object.destroy();
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    return object;
 };
 
 

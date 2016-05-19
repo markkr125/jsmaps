@@ -240,12 +240,16 @@ jsMaps.PolygonOptions = function () {
     polygonId: ''}
 };
 
-jsMaps.PolylineStyle = function () {
-    return {strokeColor: '',
-    strokeOpacity: '',
-    strokeWeight: '',
-    zIndex: ''}
+jsMaps.VectorStyle = function () {
+    return {
+        fillColor: '',
+        fillOpacity: '',
+        strokeColor: '',
+        strokeOpacity: '',
+        strokeWeight: '',
+        zIndex: ''}
 };
+
 
 jsMaps.PolyLineStructure = function () {
     return {
@@ -268,7 +272,7 @@ jsMaps.PolyLineStructure = function () {
         },
 
         /**
-         * @param {jsMaps.PolylineStyle} parameters
+         * @param {jsMaps.VectorStyle} parameters
 
          * @private
          */
@@ -276,10 +280,10 @@ jsMaps.PolyLineStructure = function () {
         },
 
         /**
-         * @param {jsMaps.PolylineStyle} parameters
+         * @param {jsMaps.VectorStyle} parameters
          */
         setStyle: function (parameters) {
-            var options = new jsMaps.PolylineStyle();
+            var options = new jsMaps.VectorStyle();
 
             if (typeof parameters != 'undefined') {
                 parameters = jsMaps.merge(options,parameters);
@@ -368,6 +372,27 @@ jsMaps.PolygonStructure = function () {
          */
         getPath: function () {
             return [];
+        },
+
+        /**
+         * @param {jsMaps.VectorStyle} parameters
+
+         * @private
+         */
+        _setStyle: function (parameters) {
+        },
+
+        /**
+         * @param {jsMaps.VectorStyle} parameters
+         */
+        setStyle: function (parameters) {
+            var options = new jsMaps.VectorStyle();
+
+            if (typeof parameters != 'undefined') {
+                parameters = jsMaps.merge(options,parameters);
+            }
+
+            this._setStyle(parameters);
         },
 
         /**

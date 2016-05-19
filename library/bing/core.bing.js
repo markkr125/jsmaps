@@ -12,6 +12,48 @@ jsMaps.Bing.hideMapZoom = function () {
     document.body.insertBefore(e, document.body.childNodes[0]);
 };
 
+jsMaps.Bing.VectorStyle =  function (options) {
+    var opts = {};
+
+    var currentColor,color,tempColor;
+
+    if (options.strokeColor != '' || options.strokeOpacity != false) {
+        currentColor = this.object.getStrokeColor();
+
+        if (options.strokeColor!='' && options.strokeOpacity != '') {
+            tempColor = jsMaps.convertHex(options.strokeColor,options.strokeOpacity*100,true);
+            color = new Microsoft.Maps.Color((255*tempColor.opacity),tempColor.red,tempColor.greed,tempColor.blue);
+        } else if (options.strokeColor!='' && options.strokeOpacity == '') {
+            tempColor = jsMaps.convertHex(options.strokeColor,0,true);
+            color = new Microsoft.Maps.Color(255*currentColor.getOpacity(),tempColor.red,tempColor.greed,tempColor.blue);
+        } else if (options.strokeColor=='' && options.strokeOpacity != '') {
+            color = new Microsoft.Maps.Color((255*options.strokeOpacity),currentColor.r,currentColor.g,currentColor.b);
+        }
+
+        opts.strokeColor = color;
+    }
+
+    if (options.strokeWeight != '') opts.strokeThickness = options.strokeWeight;
+
+    if (options.fillColor != '' || options.fillOpacity != false) {
+        currentColor = this.object.getFillColor();
+
+        if (options.fillColor!='' && options.fillOpacity != '') {
+            tempColor = jsMaps.convertHex(options.fillColor,options.fillOpacity*100,true);
+            color = new Microsoft.Maps.Color((255*tempColor.opacity),tempColor.red,tempColor.greed,tempColor.blue);
+        } else if (options.fillColor!='' && options.fillOpacity == '') {
+            tempColor = jsMaps.convertHex(options.fillColor,0,true);
+            color = new Microsoft.Maps.Color(255*currentColor.getOpacity(),tempColor.red,tempColor.greed,tempColor.blue);
+        } else if (options.fillColor=='' && options.fillOpacity != '') {
+            color = new Microsoft.Maps.Color((255*options.fillOpacity),currentColor.r,currentColor.g,currentColor.b);
+        }
+
+        opts.fillColor = color;
+    }
+
+    this.object.setOptions(opts);
+};
+
 /**
  * create the map
  *
@@ -581,35 +623,6 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
-    /**
-     * @param {jsMaps.PolylineStyle} options
-     */
-    hooking.prototype._setStyle = function (options) {
-        var opts = {};
-
-        if (options.strokeColor != '' || options.strokeOpacity != false) {
-            var currentColor = this.object.getStrokeColor();
-
-            var color,tempColor;
-
-            if (options.strokeColor!='' && options.strokeOpacity != '') {
-                tempColor = jsMaps.convertHex(options.strokeColor,options.strokeOpacity*100,true);
-                color = new Microsoft.Maps.Color((255*tempColor.opacity),tempColor.red,tempColor.greed,tempColor.blue);
-            } else if (options.strokeColor!='' && options.strokeOpacity == '') {
-                tempColor = jsMaps.convertHex(options.strokeColor,0,true);
-                color = new Microsoft.Maps.Color(255*currentColor.getOpacity(),tempColor.red,tempColor.greed,tempColor.blue);
-            } else if (options.strokeColor=='' && options.strokeOpacity != '') {
-                color = new Microsoft.Maps.Color((255*options.strokeOpacity),currentColor.r,currentColor.g,currentColor.b);
-            }
-
-            opts.strokeColor = color;
-        }
-
-        if (options.strokeWeight != '') opts.strokeThickness = options.strokeWeight;
-
-        this.object.setOptions(opts);
-    };
-
     hooking.prototype.getPaths = function () {
         return hooking.prototype.getPath();
     };
@@ -681,6 +694,12 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
     };
 
     var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
+
     parameters.paths = object.getPath();
     new jsMaps.editableVector(object,map,parameters,'polyline');
     new jsMaps.draggableVector(object,map,parameters,'polyline');
@@ -795,6 +814,11 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
 
     var object = new hooking();
     parameters.paths = object.getPath();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
 
     new jsMaps.editableVector(object,map,parameters,'polygon');
     new jsMaps.draggableVector(object,map,parameters);

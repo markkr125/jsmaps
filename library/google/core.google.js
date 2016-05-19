@@ -3,6 +3,19 @@ if (typeof jsMaps.Google == 'undefined') {
     jsMaps.Google.prototype = new jsMaps.Abstract();
 }
 
+jsMaps.Google.VectorStyle =  function (options) {
+    var opts = {};
+    if (options.strokeColor != '') opts.strokeColor = options.strokeColor;
+    if (options.strokeOpacity != '') opts.strokeOpacity = options.strokeOpacity;
+    if (options.strokeWeight != '') opts.strokeWeight = options.strokeWeight;
+    if (options.zIndex != '') opts.zIndex = options.zIndex;
+    if (options.fillColor != '') opts.fillColor = options.fillColor;
+    if (options.fillOpacity != '')  opts.fillOpacity=  options.fillOpacity;
+
+    this.object.setOptions(opts);
+};
+
+
 /**
  * create the mal
  *
@@ -575,19 +588,6 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
         return arrayOfPaths;
     };
 
-    /**
-     * @param {jsMaps.PolylineStyle} options
-     */
-    hooking.prototype._setStyle = function (options) {
-        var opts = {};
-        if (options.strokeColor != '') opts.strokeColor = options.strokeColor;
-        if (options.strokeOpacity != '') opts.strokeOpacity = options.strokeOpacity;
-        if (options.strokeWeight != '') opts.strokeWeight = options.strokeWeight;
-        if (options.zIndex != '') opts.zIndex = options.zIndex;
-
-        this.object.setOptions(opts);
-    };
-
     hooking.prototype.getPaths = function () {
         var arrayOfPaths = [];
         var path = this.object.getPaths().getArray();
@@ -650,7 +650,14 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
         this.object.setMap(null);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+
+    return object;
 };
 
 /**
@@ -735,7 +742,14 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
         this.object.setMap(null);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+
+    return object;
 };
 
 /**
