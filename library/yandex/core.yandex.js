@@ -1129,5 +1129,12 @@ jsMaps.Yandex.prototype.circle = function (map,parameters) {
         }, this);
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Yandex.VectorStyle.bind(object);
+
+    return object;
 };

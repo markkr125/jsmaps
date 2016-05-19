@@ -3034,5 +3034,11 @@ jsMaps.Native.prototype.circle = function (map,parameters) {
         this.object.destroy();
     };
 
-    return new hooking();
+    var object = new hooking();
+
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    return object;
 };

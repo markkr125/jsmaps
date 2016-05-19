@@ -332,6 +332,26 @@ jsMaps.CircleStructure = function () {
         },
         getEditable: function () {
         },
+        /**
+         * @param {jsMaps.VectorStyle} parameters
+
+         * @private
+         */
+        _setStyle: function (parameters) {
+        },
+
+        /**
+         * @param {jsMaps.VectorStyle} parameters
+         */
+        setStyle: function (parameters) {
+            var options = new jsMaps.VectorStyle();
+
+            if (typeof parameters != 'undefined') {
+                parameters = jsMaps.merge(options,parameters);
+            }
+
+            this._setStyle(parameters);
+        },
         getRadius: function () {
         },
         getVisible: function () {

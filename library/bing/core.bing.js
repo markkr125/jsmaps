@@ -957,6 +957,11 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
 
     var object = new hooking();
 
+    /**
+     * @param {jsMaps.VectorStyle} options
+     */
+    object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
+
     new jsMaps.draggableVector(object,map,parameters,'circle');
     new jsMaps.editableVector(object,map,parameters,'circle');
 
