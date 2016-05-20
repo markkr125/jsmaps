@@ -5,14 +5,55 @@ if (typeof jsMaps.Google == 'undefined') {
 
 jsMaps.Google.VectorStyle =  function (options) {
     var opts = {};
-    if (options.strokeColor != '') opts.strokeColor = options.strokeColor;
-    if (options.strokeOpacity != '') opts.strokeOpacity = options.strokeOpacity;
-    if (options.strokeWeight != '') opts.strokeWeight = options.strokeWeight;
-    if (options.zIndex != '') opts.zIndex = options.zIndex;
-    if (options.fillColor != '') opts.fillColor = options.fillColor;
-    if (options.fillOpacity != '')  opts.fillOpacity=  options.fillOpacity;
+
+    if (options.strokeColor != '') {
+        opts.strokeColor = options.strokeColor;
+        this.options.strokeColor = options.strokeColor;
+    }
+
+    if (options.strokeOpacity != '') {
+        opts.strokeOpacity = options.strokeOpacity;
+        this.options.strokeOpacity = options.strokeOpacity;
+    }
+
+    if (options.strokeWeight != '') {
+        opts.strokeWeight = options.strokeWeight;
+        this.options.strokeWeight = options.strokeWeight;
+    }
+
+    if (options.zIndex != '') {
+        opts.zIndex = options.zIndex;
+        this.options.zIndex = options.zIndex;
+    }
+
+    if (options.fillColor != '') {
+        opts.fillColor = options.fillColor;
+        this.options.fillColor = options.fillColor;
+    }
+
+    if (options.fillOpacity != '')  {
+        opts.fillOpacity =  options.fillOpacity;
+        this.options.fillOpacity = options.fillOpacity;
+    }
+
 
     this.object.setOptions(opts);
+};
+
+jsMaps.Google.VectorGetStyle =  function () {
+    var return_values = new jsMaps.VectorStyle();
+
+    if (typeof this.options.fillColor != 'undefined' && typeof this.options.fillOpacity != 'undefined') {
+        return_values.fillColor     = this.options.fillColor;
+        return_values.fillOpacity   = this.options.fillOpacity;
+    }
+
+    return_values.strokeColor   = this.options.strokeColor;
+    return_values.strokeOpacity = this.options.strokeOpacity;
+    return_values.strokeWeight  = this.options.strokeWeight;
+    return_values.zIndex        = this.options.zIndex;
+
+    return return_values;
 };
 
 
@@ -569,6 +610,7 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
     hooking.prototype = new jsMaps.PolyLineStructure();
 
     hooking.prototype.object = PolyLine;
+    hooking.prototype.options = options;
 
     hooking.prototype.getEditable = function () {
         return this.object.getEditable();
@@ -656,6 +698,7 @@ jsMaps.Google.prototype.polyLine = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Google.VectorGetStyle.bind(object);
 
     return object;
 };
@@ -687,6 +730,7 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
     hooking.prototype = new jsMaps.PolygonStructure();
 
     hooking.prototype.object = Polygon;
+    hooking.prototype.options = options;
 
     hooking.prototype.getDraggable = function () {
         return this.object.getDraggable();
@@ -748,6 +792,7 @@ jsMaps.Google.prototype.polygon = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Google.VectorGetStyle.bind(object);
 
     return object;
 };
@@ -780,6 +825,7 @@ jsMaps.Google.prototype.circle = function (map,parameters) {
     hooking.prototype = new jsMaps.CircleStructure();
 
     hooking.prototype.object = Circle;
+    hooking.prototype.options = options;
 
     hooking.prototype.getBounds = function () {
         return jsMaps.Google.prototype.bounds(this);
@@ -844,6 +890,7 @@ jsMaps.Google.prototype.circle = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Google.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Google.VectorGetStyle.bind(object);
 
     return object;
 };

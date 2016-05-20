@@ -31,6 +31,23 @@ jsMaps.Native.VectorStyle =  function (options) {
     this.object.render(true);
 };
 
+
+jsMaps.Native.VectorGetStyle =  function () {
+    var return_values = new jsMaps.VectorStyle();
+
+    if (typeof this.object._vectorOptions.fill != 'undefined' && typeof this.object._vectorOptions.fillOpacity != 'undefined') {
+        return_values.fillColor     = this.object._vectorOptions.fill;
+        return_values.fillOpacity   = this.object._vectorOptions.fillOpacity;
+    }
+
+    return_values.strokeColor   = this.object._vectorOptions.stroke;
+    return_values.strokeOpacity = this.object._vectorOptions.strokeOpacity;
+    return_values.strokeWeight  = this.object._vectorOptions.strokeWidth;
+    return_values.zIndex        = this.object._vectorOptions.zIndex;
+
+    return return_values;
+};
+
 /**
  * create the map
  *
@@ -2832,6 +2849,7 @@ jsMaps.Native.prototype.polyLine = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Native.VectorGetStyle.bind(object);
     return object;
 };
 
@@ -2932,6 +2950,7 @@ jsMaps.Native.prototype.polygon = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Native.VectorGetStyle.bind(object);
     return object;
 };
 
@@ -3040,5 +3059,6 @@ jsMaps.Native.prototype.circle = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Native.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Native.VectorGetStyle.bind(object);
     return object;
 };

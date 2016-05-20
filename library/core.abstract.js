@@ -294,6 +294,14 @@ jsMaps.PolyLineStructure = function () {
 
         /**
          *
+         * @returns {jsMaps.VectorStyle}
+         */
+        getStyle: function () {
+            return new jsMaps.VectorStyle();
+        },
+
+        /**
+         *
          * @param draggable
          */
         setDraggable: function (draggable) {
@@ -352,6 +360,14 @@ jsMaps.CircleStructure = function () {
 
             this._setStyle(parameters);
         },
+        /**
+         *
+         * @returns {jsMaps.VectorStyle}
+         */
+        getStyle: function () {
+            return new jsMaps.VectorStyle();
+        },
+
         getRadius: function () {
         },
         getVisible: function () {
@@ -413,6 +429,14 @@ jsMaps.PolygonStructure = function () {
             }
 
             this._setStyle(parameters);
+        },
+
+        /**
+         *
+         * @returns {jsMaps.VectorStyle}
+         */
+        getStyle: function () {
+            return new jsMaps.VectorStyle();
         },
 
         /**

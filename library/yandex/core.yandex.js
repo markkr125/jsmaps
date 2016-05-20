@@ -15,14 +15,54 @@ jsMaps.Yandex.VectorStyle =  function (options) {
     }
 
     ymaps.ready(function () {
-        if (options.strokeColor != '') this.object.options.set('strokeColor', options.strokeColor);
-        if (options.strokeOpacity != '') this.object.options.set('strokeOpacity', options.strokeOpacity);
-        if (options.strokeWeight != '') this.object.options.set('strokeWeight', options.strokeWeight);
-        if (options.zIndex != '') this.object.options.set('zIndex', options.zIndex);
-        if (options.fillColor != '') this.object.options.set('fillColor', options.fillColor);
-        if (options.fillOpacity != '') this.object.options.set('fillOpacity', options.fillOpacity);
+        if (options.strokeColor != '') {
+            this.object.options.set('strokeColor', options.strokeColor);
+            this.options.strokeColor = options.strokeColor;
+        }
+
+        if (options.strokeOpacity != '') {
+            this.object.options.set('strokeOpacity', options.strokeOpacity);
+            this.options.strokeOpacity = options.strokeOpacity;
+        }
+
+        if (options.strokeWeight != '') {
+            this.object.options.set('strokeWeight', options.strokeWeight);
+            this.options.strokeWidth = options.strokeWeight;
+        }
+
+        if (options.zIndex != '') {
+            this.object.options.set('zIndex', options.zIndex);
+            this.options.zIndex = options.zIndex;
+        }
+
+        if (options.fillColor != '') {
+            this.object.options.set('fillColor', options.fillColor);
+            this.options.fillColor = options.fillColor;
+        }
+
+        if (options.fillOpacity != '') {
+            this.object.options.set('fillOpacity', options.fillOpacity);
+            this.options.fillOpacity = options.fillOpacity;
+        }
     }, this);
 };
+
+jsMaps.Yandex.VectorGetStyle =  function () {
+    var return_values = new jsMaps.VectorStyle();
+
+    if (typeof this.options.fillColor != 'undefined' && typeof this.options.fillOpacity != 'undefined') {
+        return_values.fillColor     = this.options.fillColor;
+        return_values.fillOpacity   = this.options.fillOpacity;
+    }
+
+    return_values.strokeColor   = this.options.strokeColor;
+    return_values.strokeOpacity = this.options.strokeOpacity;
+    return_values.strokeWeight  = this.options.strokeWidth;
+    return_values.zIndex        = this.options.zIndex;
+
+    return return_values;
+};
+
 
 /**
  * create the map
@@ -690,6 +730,7 @@ jsMaps.Yandex.prototype.polyLine = function (map,parameters) {
     hooking.prototype = new jsMaps.PolyLineStructure();
 
     hooking.prototype.object = null;
+    hooking.prototype.options = options;
 
     ymaps.ready(function () {
         var polyLine = new ymaps.Polyline(jsMaps.Yandex.toYandexPath(parameters.path), {}, options);
@@ -834,6 +875,7 @@ jsMaps.Yandex.prototype.polyLine = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Yandex.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Yandex.VectorGetStyle.bind(object);
 
     return object;
 };
@@ -859,6 +901,7 @@ jsMaps.Yandex.prototype.polygon = function (map,parameters) {
     hooking.prototype = new jsMaps.PolygonStructure();
 
     hooking.prototype.object = null;
+    hooking.prototype.options = options;
 
     ymaps.ready(function () {
         var Polygon = new ymaps.Polygon([jsMaps.Yandex.toYandexPath(parameters.paths)],{},options);
@@ -975,6 +1018,7 @@ jsMaps.Yandex.prototype.polygon = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Yandex.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Yandex.VectorGetStyle.bind(object);
 
     return object;
 };
@@ -1000,6 +1044,7 @@ jsMaps.Yandex.prototype.circle = function (map,parameters) {
     hooking.prototype = new jsMaps.CircleStructure();
 
     hooking.prototype.object = null;
+    hooking.prototype.options = options;
 
     ymaps.ready(function () {
         var circle = new ymaps.Circle([
@@ -1135,6 +1180,7 @@ jsMaps.Yandex.prototype.circle = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Yandex.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Yandex.VectorGetStyle.bind(object);
 
     return object;
 };

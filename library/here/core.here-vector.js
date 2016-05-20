@@ -68,6 +68,39 @@ jsMaps.Here.VectorStyle =  function (options) {
 };
 
 
+jsMaps.Here.VectorGetStyle =  function () {
+    var return_values = new jsMaps.VectorStyle();
+
+    var currentStyle = this.object.getStyle();
+
+    if (typeof this.vector_type != 'line') {
+        var fillColor = currentStyle.fillColor;
+
+        fillColor = fillColor.replace('rgba','');
+        fillColor = fillColor.replace('(','');
+        fillColor = fillColor.replace(')','');
+        fillColor = fillColor.split(',');
+
+        return_values.fillColor     = jsMaps.convertRgb(parseInt(fillColor[0]),parseInt(fillColor[1]),parseInt(fillColor[2]));
+        return_values.fillOpacity   = parseFloat(fillColor[3]);
+    }
+
+    var strokeColor = currentStyle.strokeColor;
+
+    strokeColor = strokeColor.replace('rgba','');
+    strokeColor = strokeColor.replace('(','');
+    strokeColor = strokeColor.replace(')','');
+    strokeColor = strokeColor.split(',');
+
+    return_values.strokeColor   = jsMaps.convertRgb(parseInt(strokeColor[0]),parseInt(strokeColor[1]),parseInt(strokeColor[2]));
+    return_values.strokeOpacity = parseFloat(strokeColor[3]);
+    return_values.strokeWeight  = currentStyle.lineWidth;
+    return_values.zIndex        = this.object.getZIndex();
+
+    return return_values;
+};
+
+
 /**
  * Create PolyLine
  *
@@ -100,6 +133,7 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
     hooking.prototype.markers = markers;
     hooking.prototype.object = PolyLine;
     hooking.prototype.map = map;
+    hooking.prototype.vector_type = 'polyLine';
     hooking.prototype.draggable = parameters.draggable;
     hooking.prototype.editable = parameters.editable;
 
@@ -200,6 +234,7 @@ jsMaps.Here.prototype.polyLine = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Here.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Here.VectorGetStyle.bind(object);
 
     parameters.paths = parameters.path;
     new jsMaps.editableVector(object,map,parameters,'polyline');
@@ -233,6 +268,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
     hooking.prototype.map = map;
     hooking.prototype.draggable = parameters.draggable;
     hooking.prototype.editable = parameters.editable;
+    hooking.prototype.vector_type = 'polygon';
 
     hooking.prototype.getEditable = function () {
         return this.editable;
@@ -323,6 +359,7 @@ jsMaps.Here.prototype.polygon = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Here.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Here.VectorGetStyle.bind(object);
 
     new jsMaps.editableVector(object,map,parameters,'polygon');
     new jsMaps.draggableVector(object,map,parameters,'polygon');
@@ -359,6 +396,7 @@ jsMaps.Here.prototype.circle = function (map,parameters) {
     hooking.prototype.map = map;
     hooking.prototype.draggable = parameters.draggable;
     hooking.prototype.editable = parameters.editable;
+    hooking.prototype.vector_type = 'circle';
 
     hooking.prototype.getBounds = function () {
         return jsMaps.Here.prototype.bounds(this.object);
@@ -427,6 +465,7 @@ jsMaps.Here.prototype.circle = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Here.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Here.VectorGetStyle.bind(object);
 
     new jsMaps.draggableVector(object,map,parameters,'circle');
     new jsMaps.editableVector(object,map,parameters,'circle');

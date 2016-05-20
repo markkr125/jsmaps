@@ -54,6 +54,26 @@ jsMaps.Bing.VectorStyle =  function (options) {
     this.object.setOptions(opts);
 };
 
+jsMaps.Bing.VectorGetStyle =  function () {
+    var strokeColor = this.object.getStrokeColor();
+
+    var return_values = new jsMaps.VectorStyle();
+
+    if (typeof this.object.getFillColor != 'undefined') {
+        var fillColor = this.object.getFillColor();
+
+        return_values.fillColor     = fillColor.toHex();
+        return_values.fillOpacity   = fillColor.getOpacity();
+    }
+
+    return_values.strokeColor   = strokeColor.toHex();
+    return_values.strokeOpacity = strokeColor.getOpacity();
+    return_values.strokeWeight  = this.object.getStrokeThickness();
+    return_values.zIndex        = '';
+
+    return return_values;
+};
+
 /**
  * create the map
  *
@@ -699,6 +719,7 @@ jsMaps.Bing.prototype.polyLine = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Bing.VectorGetStyle.bind(object);
 
     parameters.paths = object.getPath();
     new jsMaps.editableVector(object,map,parameters,'polyline');
@@ -819,6 +840,7 @@ jsMaps.Bing.prototype.polygon = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Bing.VectorGetStyle.bind(object);
 
     new jsMaps.editableVector(object,map,parameters,'polygon');
     new jsMaps.draggableVector(object,map,parameters);
@@ -961,6 +983,7 @@ jsMaps.Bing.prototype.circle = function (map,parameters) {
      * @param {jsMaps.VectorStyle} options
      */
     object._setStyle = jsMaps.Bing.VectorStyle.bind(object);
+    object.getStyle = jsMaps.Bing.VectorGetStyle.bind(object);
 
     new jsMaps.draggableVector(object,map,parameters,'circle');
     new jsMaps.editableVector(object,map,parameters,'circle');
