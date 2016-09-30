@@ -301,8 +301,21 @@ jsMaps.Native.Event.trigger = function (element,eventName) {
     element.dispatchEvent(eventObj);
 };
 
-jsMaps.Native.Event.remove = function (element,eventTrigger) {
-    element.removeEventListener(eventTrigger, function () {});
+jsMaps.Native.Event.remove = function (element,eventTrigger,eventHandler) {
+    if (element.removeEventListener) {                   // For all major browsers, except IE 8 and earlier
+        element.removeEventListener(eventTrigger,eventHandler);
+    } else if (element.detachEvent) {                    // For IE 8 and earlier versions
+        var trigger = eventTrigger;
+        if (eventTrigger == 'mouseenter') trigger = 'onmouseover';
+        if (eventTrigger == 'mouseout') trigger = 'onmouseout';
+        if (eventTrigger == 'mousemove') trigger = 'onmousemove';
+        if (eventTrigger == 'mouseup') trigger = 'onmouseup';
+        if (eventTrigger == 'mousedown') trigger = 'onmousedown';
+        if (eventTrigger == 'click') trigger = 'onclick';
+
+
+        element.detachEvent(trigger,eventHandler);
+    }
 };
 
 jsMaps.Native.Utils = {

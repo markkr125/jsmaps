@@ -436,7 +436,7 @@ jsMaps.Yandex.prototype.attachEvent = function (content,event,functionToRun,once
         }
     }, this);
 
-    return {c: curCnt, f: fn, e: eventTranslation};
+    return {c: curCnt, f: useFn, e: eventTranslation};
 };
 
 /**

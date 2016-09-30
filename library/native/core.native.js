@@ -2499,6 +2499,8 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fnCore,once) {
         fn(new eventHooking);
     };
 
+    var customFn = null;
+
     // Create the event.
     if (customEvent == false) {
         if (jsMaps.Native.Browser.ielt9) {
@@ -2511,6 +2513,7 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fnCore,once) {
                 || eventTranslation == 'mousemove'
                 || eventTranslation == 'mouseup'
                 || eventTranslation == 'mousedown'
+                || eventTranslation == 'click'
             ) {
                 var trigger;
 
@@ -2519,16 +2522,21 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fnCore,once) {
                 if (eventTranslation == 'mousemove') trigger = 'onmousemove';
                 if (eventTranslation == 'mouseup') trigger = 'onmouseup';
                 if (eventTranslation == 'mousedown') trigger = 'onmousedown';
+                if (eventTranslation == 'click') trigger = 'onclick';
 
-                elem.attachEvent(trigger, function (e) {
+                customFn = function (e) {
                     useFn(e);
-                });
+                };
+
+                elem.attachEvent(trigger, customFn);
             } else {
-                elem.attachEvent("onpropertychange", function (e) {
+                customFn = function (e) {
                     if (e.propertyName == eventTranslation) {
                         useFn(e);
                     }
-                });
+                };
+
+                elem.attachEvent("onpropertychange", customFn);
             }
         } else {
             if (jsMaps.Native.Browser.touch) {
@@ -2552,7 +2560,7 @@ jsMaps.Native.prototype.attachEvent = function (content,event,fnCore,once) {
         elem = content.object.attachEvent(jsMaps.api.supported_events.click,useFn,false,false);
     }
 
-    return {eventObj: elem, eventName: event};
+    return {eventObj: elem, eventName: event, eventHandler: ((customFn == null) ? useFn: customFn)};
 };
 
 /**
@@ -2579,7 +2587,8 @@ jsMaps.Native.prototype.triggerEvent = function (element,eventName) {
  * @returns {*}
  */
 jsMaps.Native.prototype.removeEvent = function (map,eventObject) {
-    jsMaps.Native.Event.remove(eventObject.eventObj,eventObject.eventName);
+    jsMaps.Native.Event.remove(eventObject.eventObj,eventObject.eventName,eventObject.eventHandler);
+
 };
 
 
