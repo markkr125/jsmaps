@@ -370,7 +370,7 @@ jsMaps.Native.Utils = {
     setTransformOrigin: function (el, offset) {
         if (jsMaps.Native.Utils.TRANSFORM_ORIGIN != false) {
             var pos = offset || {'x': 0, 'y': 0};
-            el.style[jsMaps.Native.Utils.TRANSFORM_ORIGIN] = pos.x + "px " + pos.y + "px";
+            el.style[jsMaps.Native.Utils.TRANSFORM_ORIGIN] = parseFloat(pos.x).toFixed(0) + "px " + parseFloat(pos.y).toFixed(0) + "px";
         }
     }
 };

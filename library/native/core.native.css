@@ -240,13 +240,6 @@
 .jsMaps-Native .layer-div{
     position: relative;
     will-change: transform, opacity;
-
-    transform: translateZ(0px);
-    -o-transform: translateZ(0px);
-    -ms-transform: translateZ(0px);
-    -moz-transform: translateZ(0px);
-    -webkit-transform: translateZ(0px);
-
     transform-style: preserve-3d;
     -moz-transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
