@@ -8,6 +8,7 @@
  * make sure dragging vectors on bing and here maps stops on mouseup
  * new feature: adding a "setStyle" for all vectors on all backends.
  * all vectors on all backends have a "getStyle" function
+ * Fix for issue #2
  
 ## 0.0.14 - 2016-02-17
  - Version bump due to meteor package generation
