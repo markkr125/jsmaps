@@ -6,7 +6,7 @@
 Package.describe({
     name: 'mark125:jsmaps',
     summary: 'A javascript map, and also with an abstraction layer for javascript mapping apis.',
-    version: '0.0.14',
+    version: '0.0.15',
     git: 'https://github.com/markkr125/jsmaps.git',
     documentation: 'README.md'
 });
