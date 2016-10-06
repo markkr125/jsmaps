@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.15 - 2016-10-06
+ * native map: stop moving the map on mouseup outside the map (with ie11 fix)
+ * native map: get rid of the ugly cursor hack, ie will have the cursor from a custom url
+ * fixing issue #1
+ * New change options function for the map object
+ * make sure dragging vectors on bing and here maps stops on mouseup
+ * new feature: adding a "setStyle" for all vectors on all backends.
+ * all vectors on all backends have a "getStyle" function
+ 
 ## 0.0.14 - 2016-02-17
  - Version bump due to meteor package generation
  
