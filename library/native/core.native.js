@@ -315,8 +315,8 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
             // using this normalize some things are working better, others not so good.
             // delete it will solve some problems but bring other problems
-            var now = new Date(evt.timeStamp);
-            var timeDelta = now - this.lastMoveTime;
+            var now = new Date();
+            var timeDelta = (now - this.lastMoveTime)*0.5;
             if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
                 if (this.movestarted) {
                     if (this.moveAnimationBlocked == false) {
@@ -531,8 +531,9 @@ jsMaps.Native.prototype.initializeMap = function (map, options, tileLayers) {
 
         // using this normalize some things are working better, others not so good.
         // delete it will solve some problems but bring other problems
-        var now = new Date(evt.timeStamp);
-        var timeDelta = now - this.lastMoveTime;
+        var now = new Date();
+        var timeDelta = (now - this.lastMoveTime)*0.5;
+
         if (this.wheelSpeedConfig["moveAnimateDesktop"] && timeDelta != 0) {
             if (this.movestarted) {
                 if (this.moveAnimationBlocked == false) {
