@@ -251,10 +251,10 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
             useFn(evt);
         };
 
-        obj.addEventListener(eventTranslation, event1, false);
+        obj.addEventListener(eventTranslation, event1, true);
         return {eventObj: content, eventName: eventTranslation, eventHandler: event1};
     } else {
-        obj.addEventListener(eventTranslation, useFn, false);
+        obj.addEventListener(eventTranslation, useFn, true);
         return {eventObj: content, eventName: eventTranslation, eventHandler: useFn};
     }
 };
@@ -268,8 +268,7 @@ jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) 
 jsMaps.Here.prototype.removeEvent = function (map,eventObject) {
     var obj = map.object;
     if (typeof obj.map != 'undefined') obj = obj.map;
-console.log(eventObject);
-    obj.removeEventListener(eventObject.eventName, eventObject.eventHandler);
+    obj.removeEventListener(eventObject.eventName, eventObject.eventHandler,true);
 };
 
 /**
