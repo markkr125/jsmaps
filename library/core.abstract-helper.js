@@ -26,23 +26,6 @@ jsMaps.vectorPosition = function (map,vector,point) {
     }
 };
 
-jsMaps.customEvent = function (element,eventName) {
-    if ('ActiveXObject' in window && !document.addEventListener) {
-        if (element.nodeType === 1 && element[eventName] >= 0) {
-            element[eventName]++;
-        }
-
-        return;
-    }
-
-    if (eventName == jsMaps.api.supported_events.mouseover) eventName = 'mouseenter';
-    if (eventName == jsMaps.api.supported_events.rightclick) eventName = 'contextmenu';
-    if (eventName == jsMaps.api.supported_events.tilt_changed) eventName = 'orientationchange';
-
-    var eventObj = new CustomEvent(eventName, {detail: {some: 'data'}});
-    element.dispatchEvent(eventObj);
-};
-
 /**
  * Make a vector object draggable
  *
