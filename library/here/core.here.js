@@ -195,6 +195,11 @@ jsMaps.Here.eventName = function (event) {
 jsMaps.Here.prototype.attachEvent = function (content,event,functionToRun,once) {
     var eventTranslation = jsMaps.Here.eventName(event);
 
+    // Do not apply drag events of vectors
+    if (typeof content.vector_type!='undefined' && (eventTranslation == 'dragstart' || eventTranslation == 'drag')) {
+        eventTranslation = eventTranslation+'_custom';
+    }
+
     var obj = content.object;
     if (typeof obj.map != 'undefined') obj = obj.map;
 
@@ -278,6 +283,11 @@ jsMaps.Here.prototype.removeEvent = function (map,eventObject) {
  */
 jsMaps.Here.prototype.triggerEvent = function (element,eventName) {
     var eventTranslation = jsMaps.Here.eventName(eventName);
+
+    // Do not apply drag events of vectors
+    if (typeof element.vector_type!='undefined' && (eventTranslation == 'dragstart' || eventTranslation == 'drag')) {
+        eventTranslation = eventTranslation+'_custom';
+    }
 
     var dispatchOn = element.object;
 

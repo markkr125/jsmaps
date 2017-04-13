@@ -26,6 +26,22 @@ jsMaps.vectorPosition = function (map,vector,point) {
     }
 };
 
+jsMaps.customEvent = function (element,eventName) {
+    if ('ActiveXObject' in window && !document.addEventListener) {
+        if (element.nodeType === 1 && element[eventName] >= 0) {
+            element[eventName]++;
+        }
+
+        return;
+    }
+
+    if (eventName == jsMaps.api.supported_events.mouseover) eventName = 'mouseenter';
+    if (eventName == jsMaps.api.supported_events.rightclick) eventName = 'contextmenu';
+    if (eventName == jsMaps.api.supported_events.tilt_changed) eventName = 'orientationchange';
+
+    var eventObj = new CustomEvent(eventName, {detail: {some: 'data'}});
+    element.dispatchEvent(eventObj);
+};
 
 /**
  * Make a vector object draggable
@@ -48,6 +64,8 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
         var position = e.getCursorPosition();
         var cursorPosition = mapd.latLngToPoint(position.lat,position.lng);
 
+        jsMaps.api.trigger_event(this,jsMaps.api.supported_events.dragstart);
+
         // calculate mouse cursor-offset on marker div
         this.clickx = cursorPosition.x;
         this.clicky = cursorPosition.y;
@@ -64,6 +82,8 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
             if (this.draggable == false) return;
 
             if (this.moving == false || (typeof this.clickx == 'undefined' && typeof this.clicky == 'undefined')) return;
+
+            jsMaps.api.trigger_event(this,jsMaps.api.supported_events.drag);
 
             var position = e.getCursorPosition();
             var cursorPosition = mapd.latLngToPoint(position.lat,position.lng);
@@ -116,6 +136,8 @@ jsMaps.draggableVector = function (pol,mapd,parameters,shape) {
                 if (this.movingShape != 'circle') {
                     parameters.paths = this.getPath();
                 }
+
+                jsMaps.api.trigger_event(this,jsMaps.api.supported_events.dragend);
 
                 new jsMaps.editableVector(this, mapd, parameters, shape);
 
