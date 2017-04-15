@@ -4,33 +4,26 @@ if (typeof jsMaps.Yandex == 'undefined') {
     jsMaps.Yandex.prototype = new jsMaps.Abstract();
 }
 
+/**
+ *
+ * @param search
+ * @param fun
+ */
+jsMaps.Yandex.prototype.addressGeoSearch = function (search, fun) {
+    ymaps.ready(function () {
+        ymaps.geocode(search, {
+            results: 15
+        }).then(function (res) {
+            var iterator = res.geoObjects.getIterator(),
+                obj;
 
-var callbackStorage = {};
-function GeocodeCallbackFactory(fn) {
-
-    var id;
-    do {
-        id = "callback" + (Math.random()).toString(10).substr(2);
-    }while(callbackStorage.id);
-
-    callbackStorage[id] = function (fn) {
-        return function (data) {
             var geoCoder = {'results': []};
 
-            var Use = data.response.GeoObjectCollection;
-
-            if (Use.metaDataProperty.found == 0 || Use.featureMember.length == 0) {
-                fn(geoCoder);
-                return;
-            }
-
-            for (var i in Use.featureMember) {
-                if (Use.featureMember.hasOwnProperty(i) == false) continue;
-
-                var featureMember = Use.featureMember[i].GeoObject;
-                var metaProp = featureMember.metaDataProperty.GeocoderMetaData;
-
+            while ((obj = iterator.getNext()) != iterator.STOP_ITERATION) {
                 var types = [];
+
+                var featureMember = obj.properties.getAll();
+                var metaProp = obj.properties.get('metaDataProperty.GeocoderMetaData');
 
                 if (metaProp.kind == 'country') {
                     types.push(jsMaps.supported_Address_types.country);
@@ -58,7 +51,8 @@ function GeocodeCallbackFactory(fn) {
                     types.push(jsMaps.supported_Address_types.airport);
                 }
 
-                var point = featureMember.Point.pos.split(' ');
+                var point = obj.geometry.getCoordinates();
+
                 var location = new jsMaps.geo.Location(point[1], point[0]);
                 var view_port = jsMaps.geo.View_port;
 
@@ -70,31 +64,19 @@ function GeocodeCallbackFactory(fn) {
                     location_type = jsMaps.supported_location_types.RANGE_INTERPOLATED;
                 }
 
-                var boundedBy = featureMember.boundedBy.Envelope;
-                var upperCorner = boundedBy.upperCorner.split(' '); // topRight
-                var lowerCorner = boundedBy.lowerCorner.split(' '); // bottomLeft
 
-                view_port.getTopLeft = {lat: upperCorner[1], lng: lowerCorner[0]};
-                view_port.getBottomRight = {lat: lowerCorner[1], lng: upperCorner[0]};
+                var data = featureMember.boundedBy;
+                var bounds =  {getTopLeft: {lat: data[1][0],lng: data[0][1]},getBottomRight: {lat: data[0][0],lng: data[1][1]}};
+
+                view_port.getTopLeft = {lat:bounds.getTopLeft.lat, lng: bounds.getTopLeft.lng};
+                view_port.getBottomRight = {lat: bounds.getBottomRight.lat, lng: bounds.getBottomRight.lng};
                 view_port.location_type = location_type;
 
                 var geoCoderResult = new jsMaps.AddressSearchResult(featureMember.name + ', ' + featureMember.description, types, (metaProp.precision != 'exact'), new jsMaps.Geometry(location, view_port));
                 geoCoder['results'].push(geoCoderResult);
             }
-            fn(geoCoder);
-            delete callbackStorage.id;
-        }
-    }(fn);
-    return "callbackStorage." + id;
-}
-/**
- *
- * @param search
- * @param fun
- */
-jsMaps.Yandex.prototype.addressGeoSearch = function (search, fun) {
-    var script = document.createElement('script');
-    script.src = 'http://geocode-maps.yandex.ru/1.x/?geocode=' + search + '&lang=en-US&format=json&callback=' + GeocodeCallbackFactory(fun);
 
-    document.getElementsByTagName('head')[0].appendChild(script);
+            fun(geoCoder);
+        });
+    });
 };
