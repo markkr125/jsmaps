@@ -195,5 +195,147 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
         this.setOptions({zoom: number});
     };
 
+    hooking.prototype.getBounds = function () {
+        return jsMaps.Bing.prototype.bounds(this.object);
+    };
+
+    /**
+     *
+     * @param {jsMaps.BoundsStructure} bounds
+     */
+    hooking.prototype.fitBounds = function (bounds) {
+        jsMaps.Bing.ready(function () {
+            bounds.noData();
+            var mapOptions = this.object.getOptions();
+            mapOptions.bounds = bounds.bounds;
+
+            this.object.setView(mapOptions);
+        }, this);
+    };
+
     return new hooking();
+};
+
+/**
+ * Bounds object
+ *
+ * @param mapObject
+ * @returns hooking
+ */
+jsMaps.Bing.prototype.bounds = function (mapObject) {
+    var bounds;
+    if (typeof mapObject != 'undefined') {
+        if (typeof mapObject.object != 'undefined') {
+            bounds = mapObject.object.getBounds();
+        }else if (typeof mapObject.getNorthwest != 'undefined') {
+            bounds = mapObject;
+        } else {
+            bounds = mapObject.getBounds();
+        }
+    } else {
+        if (typeof Microsoft.Maps.LocationRect != 'undefined') {
+            bounds = new Microsoft.Maps.LocationRect;
+        } else {
+            bounds = {getTopLeft: {lat: -1,lng: -1},getBottomRight:  {lat: -1,lng: -1}};
+        }
+
+    }
+
+    var hooking = function () {};
+    hooking.prototype = new jsMaps.BoundsStructure();
+
+    hooking.prototype.bounds = bounds;
+    hooking.prototype.nothing = (typeof mapObject == 'undefined' || typeof Microsoft == 'undefined');
+    hooking.prototype.arrayPath = [];
+
+    hooking.prototype.noData = function () {
+        if (this.nothing == true) {
+            for (var i in this.arrayPath) {
+                if (this.arrayPath.hasOwnProperty(i) == false) continue;
+
+                if (typeof  this.arrayPath[i].latitude == 'undefined') {
+                    this.arrayPath[i] = new Microsoft.Maps.Location(this.arrayPath[i].lat, this.arrayPath[i].lng);
+                }
+            }
+
+            this.bounds = Microsoft.Maps.LocationRect.fromLocations(this.arrayPath);
+            this.nothing = false;
+        }
+    };
+
+    hooking.prototype.addLatLng = function (lat, lng) {
+        if (typeof Microsoft.Maps.Location == 'undefined') {
+            this.arrayPath.push({lat:lat, lng:lng});
+        } else {
+            this.arrayPath.push(new Microsoft.Maps.Location(lat, lng));
+        }
+    };
+
+    hooking.prototype.getCenter = function () {
+        this.noData();
+        return {lat: this.bounds.center.latitude, lng: this.bounds.center.longitude};
+    };
+
+    hooking.prototype.getTopLeft = function () {
+        this.noData();
+
+        var topLeft = this.bounds.getNorthwest();
+        return {lat: topLeft.latitude, lng: topLeft.longitude};
+    };
+
+    hooking.prototype.getBottomRight = function () {
+        this.noData();
+
+        var bottomRight = this.bounds.getSoutheast();
+        return {lat: bottomRight.latitude, lng: bottomRight.longitude};
+    };
+
+    return new hooking();
+};
+
+/**
+ * @param content
+ * @param event
+ * @returns {string}
+ */
+jsMaps.Bing.eventTranslation = function (content,event) {
+    var eventTranslation = '';
+
+    if (content.__className == 'MapStructure') {
+        //if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = event;
+        if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
+        if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'viewchangeend';
+        if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'viewchangestart';
+        if (event == jsMaps.api.supported_events.drag) eventTranslation = 'viewchange';
+        //  if (event == jsMaps.api.supported_events.idle) eventTranslation = 'tiledownloadcomplete';
+        if (event == jsMaps.api.supported_events.maptypeid_changed) eventTranslation = 'maptypechanged';
+        if (event == jsMaps.api.supported_events.mousemove) eventTranslation = 'mousemove';
+        if (event == jsMaps.api.supported_events.mouseout) eventTranslation = 'mouseout';
+        if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseover';
+        if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'rightclick';
+        // if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'tiledownloadcomplete';
+       // if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'imagerychanged';
+        //if (event == jsMaps.api.supported_events.domready) eventTranslation = 'tiledownloadcomplete';
+        if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
+        if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
+
+        if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
+        //if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'entitychanged';
+    } else {
+        if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
+       // if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
+        if (event == jsMaps.api.supported_events.drag)  eventTranslation = 'drag';
+        if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'dragend';
+        if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'dragstart';
+        if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
+      //  if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'entitychanged';
+        if (event == jsMaps.api.additional_events.mousedown)  eventTranslation = 'mousedown';
+        if (event == jsMaps.api.supported_events.mouseout)  eventTranslation = 'mouseout';
+        if (event == jsMaps.api.supported_events.mouseover)  eventTranslation = 'mouseover';
+        if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
+        if (event == jsMaps.api.additional_events.rightclick) eventTranslation = 'rightclick';
+    }
+
+    return eventTranslation;
 };
