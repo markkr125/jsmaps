@@ -31,6 +31,9 @@ jsMaps.Bing.ready = function (fn,context) {
     fn.bind(context)();
 };
 
+jsMaps.Bing.cnt = 0;
+jsMaps.Bing.attachedEvents = {};
+
 /**
  * Helper function, this should allow us to hide certain parts of the map, that bing cannot hide after the map was initialized.
  *
@@ -302,26 +305,24 @@ jsMaps.Bing.eventTranslation = function (content,event) {
     var eventTranslation = '';
 
     if (content.__className == 'MapStructure') {
-        //if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = event;
+        if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
         if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'viewchangeend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'viewchangestart';
         if (event == jsMaps.api.supported_events.drag) eventTranslation = 'viewchange';
-        //  if (event == jsMaps.api.supported_events.idle) eventTranslation = 'tiledownloadcomplete';
+        if (event == jsMaps.api.supported_events.idle) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.maptypeid_changed) eventTranslation = 'maptypechanged';
         if (event == jsMaps.api.supported_events.mousemove) eventTranslation = 'mousemove';
         if (event == jsMaps.api.supported_events.mouseout) eventTranslation = 'mouseout';
         if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseover';
         if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'rightclick';
-        // if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'tiledownloadcomplete';
-       // if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'imagerychanged';
-        //if (event == jsMaps.api.supported_events.domready) eventTranslation = 'tiledownloadcomplete';
+        if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
+        if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'imagerychanged'; // Not supported by bing, Binding this to viewchangeend
+        if (event == jsMaps.api.supported_events.domready) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
-
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
-        //if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'entitychanged';
     } else {
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
        // if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
@@ -338,4 +339,112 @@ jsMaps.Bing.eventTranslation = function (content,event) {
     }
 
     return eventTranslation;
+};
+
+/**
+ * Attach map events
+ *
+ * @param content
+ * @param event
+ * @param functionToExecute
+ * @param once
+ * @returns {*}
+ */
+jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,once) {
+    var eventTranslation = jsMaps.Bing.eventTranslation(content,event);
+    var functionToRun = functionToExecute;
+
+    jsMaps.Bing.cnt++;
+    jsMaps.Bing.attachedEvents[jsMaps.Bing.cnt] = null;
+
+    var curCnt = jsMaps.Bing.cnt;
+
+    if (content.__className == 'MapStructure' && event == jsMaps.api.supported_events.zoom_changed) {
+        var localZoom = content.object.getZoom();
+        functionToRun = function (event) {
+
+            if(localZoom != content.object.getZoom()){
+                localZoom = content.object.getZoom();
+
+                functionToExecute(event);
+            }
+        }
+    }
+
+    var fn = functionToRun;
+
+    if (eventTranslation == 'click') {
+        fn = function (event) {
+            if (typeof content.object.clickable != 'undefined' && content.object.clickable == false) {
+                return;
+            }
+
+            functionToRun(event);
+        }
+    }
+
+    var useFn = function (e) {
+        var eventHooking = function() {};
+        eventHooking.prototype = new jsMaps.Event(e,event,content);
+
+        eventHooking.prototype.getCursorPosition = function () {
+            var mapObject = (typeof content.mapObject != 'undefined') ? content.mapObject: e.target;
+            if (typeof content.map != 'undefined') mapObject = content.map;
+
+            if (typeof  mapObject.tryPixelToLocation == 'undefined' && typeof content.__className !='undefined' && content.__className == 'MapStructure') {
+                mapObject = content.object;
+            }
+
+            if (typeof content.__className != 'undefined' && content.__className == 'marker') {
+                return content.getPosition();
+            }
+
+            var latLng = mapObject.tryPixelToLocation(new Microsoft.Maps.Point(e.getX(), e.getY()));
+            return  {lat: latLng.latitude, lng: latLng.longitude};
+        };
+
+        fn(new eventHooking);
+    };
+
+
+    jsMaps.Bing.ready(function () {
+        if (once) {
+            var lister = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation,function (event) {
+                Microsoft.Maps.Events.removeHandler(lister);
+                useFn(event);
+            });
+        } else {
+            jsMaps.Bing.attachedEvents[curCnt] = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation, useFn);
+        }
+    }, this);
+
+    return {c: curCnt, f: useFn, e: eventTranslation};
+};
+
+/**
+ * Remove an event listner
+ *
+ * @param map
+ * @param eventObject
+ * @returns {*}
+ */
+jsMaps.Bing.prototype.removeEvent = function (map, eventObject) {
+    jsMaps.Bing.ready(function () {
+        Microsoft.Maps.Events.removeHandler(jsMaps.Bing.attachedEvents[eventObject.c]);
+    }, this);
+};
+
+/**
+ * Trigger an event
+ *
+ * @param element
+ * @param eventName
+ */
+jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
+    jsMaps.Bing.ready(function () {
+        var eventTranslation = jsMaps.Bing.eventTranslation(element,eventName);
+
+        var dispatchOn = element.object;
+        Microsoft.Maps.Events.invoke(dispatchOn,eventTranslation);
+    }, this);
 };
