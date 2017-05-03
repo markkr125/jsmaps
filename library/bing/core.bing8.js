@@ -307,7 +307,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
     if (content.__className == 'MapStructure') {
         if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
-        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick'; // dblclick Not supported by bing, Binding this to click
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'viewchangeend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'viewchangestart';
         if (event == jsMaps.api.supported_events.drag) eventTranslation = 'viewchange';
@@ -325,7 +325,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
     } else {
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
-       // if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick';
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick'; // dblclick Not supported by bing, Binding this to click
         if (event == jsMaps.api.supported_events.drag)  eventTranslation = 'drag';
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'dragend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'dragstart';
@@ -379,7 +379,21 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
                 return;
             }
 
-            functionToRun(event);
+            // Implement double click, for some reason microsoft removed it
+            if (event == jsMaps.api.supported_events.dblclick) {
+                if (typeof this.timeSinceLastClick == 'undefined') {
+                    this.timeSinceLastClick = (new Date()).getTime();
+                }
+
+                var now = (new Date()).getTime();
+                if (now - content.object.timeSinceLastClick < 400) {
+                        functionToRun(event);
+                }
+
+                this.timeSinceLastClick = (new Date()).getTime();
+            } else {
+                functionToRun(event);
+            }
         }
     }
 
