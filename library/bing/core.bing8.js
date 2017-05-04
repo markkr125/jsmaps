@@ -90,9 +90,11 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
             myOptions = jsMaps.merge(myOptions,providerOptions);
         }
 
+
         hooking.prototype.object = new Microsoft.Maps.Map(mapDomDocument, myOptions);
     });
 
+    hooking.prototype.__className = 'MapStructure';
     hooking.prototype.MapCenter = {lat: options.center.latitude,lng: options.center.longitude};
     hooking.prototype.MapZoom = options.zoom;
     hooking.prototype.mapDomDocument = mapDomDocument;
@@ -129,6 +131,9 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
             if (typeof options.center != 'undefined' && typeof options.center.latitude != 'undefined' && typeof options.center.longitude != 'undefined') view.center = new Microsoft.Maps.Location(options.center.latitude, options.center.longitude);
             if (typeof options.zoom != 'undefined') view.zoom = options.zoom;
             this.object.setView(view);
+
+            // Trigger events for zoom change and center change
+
 
             // These options can be set only on the constructor, so we will need to use some tricks to make this work.
             // Wishful thinking: As this is a "great" idea, these trick will not backfire.
@@ -237,7 +242,7 @@ jsMaps.Bing.prototype.bounds = function (mapObject) {
         }
     } else {
         if (typeof Microsoft.Maps.LocationRect != 'undefined') {
-            bounds = new Microsoft.Maps.LocationRect;
+            bounds = new Microsoft.Maps.LocationRect([]);
         } else {
             bounds = {getTopLeft: {lat: -1,lng: -1},getBottomRight:  {lat: -1,lng: -1}};
         }
@@ -318,7 +323,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseover';
         if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'rightclick';
         if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
-        if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'imagerychanged'; // Not supported by bing, Binding this to viewchangeend
+        if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.domready) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
@@ -330,7 +335,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'dragend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'dragstart';
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
-      //  if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'entitychanged';
+        if (event == jsMaps.api.additional_events.icon_changed) eventTranslation = 'changed';
         if (event == jsMaps.api.additional_events.mousedown)  eventTranslation = 'mousedown';
         if (event == jsMaps.api.supported_events.mouseout)  eventTranslation = 'mouseout';
         if (event == jsMaps.api.supported_events.mouseover)  eventTranslation = 'mouseover';
@@ -359,14 +364,26 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
 
     var curCnt = jsMaps.Bing.cnt;
 
-    if (content.__className == 'MapStructure' && event == jsMaps.api.supported_events.zoom_changed) {
-        var localZoom = content.object.getZoom();
-        functionToRun = function (event) {
+    if (content.__className == 'MapStructure') {
+        if (event == jsMaps.api.supported_events.zoom_changed) {
+            var localZoom = content.object.getZoom();
+            functionToRun = function (event) {
 
-            if(localZoom != content.object.getZoom()){
-                localZoom = content.object.getZoom();
+                if(localZoom != content.object.getZoom()){
+                    localZoom = content.object.getZoom();
 
-                functionToExecute(event);
+                    functionToExecute(event);
+                }
+            }
+        }
+
+        if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) {
+            functionToRun = function (ev) {
+                if (ev.eventName != event) {
+                    return;
+                }
+
+                functionToExecute(ev);
             }
         }
     }
