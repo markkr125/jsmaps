@@ -98,7 +98,7 @@ jsMaps.Bing.ready(function () {
 
         this.remove = function() {
             if (this._element) {
-                this._element.parentNode.removeChild(this.div);
+                this._element.parentNode.removeChild(this._element);
                 this._element = null;
             }
         };
@@ -285,6 +285,8 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
             layer = new jsMaps.Bing.prototype.HtmlPushpinLayer();
             layer.setPushpins([marker]);
             map.layers.insert(layer);
+
+            hooking.prototype.__markerType = 'domMarker';
         } else if (parameters.html != null && typeof parameters.html == 'string') {
             marker = new jsMaps.Bing.prototype.HtmlPushpin(
                 new Microsoft.Maps.Location(parameters.position.lat, parameters.position.lng),
@@ -297,9 +299,13 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
             layer = new jsMaps.Bing.prototype.HtmlPushpinLayer();
             layer.setPushpins([marker]);
             map.layers.insert(layer);
+
+            hooking.prototype.__markerType = 'domMarker';
         } else {
             marker = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(parameters.position.lat, parameters.position.lng), options);
             map.entities.push(marker);
+
+            hooking.prototype.__markerType = 'marker';
         }
 
         hooking.prototype.object = marker;
@@ -375,7 +381,11 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
 
     hooking.prototype.remove = function () {
         jsMaps.Bing.ready(function () {
-            this.map.entities.remove(this.object);
+            if (this.__markerType == 'domMarker') {
+                this.object.remove();
+            } else {
+                this.map.entities.remove(this.object);
+            }
         }, this);
     };
 
