@@ -347,6 +347,38 @@ jsMaps.Bing.eventTranslation = function (content,event) {
 };
 
 /**
+ * @returns {boolean|*}
+ */
+jsMaps.Bing.isTouch = function () {
+    return 'ontouchstart' in window        // works on most browsers
+        || navigator.maxTouchPoints;       // works on IE10/11 and Surface
+};
+
+/**
+ * @param eventTranslation
+ * @returns {*}
+ */
+jsMaps.Bing.customEventTranslation = function (eventTranslation) {
+    if (jsMaps.Bing.isTouch()) {
+        if (eventTranslation == jsMaps.api.supported_events.click
+            || eventTranslation == jsMaps.api.additional_events.mousedown
+            || eventTranslation == jsMaps.api.supported_events.mouseover
+        ) eventTranslation = 'touchstart';
+
+        if (eventTranslation == jsMaps.api.additional_events.mousemove || eventTranslation == jsMaps.api.supported_events.drag) eventTranslation = 'touchmove';
+
+        if (eventTranslation == jsMaps.api.additional_events.mouseup
+            || eventTranslation == jsMaps.api.additional_events.mouseout
+        ) eventTranslation = 'touchend';
+    }
+
+    if (eventTranslation == jsMaps.api.supported_events.rightclick) eventTranslation = 'contextmenu';
+    if (eventTranslation == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseenter';
+
+    return eventTranslation;
+};
+
+/**
  * Attach map events
  *
  * @param content
@@ -445,10 +477,7 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
 
     jsMaps.Bing.ready(function () {
         if (eventType == 'custom') {
-            var useEvent = event;
-            if (useEvent == jsMaps.api.supported_events.rightclick) useEvent = 'contextmenu';
-            if (useEvent == jsMaps.api.supported_events.mouseover) useEvent = 'mouseenter';
-
+            var useEvent = jsMaps.Bing.customEventTranslation(event);
             eventTranslation = useEvent;
 
             if (once) {
@@ -501,9 +530,7 @@ jsMaps.Bing.prototype.removeEvent = function (map, eventObject) {
 jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
     jsMaps.Bing.ready(function () {
         if (typeof element.__markerType != 'undefined' && element.__markerType == 'domMarker') {
-            var useEvent = eventName;
-            if (useEvent == jsMaps.api.supported_events.rightclick) useEvent = 'contextmenu';
-            if (useEvent == jsMaps.api.supported_events.mouseover) useEvent = 'mouseenter';
+            var useEvent = jsMaps.Bing.customEventTranslation(eventName);
 
             var eventObj = new CustomEvent(useEvent, {detail: {}});
             element.object._element.dispatchEvent(eventObj);
