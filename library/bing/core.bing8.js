@@ -437,19 +437,42 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
         fn(new eventHooking);
     };
 
+    var eventType = 'bing';
+
+    if (typeof content.__markerType != 'undefined' && content.__markerType == 'domMarker') {
+        eventType = 'custom';
+    }
 
     jsMaps.Bing.ready(function () {
-        if (once) {
-            var lister = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation,function (event) {
-                Microsoft.Maps.Events.removeHandler(lister);
-                useFn(event);
-            });
+        if (eventType == 'custom') {
+            var useEvent = event;
+            if (useEvent == jsMaps.api.supported_events.rightclick) useEvent = 'contextmenu';
+            if (useEvent == jsMaps.api.supported_events.mouseover) useEvent = 'mouseenter';
+
+            eventTranslation = useEvent;
+
+            if (once) {
+                content.object._element.addEventListener(useEvent, function(e) {
+                    content.object._element.removeEventListener(useEvent, arguments.callee);
+                    return useFn(e);
+                });
+            } else {
+                content.object._element.addEventListener(useEvent, useFn, false);
+                jsMaps.Bing.attachedEvents[curCnt] = content.object._element;
+            }
         } else {
-            jsMaps.Bing.attachedEvents[curCnt] = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation, useFn);
+            if (once) {
+                var lister = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation,function (event) {
+                    Microsoft.Maps.Events.removeHandler(lister);
+                    useFn(event);
+                });
+            } else {
+                jsMaps.Bing.attachedEvents[curCnt] = Microsoft.Maps.Events.addThrottledHandler(content.object,eventTranslation, useFn);
+            }
         }
     }, this);
 
-    return {c: curCnt, f: useFn, e: eventTranslation};
+    return {c: curCnt, f: useFn, e: eventTranslation,t: eventType};
 };
 
 /**
@@ -461,7 +484,11 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
  */
 jsMaps.Bing.prototype.removeEvent = function (map, eventObject) {
     jsMaps.Bing.ready(function () {
-        Microsoft.Maps.Events.removeHandler(jsMaps.Bing.attachedEvents[eventObject.c]);
+        if (eventObject.t == 'custom') {
+            jsMaps.Bing.attachedEvents[eventObject.c].removeEventListener(eventObject.e, eventObject.f);
+        } else {
+            Microsoft.Maps.Events.removeHandler(jsMaps.Bing.attachedEvents[eventObject.c]);
+        }
     }, this);
 };
 
@@ -473,9 +500,18 @@ jsMaps.Bing.prototype.removeEvent = function (map, eventObject) {
  */
 jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
     jsMaps.Bing.ready(function () {
-        var eventTranslation = jsMaps.Bing.eventTranslation(element,eventName);
+        if (typeof element.__markerType != 'undefined' && element.__markerType == 'domMarker') {
+            var useEvent = eventName;
+            if (useEvent == jsMaps.api.supported_events.rightclick) useEvent = 'contextmenu';
+            if (useEvent == jsMaps.api.supported_events.mouseover) useEvent = 'mouseenter';
 
-        var dispatchOn = element.object;
-        Microsoft.Maps.Events.invoke(dispatchOn,eventTranslation);
+            var eventObj = new CustomEvent(useEvent, {detail: {}});
+            element.object._element.dispatchEvent(eventObj);
+        } else {
+            var eventTranslation = jsMaps.Bing.eventTranslation(element,eventName);
+
+            var dispatchOn = element.object;
+            Microsoft.Maps.Events.invoke(dispatchOn,eventTranslation);
+        }
     }, this);
 };

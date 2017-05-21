@@ -28,11 +28,31 @@ jsMaps.Bing.ready(function () {
         this._element.style.position = 'absolute';
         this._element.style.cursor = 'pointer';
         this._element.style.display = 'inline-block';
+        this._element.moving = false;
+
+        this._element.style['-webkit-touch-callout'] = 'none';
+        this._element.style['-webkit-user-select']   = 'none';
+        this._element.style['-khtml-user-select']    = 'none';
+        this._element.style['-moz-user-select']      = 'none';
+        this._element.style['-ms-user-select']       = 'none';
+        this._element.style['user-select']           = 'none';
+
+        map.getRootElement().style['-webkit-touch-callout'] = 'none';
+        map.getRootElement().style['-webkit-user-select']   = 'none';
+        map.getRootElement().style['-khtml-user-select']    = 'none';
+        map.getRootElement().style['-moz-user-select']      = 'none';
+        map.getRootElement().style['-ms-user-select']       = 'none';
+        map.getRootElement().style['user-select']           = 'none';
 
         if (this.metadata.title != null) this._element.setAttribute('title',this.metadata.title);
         if (this.metadata.zIndex != null) this._element.style.zIndex = this.metadata.zIndex;
 
         var that = this;
+
+        this.dispatchEvent = function (eventName) {
+            var eventObj = new CustomEvent(eventName, {detail: {}});
+            this._element.dispatchEvent(eventObj);
+        };
 
         if (this._element.eventAttached != true) {
             this._element.eventAttached = true;
@@ -49,14 +69,19 @@ jsMaps.Bing.ready(function () {
                 this.style.cursor = 'move';
                 map.setOptions({disablePanning: true});
                 that.origin = e;
+                this.moving = true;
+
+                that.dispatchEvent(jsMaps.api.supported_events.dragstart);
 
                 that.moveHandler = Microsoft.Maps.Events.addHandler(map,
                     'mousemove',
                     function (ep) {
                         if (that.metadata.draggable == false) return;
-
+                        if (that._element.moving != true) return;
                         ep.clientX = ep.pageX;
                         ep.clientY = ep.pageY;
+
+                        that.dispatchEvent(jsMaps.api.supported_events.drag);
 
                         var origin = that.origin,
                             left = origin.clientX - ep.clientX,
@@ -92,6 +117,11 @@ jsMaps.Bing.ready(function () {
             Microsoft.Maps.Events.addHandler (map,'mouseup',function () {
                 map.setOptions({disablePanning: false});
                 that._element.style.cursor = 'pointer';
+                that._element.moving = false;
+
+                that.dispatchEvent(jsMaps.api.supported_events.dragend);
+                that.dispatchEvent(jsMaps.api.additional_events.position_changed);
+
                 Microsoft.Maps.Events.removeHandler(that.moveHandler);
             });
         }
@@ -119,6 +149,8 @@ jsMaps.Bing.ready(function () {
             //Update the position of the pushpin element.
             this._element.style.left = topLeft.x + 'px';
             this._element.style.top = topLeft.y + 'px';
+
+            this.dispatchEvent(jsMaps.api.additional_events.position_changed);
         };
 
         this.setOptions = function(variable) {
@@ -268,6 +300,13 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
     hooking.prototype.__className = 'marker';
     hooking.prototype.defaultOptions = parameters;
 
+    if (parameters.html != null && typeof parameters.html == 'object'
+        || parameters.html != null && typeof parameters.html == 'string') {
+        hooking.prototype.__markerType = 'domMarker';
+    } else {
+        hooking.prototype.__markerType = 'marker';
+    }
+
     jsMaps.Bing.ready(function () {
         var map = mapObj.object;
         var marker;
@@ -285,8 +324,6 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
             layer = new jsMaps.Bing.prototype.HtmlPushpinLayer();
             layer.setPushpins([marker]);
             map.layers.insert(layer);
-
-            hooking.prototype.__markerType = 'domMarker';
         } else if (parameters.html != null && typeof parameters.html == 'string') {
             marker = new jsMaps.Bing.prototype.HtmlPushpin(
                 new Microsoft.Maps.Location(parameters.position.lat, parameters.position.lng),
@@ -299,13 +336,9 @@ jsMaps.Bing.prototype.marker = function (mapObj,parameters) {
             layer = new jsMaps.Bing.prototype.HtmlPushpinLayer();
             layer.setPushpins([marker]);
             map.layers.insert(layer);
-
-            hooking.prototype.__markerType = 'domMarker';
         } else {
             marker = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(parameters.position.lat, parameters.position.lng), options);
             map.entities.push(marker);
-
-            hooking.prototype.__markerType = 'marker';
         }
 
         hooking.prototype.object = marker;
