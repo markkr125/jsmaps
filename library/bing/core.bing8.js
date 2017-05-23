@@ -542,3 +542,76 @@ jsMaps.Bing.prototype.triggerEvent = function (element,eventName) {
         }
     }, this);
 };
+
+/**
+ * Info windows
+ *
+ * Create bubbles to be displayed on the map
+ *
+ * @param {jsMaps.InfoWindowOptions} parameters
+ * @returns {jsMaps.InfoWindowStructure}
+ */
+jsMaps.Bing.prototype.infoWindow = function (parameters) {
+    var options = {description: parameters.content};
+    var position = {lat:0,lng: 0};
+
+    if (parameters.position != null) {
+        position = {lat:parameters.position.lat,lng: parameters.position.lng};
+    }
+
+    var hooking = function () {
+    };
+
+    hooking.prototype = new jsMaps.InfoWindowStructure();
+    hooking.openedOnce = false;
+
+    jsMaps.Bing.ready(function () {
+        hooking.prototype.object = new Microsoft.Maps.Infobox(new Microsoft.Maps.Location(position.lat, position.lng), options);
+    }, this);
+
+    hooking.prototype.getPosition = function () {
+        if (this.object == null) {
+            return {lat: 0, lng: 0};
+        }
+
+        var pos = this.object.getLocation();
+        return {lat: pos.latitude, lng: pos.longitude}
+    };
+
+    hooking.prototype.setPosition = function (lat, lng) {
+        jsMaps.Bing.ready(function () {
+            this.object.setLocation(new Microsoft.Maps.Location(lat, lng));
+        }, this);
+    };
+
+    hooking.prototype.close = function () {
+        jsMaps.Bing.ready(function () {
+            this.object.setOptions({visible: false});
+        }, this);
+    };
+
+    /**
+     *
+     * @param {jsMaps.MapStructure} map
+     * @param {jsMaps.MarkerStructure} marker
+     */
+    hooking.prototype.open = function (map, marker) {
+        jsMaps.Bing.ready(function () {
+            var pos = marker.getPosition();
+            this.object.setOptions({visible: true});
+
+            this.object.setOptions({offset: marker.object.getAnchor()});
+            this.object.setLocation(new Microsoft.Maps.Location(pos.lat, pos.lng));
+
+            this.object.setMap(map.object);
+        }, this);
+    };
+
+    hooking.prototype.setContent = function (content) {
+        jsMaps.Bing.ready(function () {
+            this.object.setOptions({description: content});
+        }, this);
+    };
+
+    return new hooking();
+};
