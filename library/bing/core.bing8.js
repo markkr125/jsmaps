@@ -134,7 +134,6 @@ jsMaps.Bing.prototype.initializeMap = function (mapDomDocument, options, provide
 
             // Trigger events for zoom change and center change
 
-
             // These options can be set only on the constructor, so we will need to use some tricks to make this work.
             // Wishful thinking: As this is a "great" idea, these trick will not backfire.
             if (typeof options.street_view != 'undefined') {
@@ -312,7 +311,7 @@ jsMaps.Bing.eventTranslation = function (content,event) {
     if (content.__className == 'MapStructure') {
         if (event == jsMaps.api.supported_events.bounds_changed || event == jsMaps.api.supported_events.center_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
-        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick'; // dblclick Not supported by bing, Binding this to click
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'click'; // dblclick Not supported by bing, Binding this to click
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'viewchangeend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'viewchangestart';
         if (event == jsMaps.api.supported_events.drag) eventTranslation = 'viewchange';
@@ -322,15 +321,22 @@ jsMaps.Bing.eventTranslation = function (content,event) {
         if (event == jsMaps.api.supported_events.mouseout) eventTranslation = 'mouseout';
         if (event == jsMaps.api.supported_events.mouseover) eventTranslation = 'mouseover';
         if (event == jsMaps.api.supported_events.rightclick) eventTranslation = 'rightclick';
-        if (event == jsMaps.api.supported_events.tilesloaded|| event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
+        if (event == jsMaps.api.supported_events.tilesloaded || event == jsMaps.api.supported_events.zoom_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.tilt_changed) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.supported_events.domready) eventTranslation = 'viewchangeend'; // Not supported by bing, Binding this to viewchangeend
         if (event == jsMaps.api.additional_events.mouseup) eventTranslation = 'mouseup';
         if (event == jsMaps.api.additional_events.mousedown) eventTranslation = 'mousedown';
         if (event == jsMaps.api.additional_events.position_changed) eventTranslation = 'dragend';
+    } else if (content.__className == 'infoWindow') {
+        if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'click';
+        if (event == jsMaps.api.supported_events.mouseout)  eventTranslation = 'mouseleave';
+        if (event == jsMaps.api.supported_events.mouseover)  eventTranslation = 'mouseenter';
+        if (event == jsMaps.api.supported_events.domready)  eventTranslation = 'infoboxChanged';
+        if (event == jsMaps.api.additional_events.position_changed)  eventTranslation = 'infoboxChanged';
     } else {
         if (event == jsMaps.api.supported_events.click) eventTranslation = 'click';
-        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'dblclick'; // dblclick Not supported by bing, Binding this to click
+        if (event == jsMaps.api.supported_events.dblclick) eventTranslation = 'click'; // dblclick Not supported by bing, Binding this to click
         if (event == jsMaps.api.supported_events.drag)  eventTranslation = 'drag';
         if (event == jsMaps.api.supported_events.dragend) eventTranslation = 'dragend';
         if (event == jsMaps.api.supported_events.dragstart) eventTranslation = 'dragstart';
@@ -395,6 +401,44 @@ jsMaps.Bing.prototype.attachEvent = function (content,event,functionToExecute,on
     jsMaps.Bing.attachedEvents[jsMaps.Bing.cnt] = null;
 
     var curCnt = jsMaps.Bing.cnt;
+
+    // Bing infoWindow doesn't accept events on an infowindow that is not attched to a map
+    // So if the info window is not attached to a map, just put them away until we can use them
+    if (content.__className == 'infoWindow') {
+        if ( content.__attached === false) {
+            content.__events.push({content:content,event:event,functionToExecute:functionToExecute,once:once});
+            return;
+        } else {
+            if (event == jsMaps.api.supported_events.domready || event == jsMaps.api.additional_events.position_changed) {
+                var oldPosition = content.object.getLocation();
+
+                functionToRun = function (ev) {
+                    if (ev.eventName != event) {
+                        return;
+                    }
+
+                    if (ev.eventName == jsMaps.api.supported_events.domready && content.__ready == false) {
+                        content.__ready = true;
+                        functionToExecute(ev);
+                        return;
+
+                    } else if (ev.eventName == jsMaps.api.supported_events.domready && content.__ready == true) {
+                        return;
+                    }
+
+                    if (ev.eventName == jsMaps.api.additional_events.position_changed) {
+                        var newPosition = content.object.getLocation();
+
+                        if (newPosition.latitude === newPosition.latitude && newPosition.longitude === oldPosition.longitude) {
+                            return;
+                        }
+                    }
+
+                    functionToExecute(ev);
+                }
+            }
+        }
+    }
 
     if (content.__className == 'MapStructure') {
         if (event == jsMaps.api.supported_events.zoom_changed) {
@@ -564,9 +608,14 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
 
     hooking.prototype = new jsMaps.InfoWindowStructure();
     hooking.openedOnce = false;
+    hooking.prototype.__className = 'infoWindow';
+    hooking.prototype.__attached = false;
+    hooking.prototype.__ready = false;
+    hooking.prototype.__events = [];
 
     jsMaps.Bing.ready(function () {
         hooking.prototype.object = new Microsoft.Maps.Infobox(new Microsoft.Maps.Location(position.lat, position.lng), options);
+        hooking.prototype.object.setOptions({visible: false});
     }, this);
 
     hooking.prototype.getPosition = function () {
@@ -598,18 +647,62 @@ jsMaps.Bing.prototype.infoWindow = function (parameters) {
     hooking.prototype.open = function (map, marker) {
         jsMaps.Bing.ready(function () {
             var pos = marker.getPosition();
-            this.object.setOptions({visible: true});
 
-            this.object.setOptions({offset: marker.object.getAnchor()});
-            this.object.setLocation(new Microsoft.Maps.Location(pos.lat, pos.lng));
+            var params = {};
+            var optionsUpdate = false;
+            var oldPosition = this.object.getLocation();
 
-            this.object.setMap(map.object);
+            if (pos.lat != oldPosition.latitude || pos.lng != oldPosition.longitude) {
+                params.location = new Microsoft.Maps.Location(pos.lat, pos.lng);
+                optionsUpdate = true;
+            }
+
+            var oldAncor = this.object.getAnchor();
+            if (oldAncor == null) oldAncor = {x:0,y:0};
+
+            var markerAncor = marker.object.getAnchor();
+
+            if (markerAncor.x != oldAncor.x || markerAncor.y != oldAncor.y) {
+                params.offset = markerAncor;
+                optionsUpdate = true;
+            }
+
+            var getVisible = this.object.getVisible();
+            if (getVisible == false) {
+                params.visible = true;
+                optionsUpdate = true;
+            }
+
+            if (optionsUpdate) this.object.setOptions(params);
+
+            if (this.__attached === false) {
+                this.object.setMap(map.object);
+            }
+
+            this.__attached = true;
+
+            if (this.__events.length > 0) {
+                var eventsBackUp = this.__events;
+                this.__events = [];
+
+                for (var i in eventsBackUp) {
+                    if (eventsBackUp.hasOwnProperty(i) == false) continue;
+                    jsMaps.Bing.prototype.attachEvent(this,eventsBackUp[i].event,eventsBackUp[i].functionToExecute,eventsBackUp[i].once);
+
+                    if (eventsBackUp[i].event == jsMaps.api.supported_events.domready) {
+                        jsMaps.Bing.prototype.triggerEvent(this,eventsBackUp[i].event);
+                    }
+                }
+
+                eventsBackUp = [];
+            }
         }, this);
     };
 
     hooking.prototype.setContent = function (content) {
         jsMaps.Bing.ready(function () {
             this.object.setOptions({description: content});
+            this.__ready = false;
         }, this);
     };
 
